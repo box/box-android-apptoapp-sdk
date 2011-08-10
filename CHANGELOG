@@ -1,0 +1,12 @@
+CHANGELOG
+
+1.0.1:
+- Source code posted on GitHub.
+- Added BoxAsynchronous class for synchronous requests against Box API.
+- Added callback to monitor file upload progress (see com.box.androidlib.ResponseListeners.FileUploadListener.onProgress()).
+- Removed onMalformedUriException() from response listener interfaces. This will require you to remove that method from your response listener implementations.
+- Response listener callbacks now execute on the UI thread.
+- It is now mandatory that Box.getInstance() be called in the UI thread.
+
+1.0.0:
+- Initial release of library
