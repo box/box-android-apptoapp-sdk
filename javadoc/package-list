@@ -1,0 +1,7 @@
+com.box.androidlib
+com.box.androidlib.DAO
+com.box.androidlib.FileTransfer
+com.box.androidlib.ResponseListeners
+com.box.androidlib.ResponseParsers
+com.box.androidlib.Utils
+com.box.androidlib.activities
