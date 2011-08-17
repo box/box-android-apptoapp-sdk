@@ -49,15 +49,15 @@ public class User extends DAO {
     /**
      * The total amount of space allocated to that account.
      */
-    protected String mSpaceAmount;
+    protected long mSpaceAmount;
     /**
      * The amount of space currently utilized by the user.
      */
-    protected String mSpaceUsed;
+    protected long mSpaceUsed;
     /**
      * The maximum size in bytes for any individual file uploaded by the user.
      */
-    protected String mMaxUploadSize;
+    protected long mMaxUploadSize;
 
     /**
      * Set user id.
@@ -175,7 +175,7 @@ public class User extends DAO {
      * @param spaceAmount
      *            space amount
      */
-    public void setSpaceAmount(final String spaceAmount) {
+    public void setSpaceAmount(final long spaceAmount) {
         mSpaceAmount = spaceAmount;
     }
 
@@ -184,7 +184,7 @@ public class User extends DAO {
      * 
      * @return space amount
      */
-    public String getSpaceAmount() {
+    public long getSpaceAmount() {
         return mSpaceAmount;
     }
 
@@ -194,7 +194,7 @@ public class User extends DAO {
      * @param spaceUsed
      *            space used
      */
-    public void setSpaceUsed(final String spaceUsed) {
+    public void setSpaceUsed(final long spaceUsed) {
         mSpaceUsed = spaceUsed;
     }
 
@@ -203,7 +203,7 @@ public class User extends DAO {
      * 
      * @return space used
      */
-    public String getSpaceUsed() {
+    public long getSpaceUsed() {
         return mSpaceUsed;
     }
 
@@ -214,7 +214,7 @@ public class User extends DAO {
      * @param maxUploadSize
      *            max upload size
      */
-    public void setMaxUploadSize(final String maxUploadSize) {
+    public void setMaxUploadSize(final long maxUploadSize) {
         mMaxUploadSize = maxUploadSize;
     }
 
@@ -224,7 +224,7 @@ public class User extends DAO {
      * 
      * @return max upload size
      */
-    public String getMaxUploadSize() {
+    public long getMaxUploadSize() {
         return mMaxUploadSize;
     }
 
@@ -247,11 +247,11 @@ public class User extends DAO {
         } else if (key.equals("email")) {
             setEmail(value);
         } else if (key.equals("space_amount")) {
-            setSpaceAmount(value);
+            setSpaceAmount(BoxUtils.parseLong(value));
         } else if (key.equals("space_used")) {
-            setSpaceUsed(value);
+            setSpaceUsed(BoxUtils.parseLong(value));
         } else if (key.equals("max_upload_size")) {
-            setMaxUploadSize(value);
+            setMaxUploadSize(BoxUtils.parseLong(value));
         } else if (key.equals("access_id")) {
             setAccessId(BoxUtils.parseLong(value));
         } else if (key.equals("auth_token")) {
