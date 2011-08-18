@@ -460,6 +460,8 @@ public class Box {
      *            An array of strings. Possible values are
      *            {@link Box#PARAM_ONELEVEL}, {@link Box#PARAM_NOFILES},
      *            {@link Box#PARAM_NOZIP}, {@link Box#PARAM_SIMPLE}.
+     *            Currently, {@link com.box.androidlib.Box#PARAM_NOZIP} is always
+     *            included automatically.
      * @param listener
      *            The callback that will run
      */

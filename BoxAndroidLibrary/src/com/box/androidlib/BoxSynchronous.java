@@ -22,6 +22,8 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
@@ -259,6 +261,8 @@ public class BoxSynchronous {
      *            {@link com.box.androidlib.Box#PARAM_NOFILES},
      *            {@link com.box.androidlib.Box#PARAM_NOZIP},
      *            {@link com.box.androidlib.Box#PARAM_SIMPLE}.
+     *            Currently, {@link com.box.androidlib.Box#PARAM_NOZIP} is always
+     *            included automatically.
      * @return the response parser used to capture the data of interest from the
      *         response. See the doc for the specific parser type returned to
      *         see what data is now available. All parsers implement getStatus()
@@ -269,14 +273,24 @@ public class BoxSynchronous {
      */
     public final AccountTreeResponseParser getAccountTree(final String authToken,
         final long folderId, final String[] params) throws IOException {
+
+        // nozip should always be included
+        final ArrayList<String> paramsList;
+    	if (params == null) {
+    		paramsList = new ArrayList<String>();
+    	} else {
+    		paramsList = new ArrayList<String>(Arrays.asList(params));
+    	}
+		if (!paramsList.contains(Box.PARAM_NOZIP)) {
+			paramsList.add(Box.PARAM_NOZIP);
+		}
+
         final AccountTreeResponseParser parser = new AccountTreeResponseParser();
         final Uri.Builder builder = BoxUriBuilder
             .getBuilder(mApiKey, authToken, "get_account_tree");
         builder.appendQueryParameter("folder_id", String.valueOf(folderId));
-        if (params != null) {
-            for (int i = 0; i < params.length; i++) {
-                builder.appendQueryParameter("params[" + i + "]", params[i]);
-            }
+        for (int i = 0; i < paramsList.size(); i++) {
+            builder.appendQueryParameter("params[" + i + "]", paramsList.get(i));
         }
         saxRequest(parser, builder.build());
         return parser;

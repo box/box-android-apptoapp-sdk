@@ -118,7 +118,7 @@ public class Browse extends ListActivity {
     private void refresh() {
         final Box box = Box.getInstance(Constants.API_KEY);
         box.getAccountTree(authToken, folderId,
-            new String[] { Box.PARAM_NOZIP, Box.PARAM_ONELEVEL }, new GetAccountTreeListener() {
+            new String[] { Box.PARAM_ONELEVEL }, new GetAccountTreeListener() {
                 @Override
                 public void onComplete(BoxFolder boxFolder, String status) {
                     if (!status.equals(GetAccountTreeListener.STATUS_LISTING_OK)) {
