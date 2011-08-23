@@ -17,6 +17,7 @@ package com.box.androidlib.DAO;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
@@ -26,6 +27,63 @@ import java.util.List;
  * @author developers@box.net
  */
 public abstract class DAO {
+
+    /**
+     * The local timestamp in milliseconds, that the DAO was created. This
+     * initially gets set at construction using Java.util.Date.getTime().
+     */
+    protected long mDAOCreated;
+
+    /**
+     * The local timestamp in milliseconds of the last time the DAO was updated.
+     * The library currently doesn't ever use this, but the field is included
+     * for developers to use.
+     */
+    protected long mDAOUpdated;
+
+    /**
+     * Construct a new DAO.
+     */
+    public DAO() {
+        Date date = new Date();
+        mDAOCreated = date.getTime();
+    }
+
+    /**
+     * Get the creation timestamp in milliseconds of this object. Note that this
+     * does NOT mean the creation timestamp of the actual element in Box. This
+     * simply returns the timestamp of object construction.
+     * 
+     * @return Timestamp of DAO construction.
+     */
+    public long getDAOCreated() {
+        return mDAOCreated;
+    }
+
+    /**
+     * Get the timestamp that was last set with setDAOUpdated(). This timestamp is
+     * never set by the library. This is included purely as a way for developers
+     * to set a modification timestamp on the DAO for their own purposes. This will
+     * return null unless you set it with setDAOUpdated(). This does NOT return the
+     * updated timestamp of the actualy element in Box.
+     * 
+     * @return The last DAOUpdated timestamp set.
+     */
+    public long getDAOUpdated() {
+        return mDAOUpdated;
+    }
+
+    /**
+     * Set a timestamp to indicate that the DAO has been updated. This is never used
+     * by the library itself. It is simply included as a convenience for developers to
+     * set an object-update timestamp if needed. You can retrieve the value set here
+     * through getDAOUpdated().
+     * 
+     * @param daoUpdated DAO object updated timestamp.
+     */
+    public void setDAOUpdated(final long daoUpdated) {
+        mDAOUpdated = daoUpdated;
+    }
 
     /**
      * Used to track which DAOs have been toStringed already.
