@@ -148,7 +148,7 @@ public class BoxFile extends DAO {
      * @param folder
      *            The BoxFolder that owns this file.
      */
-    public void setFolder(BoxFolder folder) {
+    public void setFolder(final BoxFolder folder) {
         mFolder = folder;
     }
 
@@ -268,7 +268,7 @@ public class BoxFile extends DAO {
      * @param perms
      *            permissions string
      */
-    public void setPremissions(final String perms) {
+    public void setPermissions(final String perms) {
         mPermissions = perms;
     }
 
@@ -433,9 +433,9 @@ public class BoxFile extends DAO {
     /**
      * Get permissions.
      * 
-     * @return premissions
+     * @return permissions
      */
-    public String getPremissions() {
+    public String getPermissions() {
         return mPermissions;
     }
 
@@ -489,6 +489,8 @@ public class BoxFile extends DAO {
             setLargerThumbnail(value);
         } else if (key.equals("preview_thumbnail")) {
             setPreviewThumbnail(value);
+        } else if (key.equals("permissions")) {
+            setPermissions(value);
         }
     }
 }

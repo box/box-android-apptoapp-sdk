@@ -304,7 +304,7 @@ public class BoxFolder extends DAO {
      * @param perms
      *            permissions
      */
-    public void setPremissions(final String perms) {
+    public void setPermissions(final String perms) {
         mPermissions = perms;
     }
 
@@ -638,6 +638,8 @@ public class BoxFolder extends DAO {
             setLargeThumbnail(value);
         } else if (key.equals("larger_thumbnail")) {
             setLargerThumbnail(value);
+        } else if (key.equals("permissions")) {
+            setPermissions(value);
         }
     }
 }
