@@ -55,6 +55,10 @@ public class BoxFolder extends DAO {
      */
     protected String mSharedLink;
     /**
+     * Whether the folder has collaborators.
+     */
+    protected boolean mHasCollaborators;
+    /**
      * Permissions.
      */
     protected String mPermissions;
@@ -198,6 +202,14 @@ public class BoxFolder extends DAO {
         mSharedLink = sharedLink;
     }
 
+    /**
+     * Set whether the folder has collaborators or not.
+     * @param hasCollaborators
+     */
+    public void setHasCollaborators(boolean hasCollaborators) {
+        mHasCollaborators = hasCollaborators;
+    }
+    
     /**
      * Set creation timestamp.
      * 
@@ -404,6 +416,15 @@ public class BoxFolder extends DAO {
         return mSharedLink;
     }
 
+    /**
+     * Get whether the folders has collaborators.
+     * 
+     * @return True if the folder has collaborators, false otherwise.
+     */
+    public boolean getHasCollaborators() {
+        return mHasCollaborators;
+    }
+    
     /**
      * Get creation timestamp.
      * 
@@ -640,6 +661,8 @@ public class BoxFolder extends DAO {
             setLargerThumbnail(value);
         } else if (key.equals("permissions")) {
             setPermissions(value);
+        } else if (key.equals("has_collaborators")) {
+            setHasCollaborators(value.equals("1") ? true : false);
         }
     }
 }
