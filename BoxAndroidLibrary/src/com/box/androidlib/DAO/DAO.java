@@ -63,6 +63,18 @@ public abstract class DAO {
     }
 
     /**
+     * Sets the creation timestamp in milliseconds of this object. Note that
+     * this does NOT mean the creation timestamp of the actual element in Box.
+     * This changes the timestamp of object construction.
+     * 
+     * @param daoUpdated
+     *            DAO object updated timestamp.
+     */
+    public void setDAOCreated(long daoCreated) {
+        mDAOCreated = daoCreated;
+    }
+
+    /**
      * Get the timestamp that was last set with setDAOUpdated(). This timestamp
      * is never set by the library. This is included purely as a way for
      * developers to set a modification timestamp on the DAO for their own
