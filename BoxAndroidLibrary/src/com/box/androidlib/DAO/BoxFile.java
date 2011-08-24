@@ -43,6 +43,11 @@ public class BoxFile extends DAO {
      */
     protected long mFolderId;
     /**
+     * The BoxFolder that this file belongs to. Set to transient to avoid
+     * circular references when serializing to JSON.
+     */
+    protected transient BoxFolder mFolder;
+    /**
      * Whether or not the file is shared.
      */
     protected boolean mShared;
@@ -135,6 +140,16 @@ public class BoxFile extends DAO {
      */
     public void setFolderId(final long folderId) {
         mFolderId = folderId;
+    }
+
+    /**
+     * Set the parent folder.
+     * 
+     * @param folder
+     *            The BoxFolder that owns this file.
+     */
+    public void setFolder(BoxFolder folder) {
+        mFolder = folder;
     }
 
     /**
@@ -293,6 +308,17 @@ public class BoxFile extends DAO {
      */
     public long getFolderId() {
         return mFolderId;
+    }
+
+    /**
+     * Get the parent folder.
+     * 
+     * @return The BoxFolder that owns this file. This may be null if this
+     *         BoxFile was created through an API call that did not contain its
+     *         parent folder.
+     */
+    public BoxFolder getFolder() {
+        return mFolder;
     }
 
     /**

@@ -85,6 +85,8 @@ public class AccountTreeResponseParser extends DefaultResponseParser {
                 mBoxFile.parseAttribute(attributes.getLocalName(i), attributes.getValue(i));
             }
             mCurrFolder.getFilesInFolder().add(mBoxFile);
+            mBoxFile.setFolder(mCurrFolder);
+            mBoxFile.setFolderId(mCurrFolder.getId());
         } else if (localName.equals("tag")) {
             if (mFileOrFolder == FileOrFolder.FILE) {
                 mBoxFile.getTagIds().add(BoxUtils.parseLong(attributes.getValue("id")));

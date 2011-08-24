@@ -21,6 +21,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
+import com.google.gson.Gson;
+
 /**
  * Base DAO class.
  * 
@@ -61,11 +63,11 @@ public abstract class DAO {
     }
 
     /**
-     * Get the timestamp that was last set with setDAOUpdated(). This timestamp is
-     * never set by the library. This is included purely as a way for developers
-     * to set a modification timestamp on the DAO for their own purposes. This will
-     * return null unless you set it with setDAOUpdated(). This does NOT return the
-     * updated timestamp of the actualy element in Box.
+     * Get the timestamp that was last set with setDAOUpdated(). This timestamp
+     * is never set by the library. This is included purely as a way for
+     * developers to set a modification timestamp on the DAO for their own
+     * purposes. This will return null unless you set it with setDAOUpdated().
+     * This does NOT return the updated timestamp of the actualy element in Box.
      * 
      * @return The last DAOUpdated timestamp set.
      */
@@ -74,12 +76,13 @@ public abstract class DAO {
     }
 
     /**
-     * Set a timestamp to indicate that the DAO has been updated. This is never used
-     * by the library itself. It is simply included as a convenience for developers to
-     * set an object-update timestamp if needed. You can retrieve the value set here
-     * through getDAOUpdated().
+     * Set a timestamp to indicate that the DAO has been updated. This is never
+     * used by the library itself. It is simply included as a convenience for
+     * developers to set an object-update timestamp if needed. You can retrieve
+     * the value set here through getDAOUpdated().
      * 
-     * @param daoUpdated DAO object updated timestamp.
+     * @param daoUpdated
+     *            DAO object updated timestamp.
      */
     public void setDAOUpdated(final long daoUpdated) {
         mDAOUpdated = daoUpdated;
@@ -96,9 +99,8 @@ public abstract class DAO {
      * 
      * @return A formatted string with member variables.
      */
-    @Override
-    public final String toString() {
-        return toString(0);
+    public final String toStringDebug() {
+        return toStringDebug(0);
     }
 
     /**
@@ -110,7 +112,7 @@ public abstract class DAO {
      *            The number of indents to prepend to every line
      * @return A formatted string with member variables.
      */
-    public final String toString(final int indents) {
+    public final String toStringDebug(final int indents) {
         // if DAOs ever refer to each other, we would get an infinite recursion
         // without this check
         if (hashCodesToStringed.contains(hashCode())) {
@@ -133,7 +135,7 @@ public abstract class DAO {
             try {
                 if (field.get(this) instanceof DAO) {
                     final DAO dao = (DAO) field.get(this);
-                    value.append(dao.toString(indents + 1));
+                    value.append(dao.toStringDebug(indents + 1));
                 } else if (field.get(this) instanceof List) {
                     @SuppressWarnings("unchecked")
                     final List<Object> list = (List<Object>) field.get(this);
@@ -141,7 +143,7 @@ public abstract class DAO {
                         if (list.get(i) instanceof DAO) {
                             final DAO dao = (DAO) list.get(i);
                             value.append(newLine + "    ");
-                            value.append(dao.toString(indents + 2));
+                            value.append(dao.toStringDebug(indents + 2));
                         } else {
                             value.append(newLine);
                             value.append(list.get(i).toString());
@@ -160,5 +162,43 @@ public abstract class DAO {
         }
 
         return sb.toString();
+    }
+
+    /**
+     * Serialize a DAO object to a JSON string.
+     * 
+     * @param dao
+     *            The DAO object to be serialized.
+     * @return A serialized JSON string.
+     */
+    public static String toJSON(DAO dao) {
+        Gson gson = new Gson();
+        return gson.toJson(dao);
+    }
+
+    /**
+     * Create a DAO object by unserializing a JSON string.
+     * 
+     * @param json
+     *            A JSON string.
+     * @param daoClass
+     *            The DAO class you want to unserialize to (e.g.
+     *            BoxFolder.class).
+     * @return A DAO object.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T fromJSON(String json, Class<? extends DAO> daoClass) {
+        Gson gson = new Gson();
+        T dao = (T) gson.fromJson(json, daoClass);
+
+        // For BoxFolder, we need to repair the parent folder references of its
+        // child folders and files.
+        if (dao instanceof BoxFolder) {
+            BoxFolder boxFolder = (BoxFolder) dao;
+            boxFolder.repairParentFolderReferences();
+            return (T) boxFolder;
+        }
+
+        return dao;
     }
 }

@@ -108,9 +108,10 @@ public class BoxFolder extends DAO {
      */
     protected long mParentFolderId;
     /**
-     * The parent folder.
+     * The parent folder. Set to transient to avoid circular references when
+     * serializing to JSON.
      */
-    protected BoxFolder mParentFolder;
+    protected transient BoxFolder mParentFolder;
     /**
      * List of files in the folder.
      */
@@ -566,6 +567,22 @@ public class BoxFolder extends DAO {
      */
     public ArrayList<Long> getTagIds() {
         return mTagIds;
+    }
+
+    /**
+     * Set upward references of all child folders and files to the parent
+     * folder.
+     */
+    public void repairParentFolderReferences() {
+        for (int i = 0; i < mFoldersInFolder.size(); i++) {
+            mFoldersInFolder.get(i).setParentFolderId(getId());
+            mFoldersInFolder.get(i).setParentFolder(this);
+            mFoldersInFolder.get(i).repairParentFolderReferences();
+        }
+        for (int i = 0; i < mFilesInFolder.size(); i++) {
+            mFilesInFolder.get(i).setFolderId(getId());
+            mFilesInFolder.get(i).setFolder(this);
+        }
     }
 
     /**

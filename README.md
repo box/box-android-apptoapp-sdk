@@ -17,10 +17,13 @@ A sample app has been included to demonstrate usage of the library. In order for
 
 ### Dependencies ###
 
-The Box Android library requires mime4j and httpmime.  If you do not already have those included in your project, you will need to include them.
+The Box Android library requires mime4j, httpmime and gson.  If you do not already have those included in your project, you will need to include them.
 
 mime4j:
 [http://james.apache.org/mime4j/index.html](http://james.apache.org/mime4j/index.html)
 
 httpmime:
 [http://hc.apache.org/httpcomponents-client-ga/httpmime/index.html](http://hc.apache.org/httpcomponents-client-ga/httpmime/index.html)
+
+gson:
+[http://code.google.com/p/google-gson/](http://code.google.com/p/google-gson/)
