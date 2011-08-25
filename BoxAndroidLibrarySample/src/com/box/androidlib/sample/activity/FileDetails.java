@@ -58,11 +58,7 @@ public class FileDetails extends Activity {
             public void onComplete(final BoxFile boxFile, final String status) {
                 if (status.equals(GetFileInfoListener.STATUS_S_GET_FILE_INFO)) {
                     final TextView detailsText = (TextView) findViewById(R.id.detailsText);
-                    StringBuffer sb = new StringBuffer();
-                    sb.append("File name: ").append(boxFile.getFileName()).append("\n");
-                    sb.append("Size: ").append(boxFile.getSize()).append("\n");
-                    sb.append("Created: ").append(boxFile.getCreated()).append("\n");
-                    sb.append("Updated: ").append(boxFile.getUpdated()).append("\n");
+                    StringBuffer sb = new StringBuffer("FILE:\n").append(boxFile.toStringDebug());
                     detailsText.setText(sb.toString());
                 }
             }

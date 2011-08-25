@@ -54,6 +54,27 @@ public class AccountTreeResponseParser extends DefaultResponseParser {
     };
 
     /**
+     * The BoxFile class to instantiate.
+     */
+    private Class<? extends BoxFile> mBoxFileClass = BoxFile.class;
+    
+    /**
+     * The BoxFolder class to instantiate. 
+     */
+    private Class<? extends BoxFolder> mBoxFolderClass = BoxFolder.class;
+    
+    /**
+     * Construct a new AccountTreeResponseParser.
+     * @param boxFileClass The BoxFile class to instantiate.
+     * @param boxFolderClass The BoxFolder class to instantiate.
+     */
+    public AccountTreeResponseParser(Class<? extends BoxFile> boxFileClass, Class<? extends BoxFolder> boxFolderClass) {
+        super();
+        mBoxFileClass = boxFileClass;
+        mBoxFolderClass = boxFolderClass;
+    }
+    
+    /**
      * Instance of FileOrFolder.
      */
     private FileOrFolder mFileOrFolder;
@@ -63,36 +84,42 @@ public class AccountTreeResponseParser extends DefaultResponseParser {
         final Attributes attributes) throws SAXException {
         super.startElement(uri, localName, qName, attributes);
 
-        if (localName.equals("folder")) {
-            mFileOrFolder = FileOrFolder.FOLDER;
-            if (mTargetFolder == null) {
-                mTargetFolder = new BoxFolder();
-                mCurrFolder = mTargetFolder;
-            } else {
-                final BoxFolder parentFolder = mCurrFolder;
-                mCurrFolder = new BoxFolder();
-                mCurrFolder.setParentFolder(parentFolder);
-                mCurrFolder.setParentFolderId(parentFolder.getId());
-                parentFolder.getFoldersInFolder().add(mCurrFolder);
+        try {
+            if (localName.equals("folder")) {
+                mFileOrFolder = FileOrFolder.FOLDER;
+                if (mTargetFolder == null) {
+                    mTargetFolder = mBoxFolderClass.newInstance();
+                    mCurrFolder = mTargetFolder;
+                } else {
+                    final BoxFolder parentFolder = mCurrFolder;
+                    mCurrFolder = mBoxFolderClass.newInstance();
+                    mCurrFolder.setParentFolder(parentFolder);
+                    mCurrFolder.setParentFolderId(parentFolder.getId());
+                    parentFolder.getFoldersInFolder().add(mCurrFolder);
+                }
+                for (int i = 0; i < attributes.getLength(); i++) {
+                    mCurrFolder.parseAttribute(attributes.getLocalName(i), attributes.getValue(i));
+                }
+            } else if (localName.equals("file")) {
+                mFileOrFolder = FileOrFolder.FILE;
+                mBoxFile = mBoxFileClass.newInstance();
+                for (int i = 0; i < attributes.getLength(); i++) {
+                    mBoxFile.parseAttribute(attributes.getLocalName(i), attributes.getValue(i));
+                }
+                mCurrFolder.getFilesInFolder().add(mBoxFile);
+                mBoxFile.setFolder(mCurrFolder);
+                mBoxFile.setFolderId(mCurrFolder.getId());
+            } else if (localName.equals("tag")) {
+                if (mFileOrFolder == FileOrFolder.FILE) {
+                    mBoxFile.getTagIds().add(BoxUtils.parseLong(attributes.getValue("id")));
+                } else if (mFileOrFolder == FileOrFolder.FOLDER) {
+                    mCurrFolder.getTagIds().add(BoxUtils.parseLong(attributes.getValue("id")));
+                }
             }
-            for (int i = 0; i < attributes.getLength(); i++) {
-                mCurrFolder.parseAttribute(attributes.getLocalName(i), attributes.getValue(i));
-            }
-        } else if (localName.equals("file")) {
-            mFileOrFolder = FileOrFolder.FILE;
-            mBoxFile = new BoxFile();
-            for (int i = 0; i < attributes.getLength(); i++) {
-                mBoxFile.parseAttribute(attributes.getLocalName(i), attributes.getValue(i));
-            }
-            mCurrFolder.getFilesInFolder().add(mBoxFile);
-            mBoxFile.setFolder(mCurrFolder);
-            mBoxFile.setFolderId(mCurrFolder.getId());
-        } else if (localName.equals("tag")) {
-            if (mFileOrFolder == FileOrFolder.FILE) {
-                mBoxFile.getTagIds().add(BoxUtils.parseLong(attributes.getValue("id")));
-            } else if (mFileOrFolder == FileOrFolder.FOLDER) {
-                mCurrFolder.getTagIds().add(BoxUtils.parseLong(attributes.getValue("id")));
-            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
         }
     }
 

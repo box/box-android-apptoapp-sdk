@@ -58,15 +58,12 @@ public class FolderDetails extends Activity {
                 public void onComplete(final BoxFolder boxFolder, final String status) {
                     if (status.toString().equals(GetAccountTreeListener.STATUS_LISTING_OK)) {
                         final TextView detailsText = (TextView) findViewById(R.id.detailsText);
-                        StringBuffer sb = new StringBuffer();
-                        sb.append("File name: ").append(boxFolder.getFolderName())
-                            .append("\n");
-                        sb.append("Shared: ").append(boxFolder.getShared() ? "yes" : "no")
-                            .append("\n");
+                        StringBuffer sb = new StringBuffer("FOLDER:\n").append(boxFolder
+                            .toStringDebug());
                         detailsText.setText(sb.toString());
                     } else {
-                        Toast.makeText(getApplicationContext(),
-                            "Failed to get tree - " + status, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Failed to get tree - " + status,
+                            Toast.LENGTH_LONG).show();
                         finish();
                     }
                 }

@@ -22,6 +22,8 @@ import java.net.MalformedURLException;
 
 import android.os.Handler;
 
+import com.box.androidlib.DAO.BoxFile;
+import com.box.androidlib.DAO.BoxFolder;
 import com.box.androidlib.ResponseListeners.AddCommentListener;
 import com.box.androidlib.ResponseListeners.AddToMyBoxListener;
 import com.box.androidlib.ResponseListeners.AddToTagListener;
@@ -459,21 +461,64 @@ public class Box {
      * @param params
      *            An array of strings. Possible values are
      *            {@link Box#PARAM_ONELEVEL}, {@link Box#PARAM_NOFILES},
-     *            {@link Box#PARAM_NOZIP}, {@link Box#PARAM_SIMPLE}.
-     *            Currently, {@link com.box.androidlib.Box#PARAM_NOZIP} is always
-     *            included automatically.
+     *            {@link Box#PARAM_NOZIP}, {@link Box#PARAM_SIMPLE}. Currently,
+     *            {@link com.box.androidlib.Box#PARAM_NOZIP} is always included
+     *            automatically.
      * @param listener
      *            The callback that will run
      */
     public final void getAccountTree(final String authToken, final long folderId,
         final String[] params, final GetAccountTreeListener listener) {
 
+        getAccountTree(authToken, folderId, params, BoxFile.class, BoxFolder.class, listener);
+    }
+
+    /**
+     * This method is used to get a tree representing all of the user's files
+     * and folders. Executes API action get_account_tree:
+     * {@link <a href="http://developers.box.net/w/page/12923929/ApiFunction_get_account_tree">http://developers.box.net/w/page/12923929/ApiFunction_get_account_tree</a>}
+     * 
+     * @param authToken
+     *            The auth token retrieved through
+     *            {@link Box#getAuthToken(String, GetAuthTokenListener)}
+     * @param folderId
+     *            The ID of the root folder from which the tree begins. If this
+     *            value is 0, the user's full account tree is returned.
+     * @param params
+     *            An array of strings. Possible values are
+     *            {@link Box#PARAM_ONELEVEL}, {@link Box#PARAM_NOFILES},
+     *            {@link Box#PARAM_NOZIP}, {@link Box#PARAM_SIMPLE}. Currently,
+     *            {@link com.box.androidlib.Box#PARAM_NOZIP} is always included
+     *            automatically.
+     * @param boxFileClass
+     *            A class that extends BoxFile. BoxFile objects will be
+     *            instantiated as this class. You can specify this if you want
+     *            getAccountTree to instantiate your own class extension of
+     *            BoxFile. For example, if you define a class "MyBoxFile" that
+     *            extends BoxFile, then you can specify MyBoxFile.class here to
+     *            have getAccountTree return MyBoxFile objects instead of
+     *            BoxFile objects.
+     * @param boxFolderClass
+     *            A class that extends BoxFolder. BoxFolder objects will be
+     *            instantiated as this class. You can specify this if you want
+     *            getAccountTree to instantiate your own class extension of
+     *            BoxFolder. For example, if you define a class "MyBoxFolder"
+     *            that extends BoxFolder, then you can specify MyBoxFolder.class
+     *            here to have getAccountTree return MyBoxFolder objects instead
+     *            of BoxFolder objects.
+     * @param listener
+     *            The callback that will run
+     */
+    public final void getAccountTree(final String authToken, final long folderId,
+        final String[] params, final Class<? extends BoxFile> boxFileClass,
+        final Class<? extends BoxFolder> boxFolderClass, final GetAccountTreeListener listener) {
+
         new Thread() {
             @Override
             public void run() {
                 try {
                     final AccountTreeResponseParser response = BoxSynchronous.getInstance(mApiKey)
-                        .getAccountTree(authToken, folderId, params);
+                        .getAccountTree(authToken, folderId, params, boxFileClass, boxFolderClass);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
