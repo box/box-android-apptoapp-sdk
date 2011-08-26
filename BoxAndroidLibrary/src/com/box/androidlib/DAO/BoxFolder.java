@@ -110,7 +110,7 @@ public class BoxFolder extends DAO {
     /**
      * The folder_id of the folder's parent.
      */
-    protected long mParentFolderId;
+    protected long mParentFolderId = -1;
     /**
      * The parent folder. Set to transient to avoid circular references when
      * serializing to JSON.
@@ -526,7 +526,8 @@ public class BoxFolder extends DAO {
     /**
      * Get the folder id of the folder in which this folder resides.
      * 
-     * @return parent folder id
+     * @return Parent folder id. 0 means the root folder. -1 means the parent
+     *         folder id is not known by this object.
      */
     public long getParentFolderId() {
         return mParentFolderId;

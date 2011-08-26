@@ -41,7 +41,7 @@ public class BoxFile extends DAO {
     /**
      * The folder_id of the folder that contains the file.
      */
-    protected long mFolderId;
+    protected long mFolderId = -1;
     /**
      * The BoxFolder that this file belongs to. Set to transient to avoid
      * circular references when serializing to JSON.
@@ -304,7 +304,8 @@ public class BoxFile extends DAO {
     /**
      * Get the folder_id of the folder that the file resides in.
      * 
-     * @return folder id
+     * @return folder id. 0 means the root folder. -1 means the folder id is not
+     *         known by this object.
      */
     public long getFolderId() {
         return mFolderId;
