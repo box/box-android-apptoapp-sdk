@@ -28,6 +28,7 @@ import android.os.Handler;
 
 import com.box.androidlib.ResponseListeners.FileDownloadListener;
 import com.box.androidlib.ResponseParsers.DefaultResponseParser;
+import com.box.androidlib.Utils.BoxConfig;
 import com.box.androidlib.Utils.BoxConstants;
 
 /**
@@ -131,9 +132,9 @@ public class BoxFileDownload {
         final DefaultResponseParser handler = new DefaultResponseParser();
 
         final Uri.Builder builder = new Uri.Builder();
-        builder.scheme(BoxConstants.DOWNLOAD_URL_SCHEME);
-        builder.authority(BoxConstants.DOWNLOAD_URL_AUTHORITY);
-        builder.path(BoxConstants.DOWNLOAD_URL_PATH);
+        builder.scheme(BoxConfig.getInstance().getDownloadUrlScheme());
+        builder.authority(BoxConfig.getInstance().getDownloadUrlAuthority());
+        builder.path(BoxConfig.getInstance().getDownloadUrlPath());
         builder.appendPath(mAuthToken);
         builder.appendPath(String.valueOf(fileId));
         if (versionId != null) {

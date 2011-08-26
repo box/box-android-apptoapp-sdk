@@ -34,25 +34,4 @@ public final class BoxConstants {
      * ) should be appended to the URL.
      */
     public static final String LOGIN_URL = "https://m.box.net/api/1.0/auth/";
-
-    /** API url scheme. */
-    public static final String API_URL_SCHEME = "https";
-    /** API url authority. */
-    public static final String API_URL_AUTHORITY = "www.box.net";
-    /** API url path. */
-    public static final String API_URL_PATH = "/api/1.0/rest";
-
-    /** Upload url scheme. */
-    public static final String UPLOAD_URL_SCHEME = "https";
-    /** Upload url authority. */
-    public static final String UPLOAD_URL_AUTHORITY = "upload.box.net";
-    /** Upload url path. */
-    public static final String UPLOAD_URL_PATH = "/api/1.0/";
-
-    /** Download url scheme. */
-    public static final String DOWNLOAD_URL_SCHEME = "https";
-    /** Download url authority. */
-    public static final String DOWNLOAD_URL_AUTHORITY = "www.box.net";
-    /** Download url path. */
-    public static final String DOWNLOAD_URL_PATH = "/api/1.0/download/";
 }

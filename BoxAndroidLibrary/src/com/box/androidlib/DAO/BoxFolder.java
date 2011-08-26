@@ -117,6 +117,10 @@ public class BoxFolder extends DAO {
      */
     protected transient BoxFolder mParentFolder;
     /**
+     * The path of folder ids from the root to this folder.
+     */
+    protected String mFolderPathIds;
+    /**
      * List of files in the folder.
      */
     protected ArrayList<BoxFile> mFilesInFolder = new ArrayList<BoxFile>();
@@ -204,12 +208,13 @@ public class BoxFolder extends DAO {
 
     /**
      * Set whether the folder has collaborators or not.
+     * 
      * @param hasCollaborators
      */
     public void setHasCollaborators(boolean hasCollaborators) {
         mHasCollaborators = hasCollaborators;
     }
-    
+
     /**
      * Set creation timestamp.
      * 
@@ -298,6 +303,16 @@ public class BoxFolder extends DAO {
      */
     public void setParentFolderId(final long parentFolderId) {
         mParentFolderId = parentFolderId;
+    }
+
+    /**
+     * Set the folder path ids.
+     * 
+     * @param folderPathIds
+     *            folder path ids
+     */
+    public void setFolderPathIds(String folderPathIds) {
+        mFolderPathIds = folderPathIds;
     }
 
     /**
@@ -424,7 +439,7 @@ public class BoxFolder extends DAO {
     public boolean getHasCollaborators() {
         return mHasCollaborators;
     }
-    
+
     /**
      * Get creation timestamp.
      * 
@@ -564,6 +579,15 @@ public class BoxFolder extends DAO {
     }
 
     /**
+     * Get the folder path ids. NOTE: This currently doesn't return anything.
+     * 
+     * @return The folder path ids. (e.g. /54325/643563/425)
+     */
+    public String getFolderPathIds() {
+        return mFolderPathIds;
+    }
+
+    /**
      * Get list of files in the folder.
      * 
      * @return list of files in folder
@@ -663,6 +687,8 @@ public class BoxFolder extends DAO {
             setPermissions(value);
         } else if (key.equals("has_collaborators")) {
             setHasCollaborators(value.equals("1") ? true : false);
+        } else if (key.equals("folder_path_ids")) {
+            setFolderPathIds(value);
         }
     }
 }

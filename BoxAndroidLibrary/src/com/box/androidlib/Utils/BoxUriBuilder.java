@@ -36,8 +36,8 @@ public final class BoxUriBuilder {
      * @return Uri builder
      */
     public static Uri.Builder getBuilder() {
-        return new Uri.Builder().scheme(BoxConstants.API_URL_SCHEME)
-            .authority(BoxConstants.API_URL_AUTHORITY).path(BoxConstants.API_URL_PATH);
+        return new Uri.Builder().scheme(BoxConfig.getInstance().getApiUrlScheme())
+            .authority(BoxConfig.getInstance().getApiUrlAuthority()).path(BoxConfig.getInstance().getApiUrlPath());
     }
 
     /**

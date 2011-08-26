@@ -49,6 +49,7 @@ import com.box.androidlib.Box;
 import com.box.androidlib.DAO.BoxFile;
 import com.box.androidlib.ResponseListeners.FileUploadListener;
 import com.box.androidlib.ResponseParsers.FileResponseParser;
+import com.box.androidlib.Utils.BoxConfig;
 import com.box.androidlib.Utils.BoxConstants;
 
 /**
@@ -147,9 +148,9 @@ public class BoxFileUpload {
         }
 
         final Uri.Builder builder = new Uri.Builder();
-        builder.scheme(BoxConstants.UPLOAD_URL_SCHEME);
-        builder.authority(BoxConstants.UPLOAD_URL_AUTHORITY);
-        builder.path(BoxConstants.UPLOAD_URL_PATH);
+        builder.scheme(BoxConfig.getInstance().getUploadUrlScheme());
+        builder.authority(BoxConfig.getInstance().getUploadUrlAuthority());
+        builder.path(BoxConfig.getInstance().getUploadUrlPath());
         builder.appendPath(action);
         builder.appendPath(mAuthToken);
         builder.appendPath(String.valueOf(destinationId));
