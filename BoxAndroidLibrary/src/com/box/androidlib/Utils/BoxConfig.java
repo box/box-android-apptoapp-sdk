@@ -129,7 +129,7 @@ public class BoxConfig {
      *            Custom path
      */
     public void setApiUrlPath(final String path) {
-        mApiUrlScheme = path;
+        mApiUrlPath = path;
     }
 
     /**
@@ -186,7 +186,7 @@ public class BoxConfig {
      *            Custom path
      */
     public void setUploadUrlPath(final String path) {
-        mUploadUrlScheme = path;
+        mUploadUrlPath = path;
     }
 
     /**
@@ -244,7 +244,7 @@ public class BoxConfig {
      *            Custom path
      */
     public void setDownloadUrlPath(final String path) {
-        mDownloadUrlScheme = path;
+        mDownloadUrlPath = path;
     }
 
     /**
