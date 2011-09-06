@@ -18,6 +18,7 @@ package com.box.androidlib.ResponseParsers;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
+import com.box.androidlib.Box;
 import com.box.androidlib.DAO.BoxFile;
 import com.box.androidlib.DAO.BoxFolder;
 import com.box.androidlib.Utils.BoxUtils;
@@ -52,27 +53,6 @@ public class AccountTreeResponseParser extends DefaultResponseParser {
         /** Indicates that we are processing a folder. */
         FOLDER
     };
-
-    /**
-     * The BoxFile class to instantiate.
-     */
-    private Class<? extends BoxFile> mBoxFileClass = BoxFile.class;
-    
-    /**
-     * The BoxFolder class to instantiate. 
-     */
-    private Class<? extends BoxFolder> mBoxFolderClass = BoxFolder.class;
-    
-    /**
-     * Construct a new AccountTreeResponseParser.
-     * @param boxFileClass The BoxFile class to instantiate.
-     * @param boxFolderClass The BoxFolder class to instantiate.
-     */
-    public AccountTreeResponseParser(Class<? extends BoxFile> boxFileClass, Class<? extends BoxFolder> boxFolderClass) {
-        super();
-        mBoxFileClass = boxFileClass;
-        mBoxFolderClass = boxFolderClass;
-    }
     
     /**
      * Instance of FileOrFolder.
@@ -88,11 +68,11 @@ public class AccountTreeResponseParser extends DefaultResponseParser {
             if (localName.equals("folder")) {
                 mFileOrFolder = FileOrFolder.FOLDER;
                 if (mTargetFolder == null) {
-                    mTargetFolder = mBoxFolderClass.newInstance();
+                    mTargetFolder = Box.getBoxFolderClass().newInstance();
                     mCurrFolder = mTargetFolder;
                 } else {
                     final BoxFolder parentFolder = mCurrFolder;
-                    mCurrFolder = mBoxFolderClass.newInstance();
+                    mCurrFolder = Box.getBoxFolderClass().newInstance();
                     mCurrFolder.setParentFolder(parentFolder);
                     mCurrFolder.setParentFolderId(parentFolder.getId());
                     parentFolder.getFoldersInFolder().add(mCurrFolder);
@@ -102,7 +82,7 @@ public class AccountTreeResponseParser extends DefaultResponseParser {
                 }
             } else if (localName.equals("file")) {
                 mFileOrFolder = FileOrFolder.FILE;
-                mBoxFile = mBoxFileClass.newInstance();
+                mBoxFile = Box.getBoxFileClass().newInstance();
                 for (int i = 0; i < attributes.getLength(); i++) {
                     mBoxFile.parseAttribute(attributes.getLocalName(i), attributes.getValue(i));
                 }

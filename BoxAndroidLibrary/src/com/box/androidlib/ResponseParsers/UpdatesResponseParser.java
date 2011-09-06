@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
+import com.box.androidlib.Box;
 import com.box.androidlib.DAO.BoxFile;
 import com.box.androidlib.DAO.BoxFolder;
 import com.box.androidlib.DAO.Update;
@@ -80,13 +81,25 @@ public class UpdatesResponseParser extends DefaultResponseParser {
             }
             mCurrentlyParsing = CurrentlyParsing.UPDATE;
         } else if (localName.equals("file")) {
-            file = new BoxFile();
+            try {
+                file = Box.getBoxFileClass().newInstance();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
             if (update != null) {
                 update.getFiles().add(file);
             }
             mCurrentlyParsing = CurrentlyParsing.FILE;
         } else if (localName.equals("folder")) {
-            folder = new BoxFolder();
+            try {
+                folder = Box.getBoxFolderClass().newInstance();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
             if (update != null) {
                 update.getFolders().add(folder);
             }

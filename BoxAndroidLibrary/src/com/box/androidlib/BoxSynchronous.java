@@ -245,39 +245,6 @@ public class BoxSynchronous {
                 .appendQueryParameter("login", email).build());
         return parser.getStatus();
     }
-
-    /**
-     * This method is used to get a tree representing all of the user's files
-     * and folders. Executes API action get_account_tree:
-     * {@link <a href="http://developers.box.net/w/page/12923929/ApiFunction_get_account_tree"> http://developers.box.net/w/page/12923929/ApiFunction_get_account_tree</a>}
-     *
-     * @param authToken
-     *            The auth token retrieved through
-     *            {@link BoxSynchronous#getAuthToken(String)}
-     * @param folderId
-     *            The ID of the root folder from which the tree begins. If this
-     *            value is 0, the user's full account tree is returned.
-     * @param params
-     *            An array of strings. Possible values are
-     *            {@link com.box.androidlib.Box#PARAM_ONELEVEL},
-     *            {@link com.box.androidlib.Box#PARAM_NOFILES},
-     *            {@link com.box.androidlib.Box#PARAM_NOZIP},
-     *            {@link com.box.androidlib.Box#PARAM_SIMPLE}.
-     *            Currently, {@link com.box.androidlib.Box#PARAM_NOZIP} is always
-     *            included automatically.
-     * @return the response parser used to capture the data of interest from the
-     *         response. See the doc for the specific parser type returned to
-     *         see what data is now available. All parsers implement getStatus()
-     *         at a minimum.
-     * @throws IOException
-     *             Can be thrown if there is no connection, or if some other
-     *             connection problem exists.
-     */
-    public final AccountTreeResponseParser getAccountTree(final String authToken,
-        final long folderId, final String[] params) throws IOException {
-
-        return getAccountTree(authToken, folderId, params, BoxFile.class, BoxFolder.class);
-    }    
     
     /**
      * This method is used to get a tree representing all of the user's files
@@ -323,7 +290,7 @@ public class BoxSynchronous {
      *             connection problem exists.
      */
     public final AccountTreeResponseParser getAccountTree(final String authToken,
-        final long folderId, final String[] params, Class<? extends BoxFile> boxFileClass, Class<? extends BoxFolder> boxFolderClass) throws IOException {
+        final long folderId, final String[] params) throws IOException {
 
         // nozip should always be included
         final ArrayList<String> paramsList;
@@ -336,7 +303,7 @@ public class BoxSynchronous {
 			paramsList.add(Box.PARAM_NOZIP);
 		}
 
-        final AccountTreeResponseParser parser = new AccountTreeResponseParser(boxFileClass, boxFolderClass);
+        final AccountTreeResponseParser parser = new AccountTreeResponseParser();
         final Uri.Builder builder = BoxUriBuilder
             .getBuilder(mApiKey, authToken, "get_account_tree");
         builder.appendQueryParameter("folder_id", String.valueOf(folderId));

@@ -202,7 +202,13 @@ public class BoxFileUpload {
             }
             final Element fileEl = (Element) doc.getElementsByTagName("file").item(0);
             if (fileEl != null) {
-                boxFile = new BoxFile();
+                try {
+                    boxFile = Box.getBoxFileClass().newInstance();
+                } catch (InstantiationException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
                 for (int i = 0; i < fileEl.getAttributes().getLength(); i++) {
                     boxFile.parseAttribute(fileEl.getAttributes().item(i).getNodeName(), fileEl
                         .getAttributes().item(i).getNodeValue());

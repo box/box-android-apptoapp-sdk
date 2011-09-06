@@ -18,6 +18,7 @@ package com.box.androidlib.ResponseParsers;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
+import com.box.androidlib.Box;
 import com.box.androidlib.DAO.BoxFile;
 import com.box.androidlib.DAO.BoxFolder;
 import com.box.androidlib.DAO.SearchResult;
@@ -62,14 +63,20 @@ public class SearchResponseParser extends DefaultResponseParser {
     public void startElement(final String uri, final String localName, final String qName,
         final Attributes attributes) throws SAXException {
         super.startElement(uri, localName, qName, attributes);
-        if (localName.equals("folder")) {
-            mFolder = new BoxFolder();
-            mSearchResult.getFolders().add(mFolder);
-            mFileOrFolder = FileOrFolder.FOLDER;
-        } else if (localName.equals("file")) {
-            mFile = new BoxFile();
-            mSearchResult.getFiles().add(mFile);
-            mFileOrFolder = FileOrFolder.FILE;
+        try {
+            if (localName.equals("folder")) {
+                mFolder = Box.getBoxFolderClass().newInstance();
+                mSearchResult.getFolders().add(mFolder);
+                mFileOrFolder = FileOrFolder.FOLDER;
+            } else if (localName.equals("file")) {
+                mFile = Box.getBoxFileClass().newInstance();
+                mSearchResult.getFiles().add(mFile);
+                mFileOrFolder = FileOrFolder.FILE;
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
         }
     }
 

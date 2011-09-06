@@ -18,6 +18,7 @@ package com.box.androidlib.ResponseParsers;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
+import com.box.androidlib.Box;
 import com.box.androidlib.DAO.BoxFolder;
 
 /**
@@ -37,7 +38,13 @@ public class FolderResponseParser extends DefaultResponseParser {
         final Attributes attributes) throws SAXException {
         super.startElement(uri, localName, qName, attributes);
         if (localName.equals("folder")) {
-            mBoxFolder = new BoxFolder();
+            try {
+                mBoxFolder = Box.getBoxFolderClass().newInstance();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
         }
     }
 

@@ -18,6 +18,7 @@ package com.box.androidlib.ResponseParsers;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
+import com.box.androidlib.Box;
 import com.box.androidlib.DAO.BoxFile;
 
 /**
@@ -37,7 +38,13 @@ public class FileResponseParser extends DefaultResponseParser {
         final Attributes attributes) throws SAXException {
         super.startElement(uri, localName, qName, attributes);
         if (localName.equals("response")) {
-            mFile = new BoxFile();
+            try {
+                mFile = Box.getBoxFileClass().newInstance();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
         }
     }
 

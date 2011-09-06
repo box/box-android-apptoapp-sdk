@@ -174,6 +174,15 @@ public class Box {
     public static final String UPLOAD_ACTION_NEW_COPY = "new_copy";
 
     /**
+     * The BoxFile class that ResponseParsers will instantiate.
+     */
+    private static Class<? extends BoxFile> BOXFILE_CLASS = BoxFile.class;
+    /**
+     * The BoxFolder class that ResponseParsers will instantiate.
+     */
+    private static Class<? extends BoxFolder> BOXFOLDER_CLASS = BoxFolder.class;
+
+    /**
      * The API key of the OpenBox app.
      */
     private final String mApiKey;
@@ -218,6 +227,47 @@ public class Box {
     }
 
     /**
+     * Set the BoxFolder class that will be created by response parsers. This
+     * can be used if you want to have your own custom class that extends
+     * BoxFolder.
+     * 
+     * @param boxFolderClass
+     *            The BoxFolder class.
+     */
+    public static void setBoxFolderClass(Class<? extends BoxFolder> boxFolderClass) {
+        BOXFOLDER_CLASS = boxFolderClass;
+    }
+
+    /**
+     * Get the BoxFolder class to be instantiated by response parsers.
+     * 
+     * @return
+     */
+    public static Class<? extends BoxFolder> getBoxFolderClass() {
+        return BOXFOLDER_CLASS;
+    }
+
+    /**
+     * Set the BoxFile class that will be created by response parsers. This can
+     * be used if you want to have your own custom class that extends BoxFile.
+     * 
+     * @param boxFileClass
+     *            The BoxFile class.
+     */
+    public static void setBoxFileClass(Class<? extends BoxFile> boxFileClass) {
+        BOXFILE_CLASS = boxFileClass;
+    }
+
+    /**
+     * Get the BoxFile class to be instantiated by response parsers.
+     * 
+     * @return
+     */
+    public static Class<? extends BoxFile> getBoxFileClass() {
+        return BOXFILE_CLASS;
+    }
+
+    /**
      * Get the API Key that this instance of BoxSynchronous is using.
      * 
      * @return API Key
@@ -242,7 +292,7 @@ public class Box {
             public void run() {
                 try {
                     final TicketResponseParser response = BoxSynchronous.getInstance(mApiKey)
-                        .getTicket();
+                                    .getTicket();
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -280,7 +330,7 @@ public class Box {
             public void run() {
                 try {
                     final UserResponseParser response = BoxSynchronous.getInstance(mApiKey)
-                        .getAuthToken(ticket);
+                                    .getAuthToken(ticket);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -317,7 +367,7 @@ public class Box {
             public void run() {
                 try {
                     final UserResponseParser response = BoxSynchronous.getInstance(mApiKey)
-                        .getAccountInfo(authToken);
+                                    .getAccountInfo(authToken);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -384,14 +434,14 @@ public class Box {
      *            The callback that will run
      */
     public final void registerNewUser(final String username, final String password,
-        final RegisterNewUserListener listener) {
+                    final RegisterNewUserListener listener) {
 
         new Thread() {
             @Override
             public void run() {
                 try {
                     final UserResponseParser response = BoxSynchronous.getInstance(mApiKey)
-                        .registerNewUser(username, password);
+                                    .registerNewUser(username, password);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -421,14 +471,14 @@ public class Box {
      *            The callback that will run
      */
     public final void verifyRegistrationEmail(final String email,
-        final VerifyRegistrationEmailListener listener) {
+                    final VerifyRegistrationEmailListener listener) {
 
         new Thread() {
             @Override
             public void run() {
                 try {
                     final String status = BoxSynchronous.getInstance(mApiKey)
-                        .verifyRegistrationEmail(email);
+                                    .verifyRegistrationEmail(email);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -445,32 +495,6 @@ public class Box {
                 }
             }
         }.start();
-    }
-
-    /**
-     * This method is used to get a tree representing all of the user's files
-     * and folders. Executes API action get_account_tree:
-     * {@link <a href="http://developers.box.net/w/page/12923929/ApiFunction_get_account_tree">http://developers.box.net/w/page/12923929/ApiFunction_get_account_tree</a>}
-     * 
-     * @param authToken
-     *            The auth token retrieved through
-     *            {@link Box#getAuthToken(String, GetAuthTokenListener)}
-     * @param folderId
-     *            The ID of the root folder from which the tree begins. If this
-     *            value is 0, the user's full account tree is returned.
-     * @param params
-     *            An array of strings. Possible values are
-     *            {@link Box#PARAM_ONELEVEL}, {@link Box#PARAM_NOFILES},
-     *            {@link Box#PARAM_NOZIP}, {@link Box#PARAM_SIMPLE}. Currently,
-     *            {@link com.box.androidlib.Box#PARAM_NOZIP} is always included
-     *            automatically.
-     * @param listener
-     *            The callback that will run
-     */
-    public final void getAccountTree(final String authToken, final long folderId,
-        final String[] params, final GetAccountTreeListener listener) {
-
-        getAccountTree(authToken, folderId, params, BoxFile.class, BoxFolder.class, listener);
     }
 
     /**
@@ -510,15 +534,14 @@ public class Box {
      *            The callback that will run
      */
     public final void getAccountTree(final String authToken, final long folderId,
-        final String[] params, final Class<? extends BoxFile> boxFileClass,
-        final Class<? extends BoxFolder> boxFolderClass, final GetAccountTreeListener listener) {
+                    final String[] params, final GetAccountTreeListener listener) {
 
         new Thread() {
             @Override
             public void run() {
                 try {
                     final AccountTreeResponseParser response = BoxSynchronous.getInstance(mApiKey)
-                        .getAccountTree(authToken, folderId, params, boxFileClass, boxFolderClass);
+                                    .getAccountTree(authToken, folderId, params);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -552,14 +575,14 @@ public class Box {
      *            The callback that will run
      */
     public final void getFileInfo(final String authToken, final long fileId,
-        final GetFileInfoListener listener) {
+                    final GetFileInfoListener listener) {
 
         new Thread() {
             @Override
             public void run() {
                 try {
                     final FileResponseParser response = BoxSynchronous.getInstance(mApiKey)
-                        .getFileInfo(authToken, fileId);
+                                    .getFileInfo(authToken, fileId);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -595,14 +618,15 @@ public class Box {
      *            The callback that will run
      */
     public final void createFolder(final String authToken, final long parentFolderId,
-        final String folderName, final boolean share, final CreateFolderListener listener) {
+                    final String folderName, final boolean share,
+                    final CreateFolderListener listener) {
 
         new Thread() {
             @Override
             public void run() {
                 try {
                     final FolderResponseParser response = BoxSynchronous.getInstance(mApiKey)
-                        .createFolder(authToken, parentFolderId, folderName, share);
+                                    .createFolder(authToken, parentFolderId, folderName, share);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -639,14 +663,14 @@ public class Box {
      *            The callback that will run
      */
     public final void copy(final String authToken, final String type, final long targetId,
-        final long destinationId, final CopyListener listener) {
+                    final long destinationId, final CopyListener listener) {
 
         new Thread() {
             @Override
             public void run() {
                 try {
                     final String status = BoxSynchronous.getInstance(mApiKey).copy(authToken, type,
-                        targetId, destinationId);
+                                    targetId, destinationId);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -681,14 +705,14 @@ public class Box {
      *            The callback that will run
      */
     public final void delete(final String authToken, final String type, final long targetId,
-        final DeleteListener listener) {
+                    final DeleteListener listener) {
 
         new Thread() {
             @Override
             public void run() {
                 try {
                     final String status = BoxSynchronous.getInstance(mApiKey).delete(authToken,
-                        type, targetId);
+                                    type, targetId);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -727,14 +751,14 @@ public class Box {
      *            The callback that will run
      */
     public final void move(final String authToken, final String type, final long targetId,
-        final long destinationId, final MoveListener listener) {
+                    final long destinationId, final MoveListener listener) {
 
         new Thread() {
             @Override
             public void run() {
                 try {
                     final String status = BoxSynchronous.getInstance(mApiKey).move(authToken, type,
-                        targetId, destinationId);
+                                    targetId, destinationId);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -771,14 +795,14 @@ public class Box {
      *            The callback that will run
      */
     public final void rename(final String authToken, final String type, final long targetId,
-        final String newName, final RenameListener listener) {
+                    final String newName, final RenameListener listener) {
 
         new Thread() {
             @Override
             public void run() {
                 try {
                     final String status = BoxSynchronous.getInstance(mApiKey).rename(authToken,
-                        type, targetId, newName);
+                                    type, targetId, newName);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -827,15 +851,16 @@ public class Box {
      *            The callback that will run
      */
     public final void search(final String authToken, final String query, final String sort,
-        final int page, final int perPage, final String direction, final String[] params,
-        final SearchListener listener) {
+                    final int page, final int perPage, final String direction,
+                    final String[] params, final SearchListener listener) {
 
         new Thread() {
             @Override
             public void run() {
                 try {
                     final SearchResponseParser response = BoxSynchronous.getInstance(mApiKey)
-                        .search(authToken, query, sort, page, perPage, direction, params);
+                                    .search(authToken, query, sort, page, perPage, direction,
+                                                    params);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -874,14 +899,14 @@ public class Box {
      *            The callback that will run
      */
     public final void addToTag(final String authToken, final String type, final long targetId,
-        final String[] tagNames, final AddToTagListener listener) {
+                    final String[] tagNames, final AddToTagListener listener) {
 
         new Thread() {
             @Override
             public void run() {
                 try {
                     final String status = BoxSynchronous.getInstance(mApiKey).addToTag(authToken,
-                        type, targetId, tagNames);
+                                    type, targetId, tagNames);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -916,14 +941,14 @@ public class Box {
      *            The callback that will run
      */
     public final void getComments(final String authToken, final String type, final long targetId,
-        final GetCommentsListener listener) {
+                    final GetCommentsListener listener) {
 
         new Thread() {
             @Override
             public void run() {
                 try {
                     final CommentsResponseParser response = BoxSynchronous.getInstance(mApiKey)
-                        .getComments(authToken, type, targetId);
+                                    .getComments(authToken, type, targetId);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -960,14 +985,14 @@ public class Box {
      *            The callback that will run
      */
     public final void addComment(final String authToken, final String type, final long targetId,
-        final String message, final AddCommentListener listener) {
+                    final String message, final AddCommentListener listener) {
 
         new Thread() {
             @Override
             public void run() {
                 try {
                     final CommentResponseParser response = BoxSynchronous.getInstance(mApiKey)
-                        .addComment(authToken, type, targetId, message);
+                                    .addComment(authToken, type, targetId, message);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -999,14 +1024,14 @@ public class Box {
      *            The callback that will run
      */
     public final void deleteComment(final String authToken, final long commentId,
-        final DeleteCommentListener listener) {
+                    final DeleteCommentListener listener) {
 
         new Thread() {
             @Override
             public void run() {
                 try {
                     final String status = BoxSynchronous.getInstance(mApiKey).deleteComment(
-                        authToken, commentId);
+                                    authToken, commentId);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -1043,7 +1068,7 @@ public class Box {
             public void run() {
                 try {
                     final TagsResponseParser response = BoxSynchronous.getInstance(mApiKey)
-                        .exportTags(authToken);
+                                    .exportTags(authToken);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -1083,14 +1108,15 @@ public class Box {
      *            The callback that will run
      */
     public final void getUpdates(final String authToken, final long beginTimeStamp,
-        final long endTimeStamp, final String[] params, final GetUpdatesListener listener) {
+                    final long endTimeStamp, final String[] params,
+                    final GetUpdatesListener listener) {
 
         new Thread() {
             @Override
             public void run() {
                 try {
                     final UpdatesResponseParser response = BoxSynchronous.getInstance(mApiKey)
-                        .getUpdates(authToken, beginTimeStamp, endTimeStamp, params);
+                                    .getUpdates(authToken, beginTimeStamp, endTimeStamp, params);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -1126,14 +1152,14 @@ public class Box {
      *            The callback that will run
      */
     public final void toggleFolderEmail(final String authToken, final long folderId,
-        final boolean enable, final ToggleFolderEmailListener listener) {
+                    final boolean enable, final ToggleFolderEmailListener listener) {
 
         new Thread() {
             @Override
             public void run() {
                 try {
                     final ToggleFolderEmailResponseParser response = BoxSynchronous.getInstance(
-                        mApiKey).toggleFolderEmail(authToken, folderId, enable);
+                                    mApiKey).toggleFolderEmail(authToken, folderId, enable);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -1168,14 +1194,14 @@ public class Box {
      *            The callback that will run
      */
     public final void getVersions(final String authToken, final String type, final long targetId,
-        final GetVersionsListener listener) {
+                    final GetVersionsListener listener) {
 
         new Thread() {
             @Override
             public void run() {
                 try {
                     final VersionsResponseParser response = BoxSynchronous.getInstance(mApiKey)
-                        .getVersions(authToken, type, targetId);
+                                    .getVersions(authToken, type, targetId);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -1208,14 +1234,14 @@ public class Box {
      *            The callback that will run
      */
     public final void makeCurrentVersion(final String authToken, final long versionId,
-        final MakeCurrentVersionListener listener) {
+                    final MakeCurrentVersionListener listener) {
 
         new Thread() {
             @Override
             public void run() {
                 try {
                     final VersionsResponseParser response = BoxSynchronous.getInstance(mApiKey)
-                        .makeCurrentVersion(authToken, versionId);
+                                    .makeCurrentVersion(authToken, versionId);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -1253,14 +1279,15 @@ public class Box {
      *            The callback that will run
      */
     public final void setDescription(final String authToken, final String type,
-        final long targetId, final String description, final SetDescriptionListener listener) {
+                    final long targetId, final String description,
+                    final SetDescriptionListener listener) {
 
         new Thread() {
             @Override
             public void run() {
                 try {
                     final String status = BoxSynchronous.getInstance(mApiKey).setDescription(
-                        authToken, type, targetId, description);
+                                    authToken, type, targetId, description);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -1303,15 +1330,16 @@ public class Box {
      *            The callback that will run
      */
     public final void publicShare(final String authToken, final String type, final long targetId,
-        final String password, final String shareMsg, final String[] emails,
-        final PublicShareListener listener) {
+                    final String password, final String shareMsg, final String[] emails,
+                    final PublicShareListener listener) {
 
         new Thread() {
             @Override
             public void run() {
                 try {
                     final PublicShareResponseParser response = BoxSynchronous.getInstance(mApiKey)
-                        .publicShare(authToken, type, targetId, password, shareMsg, emails);
+                                    .publicShare(authToken, type, targetId, password, shareMsg,
+                                                    emails);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -1346,14 +1374,14 @@ public class Box {
      *            The callback that will run
      */
     public final void publicUnshare(final String authToken, final String type, final long targetId,
-        final PublicUnshareListener listener) {
+                    final PublicUnshareListener listener) {
 
         new Thread() {
             @Override
             public void run() {
                 try {
                     final String status = BoxSynchronous.getInstance(mApiKey).publicUnshare(
-                        authToken, type, targetId);
+                                    authToken, type, targetId);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -1397,15 +1425,15 @@ public class Box {
      *            The callback that will run
      */
     public final void privateShare(final String authToken, final String type, final long targetId,
-        final String message, final String[] emails, final boolean notify,
-        final PrivateShareListener listener) {
+                    final String message, final String[] emails, final boolean notify,
+                    final PrivateShareListener listener) {
 
         new Thread() {
             @Override
             public void run() {
                 try {
                     final String status = BoxSynchronous.getInstance(mApiKey).privateShare(
-                        authToken, type, targetId, message, emails, notify);
+                                    authToken, type, targetId, message, emails, notify);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -1447,15 +1475,15 @@ public class Box {
      *            The callback that will run
      */
     public final void addToMyBox(final String authToken, final long fileId,
-        final String publicName, final long folderId, final String[] tags,
-        final AddToMyBoxListener listener) {
+                    final String publicName, final long folderId, final String[] tags,
+                    final AddToMyBoxListener listener) {
 
         new Thread() {
             @Override
             public void run() {
                 try {
                     final String status = BoxSynchronous.getInstance(mApiKey).addToMyBox(authToken,
-                        fileId, publicName, folderId, tags);
+                                    fileId, publicName, folderId, tags);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -1498,15 +1526,16 @@ public class Box {
      *            {@link com.box.androidlib.ResponseListeners.FileDownloadListener#onComplete(String)}
      */
     public final void download(final String authToken, final long fileId,
-        final File destinationFile, final Long versionId, final FileDownloadListener listener) {
+                    final File destinationFile, final Long versionId,
+                    final FileDownloadListener listener) {
 
         final Thread t = new Thread() {
             @Override
             public void run() {
                 try {
-                    final DefaultResponseParser response = BoxSynchronous
-                        .getInstance(mApiKey)
-                        .download(authToken, fileId, destinationFile, versionId, listener, mHandler);
+                    final DefaultResponseParser response = BoxSynchronous.getInstance(mApiKey)
+                                    .download(authToken, fileId, destinationFile, versionId,
+                                                    listener, mHandler);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -1559,14 +1588,16 @@ public class Box {
      *            {@link com.box.androidlib.ResponseListeners.FileUploadListener#onComplete(com.box.androidlib.DAO.BoxFile, String)}
      */
     public final void upload(final String authToken, final String action, final File file,
-        final String filename, final long destinationId, final FileUploadListener listener) {
+                    final String filename, final long destinationId,
+                    final FileUploadListener listener) {
 
         new Thread() {
             @Override
             public void run() {
                 try {
                     final FileResponseParser response = BoxSynchronous.getInstance(mApiKey).upload(
-                        authToken, action, file, filename, destinationId, listener, mHandler);
+                                    authToken, action, file, filename, destinationId, listener,
+                                    mHandler);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -1629,9 +1660,10 @@ public class Box {
      */
     @Deprecated
     public final void upload(final String action, final String absoluteFilePath,
-        final String authToken, final long destinationId, final FileUploadListener listener) {
+                    final String authToken, final long destinationId,
+                    final FileUploadListener listener) {
         upload(authToken, action, new File(absoluteFilePath),
-            absoluteFilePath.substring(absoluteFilePath.lastIndexOf("/") + 1), destinationId,
-            listener);
+                        absoluteFilePath.substring(absoluteFilePath.lastIndexOf("/") + 1),
+                        destinationId, listener);
     }
 }
