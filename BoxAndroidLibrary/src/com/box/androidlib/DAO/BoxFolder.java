@@ -598,6 +598,19 @@ public class BoxFolder extends DAO {
     }
 
     /**
+     * Add a child file to this folder. Response parsers always use this method
+     * to add child files to the folder rather than directly adding to the list
+     * through getFilesInFolder().add(). So if you want to override how the list
+     * of child files are populated, you can override this method in your own
+     * custom BoxFolder class.
+     * 
+     * @param boxFile
+     */
+    public void addChildFile(BoxFile boxFile) {
+        mFilesInFolder.add(boxFile);
+    }
+
+    /**
      * Get list of folders in folder.
      * 
      * @return list of folders in folder
@@ -606,6 +619,19 @@ public class BoxFolder extends DAO {
         return mFoldersInFolder;
     }
 
+    /**
+     * Add a child folder to this folder. Response parsers always use this method
+     * to add child folders to the folder rather than directly adding to the list
+     * through getFoldersInFolder().add(). So if you want to override how the list
+     * of child folders are populated, you can override this method in your own
+     * custom BoxFolder class.
+     * 
+     * @param boxFile
+     */
+    public void addChildFolder(BoxFolder boxFolder) {
+        mFoldersInFolder.add(boxFolder);
+    }
+    
     /**
      * Get list of tag ids in folder.
      * 
