@@ -33,6 +33,10 @@ public interface FileDownloadListener extends ResponseListener {
      */
     String STATUS_DOWNLOAD_FAIL = "download_fail";
     /**
+     * download status to indicate that the download was canceled.
+     */
+    String STATUS_DOWNLOAD_CANCELLED = "download_cancelled";    
+    /**
      * download status to indicate that the download failed because the auth
      * token was invalid.
      */

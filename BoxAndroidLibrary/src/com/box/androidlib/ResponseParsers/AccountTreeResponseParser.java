@@ -70,15 +70,18 @@ public class AccountTreeResponseParser extends DefaultResponseParser {
                 if (mTargetFolder == null) {
                     mTargetFolder = Box.getBoxFolderClass().newInstance();
                     mCurrFolder = mTargetFolder;
+                    for (int i = 0; i < attributes.getLength(); i++) {
+                        mCurrFolder.parseAttribute(attributes.getLocalName(i), attributes.getValue(i));
+                    }
                 } else {
                     final BoxFolder parentFolder = mCurrFolder;
                     mCurrFolder = Box.getBoxFolderClass().newInstance();
+                    for (int i = 0; i < attributes.getLength(); i++) {
+                        mCurrFolder.parseAttribute(attributes.getLocalName(i), attributes.getValue(i));
+                    }
                     mCurrFolder.setParentFolder(parentFolder);
                     mCurrFolder.setParentFolderId(parentFolder.getId());
                     parentFolder.addChildFolder(mCurrFolder);
-                }
-                for (int i = 0; i < attributes.getLength(); i++) {
-                    mCurrFolder.parseAttribute(attributes.getLocalName(i), attributes.getValue(i));
                 }
             } else if (localName.equals("file")) {
                 mFileOrFolder = FileOrFolder.FILE;

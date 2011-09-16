@@ -16,6 +16,7 @@
 package com.box.androidlib.DAO;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.box.androidlib.Utils.BoxUtils;
 
@@ -593,7 +594,7 @@ public class BoxFolder extends DAO {
      * 
      * @return list of files in folder
      */
-    public ArrayList<BoxFile> getFilesInFolder() {
+    public List<? extends BoxFile> getFilesInFolder() {
         return mFilesInFolder;
     }
 
@@ -615,7 +616,7 @@ public class BoxFolder extends DAO {
      * 
      * @return list of folders in folder
      */
-    public ArrayList<BoxFolder> getFoldersInFolder() {
+    public List<? extends BoxFolder> getFoldersInFolder() {
         return mFoldersInFolder;
     }
 

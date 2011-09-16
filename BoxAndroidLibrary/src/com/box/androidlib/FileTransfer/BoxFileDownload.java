@@ -29,7 +29,6 @@ import android.os.Handler;
 import com.box.androidlib.ResponseListeners.FileDownloadListener;
 import com.box.androidlib.ResponseParsers.DefaultResponseParser;
 import com.box.androidlib.Utils.BoxConfig;
-import com.box.androidlib.Utils.BoxConstants;
 
 /**
  * Contains logic for downloading a user's file from Box API and reporting
@@ -128,7 +127,7 @@ public class BoxFileDownload {
      */
     public DefaultResponseParser execute(final long fileId, final File destinationFile,
         final Long versionId) throws IOException {
-
+        
         final DefaultResponseParser handler = new DefaultResponseParser();
 
         final Uri.Builder builder = new Uri.Builder();
@@ -154,7 +153,7 @@ public class BoxFileDownload {
             final byte[] buffer = new byte[DOWNLOAD_BUFFER_SIZE];
             int bufferLength = 0;
             mBytesTransferred = 0;
-            while ((bufferLength = is.read(buffer)) > 0) {
+            while ((bufferLength = is.read(buffer)) > 0 && !Thread.interrupted()) {
                 fos.write(buffer, 0, bufferLength);
                 mBytesTransferred += bufferLength;
                 if (mListener != null && mHandler != null) {
@@ -164,11 +163,14 @@ public class BoxFileDownload {
             fos.close();
             handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_OK);
 
+            // If download thread was interrupted, set to STATUS_DOWNLOAD_CANCELED
+            if (Thread.interrupted()) {
+                handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_CANCELLED);
+            }
             // Even if download completed, Box API may have put an error message
-            // in the file itself
-            // Refer to
+            // in the file itself. Refer to
             // http://developers.box.net/w/page/12923951/ApiFunction_Upload-and-Download
-            if (destinationFile.length() < FILE_ERROR_SIZE) {
+            else if (destinationFile.length() < FILE_ERROR_SIZE) {
                 final byte[] buff = new byte[(int) destinationFile.length()];
                 final FileInputStream fis = new FileInputStream(destinationFile);
                 fis.read(buffer);

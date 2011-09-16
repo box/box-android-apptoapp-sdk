@@ -139,7 +139,7 @@ public class Browse extends ListActivity {
 
                     int i = 0;
 
-                    Iterator<BoxFolder> foldersIterator = boxFolder.getFoldersInFolder().iterator();
+                    Iterator<? extends BoxFolder> foldersIterator = boxFolder.getFoldersInFolder().iterator();
                     while (foldersIterator.hasNext()) {
                         BoxFolder subfolder = foldersIterator.next();
                         TreeListItem item = new TreeListItem();
@@ -151,7 +151,7 @@ public class Browse extends ListActivity {
                         i++;
                     }
 
-                    Iterator<BoxFile> filesIterator = boxFolder.getFilesInFolder().iterator();
+                    Iterator<? extends BoxFile> filesIterator = boxFolder.getFilesInFolder().iterator();
                     while (filesIterator.hasNext()) {
                         BoxFile boxFile = filesIterator.next();
                         TreeListItem item = new TreeListItem();

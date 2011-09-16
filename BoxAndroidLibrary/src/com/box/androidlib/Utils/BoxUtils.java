@@ -115,6 +115,8 @@ public final class BoxUtils {
             factor = BYTES_IN_MEGABYTE;
         } else if (string2.endsWith("gb")) {
             factor = BYTES_IN_GIGABYTE;
+        } else {
+            return parseLong(string);
         }
         return (long) (BoxUtils.parseFloat(string2.replaceAll("kb", "").replaceAll("mb", "")
             .replaceAll("gb", "").replaceAll("bytes", "").trim()) * factor);
