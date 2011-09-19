@@ -174,7 +174,13 @@ public class BoxFileUpload {
                     }
                 });
         }
-        reqEntity.addPart(filename, new FileBody(file));
+
+        reqEntity.addPart(filename, new FileBody(file) {
+            @Override
+            public String getFilename() {
+                return filename;
+            }
+        });
         post.setEntity(reqEntity);
 
         // Send request
