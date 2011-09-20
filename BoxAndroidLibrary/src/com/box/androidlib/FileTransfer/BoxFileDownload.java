@@ -153,7 +153,7 @@ public class BoxFileDownload {
             final byte[] buffer = new byte[DOWNLOAD_BUFFER_SIZE];
             int bufferLength = 0;
             mBytesTransferred = 0;
-            while ((bufferLength = is.read(buffer)) > 0 && !Thread.interrupted()) {
+            while ((bufferLength = is.read(buffer)) > 0 && !Thread.currentThread().isInterrupted()) {
                 fos.write(buffer, 0, bufferLength);
                 mBytesTransferred += bufferLength;
                 if (mListener != null && mHandler != null) {
@@ -164,7 +164,7 @@ public class BoxFileDownload {
             handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_OK);
 
             // If download thread was interrupted, set to STATUS_DOWNLOAD_CANCELED
-            if (Thread.interrupted()) {
+            if (Thread.currentThread().isInterrupted()) {
                 handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_CANCELLED);
             }
             // Even if download completed, Box API may have put an error message
