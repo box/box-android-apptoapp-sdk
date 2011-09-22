@@ -1474,7 +1474,7 @@ public class Box {
      * @param listener
      *            The callback that will run
      */
-    public final void addToMyBox(final String authToken, final long fileId,
+    public final void addToMyBox(final String authToken, final Long fileId,
                     final String publicName, final long folderId, final String[] tags,
                     final AddToMyBoxListener listener) {
 

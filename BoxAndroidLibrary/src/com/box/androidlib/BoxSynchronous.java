@@ -1024,16 +1024,27 @@ public class BoxSynchronous {
      *             Can be thrown if there is no connection, or if some other
      *             connection problem exists.
      */
-    public final String addToMyBox(final String authToken, final long fileId,
+    public final String addToMyBox(final String authToken, final Long fileId,
         final String publicName, final long folderId, final String[] tags) throws IOException {
         final DefaultResponseParser parser = new DefaultResponseParser();
         final Uri.Builder builder = BoxUriBuilder.getBuilder(mApiKey, authToken, "add_to_mybox")
-            .appendQueryParameter("file_id", String.valueOf(fileId))
             .appendQueryParameter("folder_id", String.valueOf(folderId));
+        if (fileId != null) {
+            builder.appendQueryParameter("file_id", String.valueOf(fileId));
+        } else {
+            builder.appendQueryParameter("file_id", "");
+        }
+        if (publicName != null) {
+            builder.appendQueryParameter("public_name", publicName);
+        } else {
+            builder.appendQueryParameter("public_name", "");
+        }
         if (tags != null) {
             for (int i = 0; i < tags.length; i++) {
                 builder.appendQueryParameter("tags[" + i + "]", tags[i]);
             }
+        } else {
+            builder.appendQueryParameter("tags", "");
         }
         saxRequest(parser, builder.build());
         return parser.getStatus();
