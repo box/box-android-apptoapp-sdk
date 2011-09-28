@@ -462,6 +462,8 @@ public class BoxFile extends DAO {
     public void parseAttribute(final String key, final String value) {
         if (key.equals("file_id") || key.equals("id")) {
             setId(BoxUtils.parseLong(value));
+        } else if (key.equals("folder_id")) {
+            setFolderId(BoxUtils.parseLong(value, -1));
         } else if (key.equals("file_name") || key.equals("name")) {
             setFileName(value);
         } else if (key.equals("shared_name")) {
