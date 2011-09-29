@@ -142,12 +142,12 @@ public class Box {
      * Used in search to specify that results should be returned in ascending.
      * order.
      **/
-    public static final String DIRECTION_ASC = "asc";
+    public static final String DIRECTION_ASC = "ASC";
     /**
      * Used in search to specify that results should be returned in descending.
      * order.
      **/
-    public static final String DIRECTION_DESC = "desc";
+    public static final String DIRECTION_DESC = "DESC";
     /**
      * Parameter for search to indicate that search results should include the
      * descriptions of the files and folders returned.
