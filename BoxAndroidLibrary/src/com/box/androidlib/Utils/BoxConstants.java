@@ -17,7 +17,7 @@ package com.box.androidlib.Utils;
 
 /**
  * Constants used in library.
- * 
+ *
  * @author developers@box.net
  */
 public final class BoxConstants {
@@ -34,4 +34,10 @@ public final class BoxConstants {
      * ) should be appended to the URL.
      */
     public static final String LOGIN_URL = "https://m.box.net/api/1.0/auth/";
+
+    /**
+     * Enables debug logging to logcat.
+     * IMPORTANT: This should always be set to false in your production builds.
+     */
+    public static final boolean DEBUG_LOGGING_ENABLED = false;
 }

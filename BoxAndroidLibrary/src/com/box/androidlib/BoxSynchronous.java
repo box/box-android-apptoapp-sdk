@@ -36,8 +36,6 @@ import org.xml.sax.XMLReader;
 import android.net.Uri;
 import android.os.Handler;
 
-import com.box.androidlib.DAO.BoxFile;
-import com.box.androidlib.DAO.BoxFolder;
 import com.box.androidlib.FileTransfer.BoxFileDownload;
 import com.box.androidlib.FileTransfer.BoxFileUpload;
 import com.box.androidlib.ResponseListeners.FileDownloadListener;
@@ -1160,11 +1158,7 @@ public class BoxSynchronous {
      */
     protected static void saxRequest(final DefaultResponseParser parser, final Uri uri)
         throws IOException {
-        // sanitize for security/privacy
-        DevUtils.logcat(uri.toString().replaceAll("api_key=\\w*", "api_key=REMOVED_FROM_LOG")
-            .replaceAll("auth_token=\\w*", "auth_token=REMOVED_FROM_LOG")
-            .replaceAll("login=\\w*", "login=REMOVED_FROM_LOG")
-            .replaceAll("password=\\w*", "password=REMOVED_FROM_LOG"));
+        DevUtils.logcat(uri.toString());
         try {
             final XMLReader xmlReader = SAXParserFactory.newInstance().newSAXParser()
                 .getXMLReader();

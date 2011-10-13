@@ -38,6 +38,9 @@ public final class DevUtils {
      *            the string to log
      */
     public static void logcat(final String str) {
+        if (!BoxConstants.DEBUG_LOGGING_ENABLED) {
+            return;
+        }
         final String[] lines = str.split("\n");
         for (int i = 0; i < lines.length; i++) {
             Log.d("BOXBOX", lines[i]);
