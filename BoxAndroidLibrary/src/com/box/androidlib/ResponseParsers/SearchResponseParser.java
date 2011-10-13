@@ -54,11 +54,23 @@ public class SearchResponseParser extends DefaultResponseParser {
         FOLDER
     };
 
+    private enum MatchTypeFileOrFolder {
+        /** Indicates that we are processing a file match type. */
+        MATCH_TYPE_FILE,
+        /** Indicates that we are processing a folder match type. */
+        MATCH_TYPE_FOLDER,
+    }
+    
     /**
      * Instance of FileOrFolder.
      */
     private FileOrFolder mFileOrFolder;
 
+    /**
+     * Instance of MatchTypeFileOrFolder
+     */
+    private MatchTypeFileOrFolder mMatchTypeFileOrFolder;
+    
     @Override
     public void startElement(final String uri, final String localName, final String qName,
         final Attributes attributes) throws SAXException {
@@ -72,6 +84,12 @@ public class SearchResponseParser extends DefaultResponseParser {
                 mFile = Box.getBoxFileClass().newInstance();
                 mSearchResult.getFiles().add(mFile);
                 mFileOrFolder = FileOrFolder.FILE;
+            } else if (localName.equals("match_type")) {
+                if (mFileOrFolder == FileOrFolder.FILE) { 
+                    mMatchTypeFileOrFolder = MatchTypeFileOrFolder.MATCH_TYPE_FILE;
+                } else if (mFileOrFolder == FileOrFolder.FOLDER){
+                    mMatchTypeFileOrFolder = MatchTypeFileOrFolder.MATCH_TYPE_FOLDER;
+                }
             }
         } catch (IllegalAccessException e) {
             e.printStackTrace();
@@ -86,8 +104,16 @@ public class SearchResponseParser extends DefaultResponseParser {
         super.endElement(uri, localName, qName);
         if (localName.equals("folder") || localName.equals("file")) {
             mFileOrFolder = null;
-        } else {
-            if (mFileOrFolder == FileOrFolder.FOLDER && mFolder != null) {
+        } 
+        else if (localName.equals("match_type")) {
+            mMatchTypeFileOrFolder = null;
+        }
+        else {
+            if (mMatchTypeFileOrFolder == MatchTypeFileOrFolder.MATCH_TYPE_FILE) {
+                // If we ever care about file match type, process it here
+            } else if (mMatchTypeFileOrFolder == MatchTypeFileOrFolder.MATCH_TYPE_FOLDER) {
+                // If we ever care about folder match type, process it here
+            } else if (mFileOrFolder == FileOrFolder.FOLDER && mFolder != null) {
                 mFolder.parseAttribute(localName, mTextNode.toString());
             } else if (mFileOrFolder == FileOrFolder.FILE && mFile != null) {
                 mFile.parseAttribute(localName, mTextNode.toString());
