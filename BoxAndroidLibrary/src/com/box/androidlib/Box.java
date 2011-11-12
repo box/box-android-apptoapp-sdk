@@ -42,6 +42,7 @@ import com.box.androidlib.ResponseListeners.GetFileInfoListener;
 import com.box.androidlib.ResponseListeners.GetTicketListener;
 import com.box.androidlib.ResponseListeners.GetUpdatesListener;
 import com.box.androidlib.ResponseListeners.GetVersionsListener;
+import com.box.androidlib.ResponseListeners.InviteCollaboratorsListener;
 import com.box.androidlib.ResponseListeners.LogoutListener;
 import com.box.androidlib.ResponseListeners.MakeCurrentVersionListener;
 import com.box.androidlib.ResponseListeners.MoveListener;
@@ -173,6 +174,15 @@ public class Box {
      */
     public static final String UPLOAD_ACTION_NEW_COPY = "new_copy";
 
+    /**
+     * Used in invite_collaborators to specify a viewer role.
+     **/
+    public static final String ITEM_ROLE_VIEWER = "viewer";
+    /**
+     * Used in invite_collaborators tp specify an editor role.
+     **/
+    public static final String ITEM_ROLE_EDITOR = "editor";
+    
     /**
      * The BoxFile class that ResponseParsers will instantiate.
      */
@@ -1434,6 +1444,63 @@ public class Box {
                 try {
                     final String status = BoxSynchronous.getInstance(mApiKey).privateShare(
                                     authToken, type, targetId, message, emails, notify);
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onComplete(status);
+                        }
+                    });
+                } catch (final IOException e) {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onIOException(e);
+                        }
+                    });
+                }
+            }
+        }.start();
+    }
+
+    /**
+     * Invites one or more users/emails to collaborate on a folder. Executes API action
+     * invite_collaborators:
+     * {@link <a href="http://developers.box.net/w/page/12923938/ApiFunction_invite_collaborators">http://developers.box.net/w/page/12923938/ApiFunction_invite_collaborators</a>}
+     * 
+     * @param authToken
+     *            The auth token retrieved through
+     *            {@link BoxSynchronous#getAuthToken(String)}
+     * @param type
+     *            The type of item to be shared. Set to
+     *            {@link com.box.androidlib.Box#TYPE_FOLDER}
+     * @param targetId
+     *            The file_id or folder_id of the item
+     * @param userIds
+     *            An array of user ids that the folder will be collaborated with. Can be null.
+     * @param emails
+     *            An array of email addresses that the folder will be collaborated with. Can be null.
+     * @param itemRoleName
+     *            Set to either {@link com.box.androidlib.Box#ITEM_ROLE_VIEWER} or 
+     *            {@link com.box.androidlib.Box#ITEM_ROLE_EDITOR}.
+     * @param resendInvite
+     *            Whether the invitation is being re-sent.
+     * @param noEmail
+     *            If true, no e-mail notification will be sent about the invitation.
+     * @param params
+     *            An array of parameters. TODO missing documentation for this. Set as null for now.
+     * @param listener
+     *            The callback that will run
+     */
+    public void inviteCollaborators(final String authToken, final String type, final long targetId, 
+        final long[] userIds, final String emails[], final String itemRoleName, final boolean resendInvite, 
+        final boolean noEmail, final String[] params, final InviteCollaboratorsListener listener) {
+
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    final String status = BoxSynchronous.getInstance(mApiKey).inviteCollaborators(authToken, 
+                        type, targetId, userIds, emails, itemRoleName, resendInvite, noEmail, params);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {

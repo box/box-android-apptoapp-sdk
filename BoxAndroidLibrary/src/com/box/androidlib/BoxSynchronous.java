@@ -910,16 +910,14 @@ public class BoxSynchronous {
         final Uri.Builder builder = BoxUriBuilder.getBuilder(mApiKey, authToken, "public_share")
             .appendQueryParameter("target", type)
             .appendQueryParameter("target_id", String.valueOf(targetId));
-        if (shareMsg != null) {
-            builder.appendQueryParameter("message", shareMsg);
-        }
-        if (password != null) {
-            builder.appendQueryParameter("password", password);
-        }
+        builder.appendQueryParameter("message", shareMsg == null ? "" : shareMsg);
+        builder.appendQueryParameter("password", password == null ? "" : password);
         if (emails != null) {
             for (int i = 0; i < emails.length; i++) {
                 builder.appendQueryParameter("emails[" + i + "]", emails[i]);
             }
+        } else {
+            builder.appendQueryParameter("emails", "");
         }
         saxRequest(parser, builder.build());
         return parser;
@@ -999,6 +997,72 @@ public class BoxSynchronous {
         return parser.getStatus();
     }
 
+    /**
+     * Invites one or more users/emails to collaborate on a folder. Executes API action
+     * invite_collaborators:
+     * {@link <a href="http://developers.box.net/w/page/12923938/ApiFunction_invite_collaborators">http://developers.box.net/w/page/12923938/ApiFunction_invite_collaborators</a>}
+     * 
+     * @param authToken
+     *            The auth token retrieved through
+     *            {@link BoxSynchronous#getAuthToken(String)}
+     * @param type
+     *            The type of item to be shared. Set to
+     *            {@link com.box.androidlib.Box#TYPE_FOLDER}
+     * @param targetId
+     *            The file_id or folder_id of the item
+     * @param userIds
+     *            An array of user ids that the folder will be collaborated with. Can be null.
+     * @param emails
+     *            An array of email addresses that the folder will be collaborated with. Can be null.
+     * @param itemRoleName
+     *            Set to either {@link com.box.androidlib.Box#ITEM_ROLE_VIEWER} or 
+     *            {@link com.box.androidlib.Box#ITEM_ROLE_EDITOR}.
+     * @param resendInvite
+     *            Whether the invitation is being re-sent.
+     * @param noEmail
+     *            If true, no e-mail notification will be sent about the invitation.
+     * @param params
+     *            An array of parameters. TODO missing documentation for this. Set as null for now.
+     * @return the status code returned from Box API
+     * @throws IOException
+     *            Can be thrown if there is no connection, or if some other
+     *            connection problem exists.
+     */
+    public String inviteCollaborators(final String authToken, final String type, final long targetId, 
+        final long[] userIds, final String emails[], final String itemRoleName, final boolean resendInvite, 
+        final boolean noEmail, final String[] params) throws IOException {
+        final DefaultResponseParser parser = new DefaultResponseParser();
+        final Uri.Builder builder = BoxUriBuilder.getBuilder(mApiKey, authToken, "invite_collaborators")
+            .appendQueryParameter("target", type)
+            .appendQueryParameter("target_id", String.valueOf(targetId))
+            .appendQueryParameter("item_role_name", itemRoleName)
+            .appendQueryParameter("resend_invite", resendInvite ? "1" : "0")
+            .appendQueryParameter("no_email", noEmail ? "1" : "0");
+        if (emails != null) {
+            for (int i = 0; i < emails.length; i++) {
+                builder.appendQueryParameter("emails[" + i + "]", emails[i]);
+            }
+        } else {
+            builder.appendQueryParameter("emails", "");
+        }
+        if (userIds != null) {
+            for (int i = 0; i < userIds.length; i++) {
+                builder.appendQueryParameter("user_ids[" + i + "]", String.valueOf(userIds[i]));
+            }
+        } else {
+            builder.appendQueryParameter("user_ids", "");
+        }
+        if (params != null) {
+            for (int i = 0; i < params.length; i++) {
+                builder.appendQueryParameter("params[" + i + "]", params[i]);
+            }
+        } else {
+            builder.appendQueryParameter("params", "");
+        }
+        saxRequest(parser, builder.build());
+        return parser.getStatus();
+    }
+    
     /**
      * This method copies a file that publicly shared by another individual and
      * into a user's a designated folder in the user's Box. Executes API action
