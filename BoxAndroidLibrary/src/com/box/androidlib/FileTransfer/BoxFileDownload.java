@@ -25,6 +25,7 @@ import java.net.URL;
 
 import android.net.Uri;
 import android.os.Handler;
+import android.os.SystemClock;
 
 import com.box.androidlib.ResponseListeners.FileDownloadListener;
 import com.box.androidlib.ResponseParsers.DefaultResponseParser;
@@ -74,6 +75,12 @@ public class BoxFileDownload {
      */
     private static final int FILE_ERROR_SIZE = 100;
 
+    /**
+     * The minimum time in milliseconds that must pass between each call to FileDownloadListener.onProgress.
+     * This is to avoid excessive calls which may lock up the device.
+     */
+    private static final int ON_PROGRESS_UPDATE_THRESHOLD = 100;
+    
     /**
      * Instantiate a new BoxFileDownload.
      *
@@ -153,13 +160,17 @@ public class BoxFileDownload {
             final byte[] buffer = new byte[DOWNLOAD_BUFFER_SIZE];
             int bufferLength = 0;
             mBytesTransferred = 0;
+            long lastOnProgressPost = 0;
             while ((bufferLength = is.read(buffer)) > 0 && !Thread.currentThread().isInterrupted()) {
                 fos.write(buffer, 0, bufferLength);
                 mBytesTransferred += bufferLength;
-                if (mListener != null && mHandler != null) {
+                long currTime = SystemClock.uptimeMillis();
+                if (mListener != null && mHandler != null && currTime - lastOnProgressPost > ON_PROGRESS_UPDATE_THRESHOLD) {
+                    lastOnProgressPost = currTime;
                     mHandler.post(mOnProgressRunnable);
                 }
             }
+            mHandler.post(mOnProgressRunnable);
             fos.close();
             handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_OK);
 
