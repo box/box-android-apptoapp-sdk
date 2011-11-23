@@ -63,6 +63,9 @@ public class BoxConfig {
     private String mDownloadUrlAuthority = DOWNLOAD_URL_AUTHORITY;
     /** Download url path. */
     private String mDownloadUrlPath = DOWNLOAD_URL_PATH;
+    
+    /** Time to wait before connection timeout. */
+    private static int mConnectionTimout = 0;
 
     /** Singleton instance. */
     private static BoxConfig mInstance;
@@ -254,5 +257,24 @@ public class BoxConfig {
      */
     public String getDownloadUrlPath() {
         return mDownloadUrlPath;
+    }
+    
+    
+    /**
+     * Set the amount of time in milliseconds that calls to the server should wait
+     * before timing out. Default is 0 which stands for infinite timeout. 
+     * @return
+     */
+    public void setConnectionTimeOut(int timeout) {
+        mConnectionTimout = timeout;
+    }
+    
+    /**
+     * Get the amount of time in milliseconds that calls to the server should wait
+     * before timing out. 
+     * @return
+     */
+    public int getConnectionTimeOut() {
+        return mConnectionTimout;
     }
 }
