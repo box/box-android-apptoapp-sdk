@@ -1235,7 +1235,6 @@ public class BoxSynchronous {
 
             final int responseCode = conn.getResponseCode();
             final InputStream is = conn.getInputStream();
-            System.out.println("saxRequest " + responseCode);
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 xmlReader.parse(new InputSource(is));
             } else if (responseCode == -1) {
@@ -1251,33 +1250,4 @@ public class BoxSynchronous {
             e.printStackTrace();
         }
     }
-    
-    /*     
-        
-        final DefaultResponseParser handler = new DefaultResponseParser();
-
-        final Uri.Builder builder = new Uri.Builder();
-        builder.scheme(BoxConfig.getInstance().getDownloadUrlScheme());
-        builder.authority(BoxConfig.getInstance().getDownloadUrlAuthority());
-        builder.path(BoxConfig.getInstance().getDownloadUrlPath());
-        
-    
-        builder.appendPath(mAuthToken);
-        builder.appendPath(String.valueOf(fileId));
-        if (versionId != null) {
-            builder.appendPath(String.valueOf(versionId));
-        }
-
-        final HttpURLConnection conn = (HttpURLConnection) (new URL(builder.build().toString()))
-            .openConnection();
-        conn.setRequestMethod("GET");
-        conn.setDoOutput(true);
-        conn.connect();
-        final int responseCode = conn.getResponseCode();
-        final InputStream is = conn.getInputStream();
-    private static final String DOWNLOAD_URL_SCHEME = "https";
-    private static final String DOWNLOAD_URL_AUTHORITY = "www.box.net";
-    private static final String DOWNLOAD_URL_PATH = "/api/1.0/download/";
-     
-     */
 }
