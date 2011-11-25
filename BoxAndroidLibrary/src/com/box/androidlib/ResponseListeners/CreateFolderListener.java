@@ -33,7 +33,7 @@ public interface CreateFolderListener extends ResponseListener {
      * If operation was not successful. A folder with the same name already
      * exists in that location.
      */
-    String STATUS_S_FOLDER_EXISTS = "status_s_folder_exists";
+    String STATUS_S_FOLDER_EXISTS = "s_folder_exists";
     /**
      * If operation was not successful. The name provided for the new folder
      * contained invalid characters or too many characters.
