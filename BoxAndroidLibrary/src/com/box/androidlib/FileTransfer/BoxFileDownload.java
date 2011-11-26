@@ -21,7 +21,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.net.Uri;
 import android.os.Handler;
@@ -147,13 +152,19 @@ public class BoxFileDownload {
             builder.appendPath(String.valueOf(versionId));
         }
 
-        final HttpURLConnection conn = (HttpURLConnection) (new URL(builder.build().toString()))
-            .openConnection();
-        conn.setRequestMethod("GET");
-        conn.setDoOutput(true);
-        conn.connect();
-        final int responseCode = conn.getResponseCode();
-        final InputStream is = conn.getInputStream();
+        // We normally prefer to use HttpUrlConnection, however that appears to fail
+        // for certain types of files. For downloads, it appears DefaultHttpClient works
+        // more reliably.
+        final DefaultHttpClient httpclient = new DefaultHttpClient();
+        HttpGet httpGet;
+        try {
+			httpGet = new HttpGet(new URI(builder.build().toString()));
+		} catch (URISyntaxException e) {
+			throw new IOException("Invalid Download URL");
+		}
+        HttpResponse httpResponse = httpclient.execute(httpGet);
+        InputStream is = httpResponse.getEntity().getContent();
+        int responseCode = httpResponse.getStatusLine().getStatusCode();
 
         if (responseCode == HttpURLConnection.HTTP_OK) {
             final FileOutputStream fos = new FileOutputStream(destinationFile);
@@ -199,7 +210,6 @@ public class BoxFileDownload {
         }
 
         is.close();
-        conn.disconnect();
 
         return handler;
     }
