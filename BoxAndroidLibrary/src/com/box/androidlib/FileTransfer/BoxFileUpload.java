@@ -50,7 +50,6 @@ import com.box.androidlib.DAO.BoxFile;
 import com.box.androidlib.ResponseListeners.FileUploadListener;
 import com.box.androidlib.ResponseParsers.FileResponseParser;
 import com.box.androidlib.Utils.BoxConfig;
-import com.box.androidlib.Utils.BoxConstants;
 
 /**
  * Contains logic for uploading to Box and reporting errors that may have
@@ -76,6 +75,7 @@ public class BoxFileUpload {
      * Handler to execute onProgress callbacks.
      */
     private Handler mHandler;
+    
     /**
      * Instantiate a new BoxFileUpload.
      *
@@ -184,7 +184,20 @@ public class BoxFileUpload {
         post.setEntity(reqEntity);
 
         // Send request
-        final HttpResponse httpResponse = (new DefaultHttpClient()).execute(post);
+        final HttpResponse httpResponse;
+        try {
+        	httpResponse = (new DefaultHttpClient()).execute(post);
+        } catch (final IOException e) {
+        	// Detect if the download was cancelled through thread interrupt.
+        	// See CountingOutputStream.write() for when this exception is thrown.
+        	if (e.getMessage().equals(FileUploadListener.STATUS_CANCELLED)) {
+	            final FileResponseParser handler = new FileResponseParser();
+	            handler.setStatus(FileUploadListener.STATUS_CANCELLED);
+	            return handler;
+        	} else {
+        		throw e;
+        	}
+        }
 
         String status = null;
         BoxFile boxFile = null;
@@ -337,6 +350,10 @@ public class BoxFileUpload {
                 bytesBransferred += length;
                 if (mProgresslistener != null) {
                     mProgresslistener.onTransferred(bytesBransferred);
+                }
+                // Allow canceling of downloads through thread interrupt.
+                if (Thread.currentThread().isInterrupted()) {
+                	throw new IOException(FileUploadListener.STATUS_CANCELLED);
                 }
             }
         }

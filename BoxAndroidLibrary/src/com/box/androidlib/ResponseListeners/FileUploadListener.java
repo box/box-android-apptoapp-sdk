@@ -60,7 +60,11 @@ public interface FileUploadListener extends ResponseListener {
      * characters not accepted by Box.net.
      */
     String STATUS_INVALID_FILE_NAME = "upload_invalid_file_name";
-
+    /**
+     * If the upload was canceled.
+     */
+    String STATUS_CANCELLED = "upload_cancelled";
+    
     /**
      * Called periodically during upload so you can monitor upload progress.
      * 
