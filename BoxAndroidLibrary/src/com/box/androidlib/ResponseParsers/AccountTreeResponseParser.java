@@ -1,17 +1,13 @@
 /*******************************************************************************
  * Copyright 2011 Box.net.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the
+ * License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  ******************************************************************************/
 package com.box.androidlib.ResponseParsers;
 
@@ -44,8 +40,7 @@ public class AccountTreeResponseParser extends DefaultResponseParser {
     private BoxFile mBoxFile = null;
 
     /**
-     * Enum definition to indicate whether we are currently parsing a file or
-     * folder element.
+     * Enum definition to indicate whether we are currently parsing a file or folder element.
      */
     private enum FileOrFolder {
         /** Indicates that we are processing a file. */
@@ -53,15 +48,14 @@ public class AccountTreeResponseParser extends DefaultResponseParser {
         /** Indicates that we are processing a folder. */
         FOLDER
     };
-    
+
     /**
      * Instance of FileOrFolder.
      */
     private FileOrFolder mFileOrFolder;
 
     @Override
-    public void startElement(final String uri, final String localName, final String qName,
-        final Attributes attributes) throws SAXException {
+    public void startElement(final String uri, final String localName, final String qName, final Attributes attributes) throws SAXException {
         super.startElement(uri, localName, qName, attributes);
 
         try {
@@ -73,7 +67,8 @@ public class AccountTreeResponseParser extends DefaultResponseParser {
                     for (int i = 0; i < attributes.getLength(); i++) {
                         mCurrFolder.parseAttribute(attributes.getLocalName(i), attributes.getValue(i));
                     }
-                } else {
+                }
+                else {
                     final BoxFolder parentFolder = mCurrFolder;
                     mCurrFolder = Box.getBoxFolderClass().newInstance();
                     for (int i = 0; i < attributes.getLength(); i++) {
@@ -83,7 +78,8 @@ public class AccountTreeResponseParser extends DefaultResponseParser {
                     mCurrFolder.setParentFolderId(parentFolder.getId());
                     parentFolder.addChildFolder(mCurrFolder);
                 }
-            } else if (localName.equals("file")) {
+            }
+            else if (localName.equals("file")) {
                 mFileOrFolder = FileOrFolder.FILE;
                 mBoxFile = Box.getBoxFileClass().newInstance();
                 for (int i = 0; i < attributes.getLength(); i++) {
@@ -92,23 +88,26 @@ public class AccountTreeResponseParser extends DefaultResponseParser {
                 mCurrFolder.addChildFile(mBoxFile);
                 mBoxFile.setFolder(mCurrFolder);
                 mBoxFile.setFolderId(mCurrFolder.getId());
-            } else if (localName.equals("tag")) {
+            }
+            else if (localName.equals("tag")) {
                 if (mFileOrFolder == FileOrFolder.FILE) {
                     mBoxFile.getTagIds().add(BoxUtils.parseLong(attributes.getValue("id")));
-                } else if (mFileOrFolder == FileOrFolder.FOLDER) {
+                }
+                else if (mFileOrFolder == FileOrFolder.FOLDER) {
                     mCurrFolder.getTagIds().add(BoxUtils.parseLong(attributes.getValue("id")));
                 }
             }
-        } catch (IllegalAccessException e) {
+        }
+        catch (IllegalAccessException e) {
             e.printStackTrace();
-        } catch (InstantiationException e) {
+        }
+        catch (InstantiationException e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public void endElement(final String uri, final String localName, final String qName)
-        throws SAXException {
+    public void endElement(final String uri, final String localName, final String qName) throws SAXException {
         super.endElement(uri, localName, qName);
         if (localName.equals("folder")) {
             mCurrFolder = mCurrFolder.getParentFolder();

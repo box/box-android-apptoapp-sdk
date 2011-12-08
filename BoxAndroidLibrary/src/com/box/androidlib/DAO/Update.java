@@ -1,17 +1,13 @@
 /*******************************************************************************
  * Copyright 2011 Box.net.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the
+ * License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  ******************************************************************************/
 package com.box.androidlib.DAO;
 
@@ -259,8 +255,7 @@ public class Update extends DAO {
     }
 
     /**
-     * Get shared name which is a unique identifier for the file, which can be
-     * used to generate a shared page.
+     * Get shared name which is a unique identifier for the file, which can be used to generate a shared page.
      * 
      * @return shared name.
      */
@@ -354,41 +349,51 @@ public class Update extends DAO {
     }
 
     /**
-     * Utility method to parse attributes into DAO member data. Used by SAX
-     * parsers.
+     * Utility method to parse attributes into DAO member data. Used by SAX parsers.
      * 
      * @param key
-     *            Corresponds to attribute names and element names returned by
-     *            Box API
+     *            Corresponds to attribute names and element names returned by Box API
      * @param value
      *            The value to be set
      */
     public void parseAttribute(final String key, final String value) {
         if (key.equals("update_id")) {
             setId(BoxUtils.parseLong(value));
-        } else if (key.equals("user_id")) {
+        }
+        else if (key.equals("user_id")) {
             setUserId(BoxUtils.parseLong(value));
-        } else if (key.equals("user_name")) {
+        }
+        else if (key.equals("user_name")) {
             setUserName(value);
-        } else if (key.equals("user_email")) {
+        }
+        else if (key.equals("user_email")) {
             setUserEmail(value);
-        } else if (key.equals("updated")) {
+        }
+        else if (key.equals("updated")) {
             setUpdated(BoxUtils.parseLong(value));
-        } else if (key.equals("update_type")) {
+        }
+        else if (key.equals("update_type")) {
             setUpdateType(value);
-        } else if (key.equals("folder_id")) {
+        }
+        else if (key.equals("folder_id")) {
             setFolderId(BoxUtils.parseLong(value));
-        } else if (key.equals("folder_name")) {
+        }
+        else if (key.equals("folder_name")) {
             setFolderName(value);
-        } else if (key.equals("shared")) {
+        }
+        else if (key.equals("shared")) {
             setShared(value.equals("1") ? true : false);
-        } else if (key.equals("shared_name")) {
+        }
+        else if (key.equals("shared_name")) {
             setSharedName(value);
-        } else if (key.equals("owner_id")) {
+        }
+        else if (key.equals("owner_id")) {
             setOwnerId(BoxUtils.parseLong(value));
-        } else if (key.equals("folder_path")) {
+        }
+        else if (key.equals("folder_path")) {
             setFolderPath(value);
-        } else if (key.equals("collab_access")) {
+        }
+        else if (key.equals("collab_access")) {
             setCollabAccess(value.equals("1") ? true : false);
         }
     }

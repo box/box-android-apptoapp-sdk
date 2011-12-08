@@ -1,17 +1,13 @@
 /*******************************************************************************
  * Copyright 2011 Box.net.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the
+ * License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  ******************************************************************************/
 package com.box.androidlib.activities;
 
@@ -34,8 +30,8 @@ import com.box.androidlib.Utils.BoxConstants;
 
 /**
  * Activity for authenticating Box users. See
- * {@link <a href="http://developers.box.net/w/page/12923915/ApiAuthentication">http://developers.box.net/w/page/12923915/ApiAuthentication</a>}
- * for details about authentication.
+ * {@link <a href="http://developers.box.net/w/page/12923915/ApiAuthentication">http://developers.box.net/w/page/12923915/ApiAuthentication</a>} for details
+ * about authentication.
  * 
  * @author developers@box.net
  */
@@ -69,11 +65,11 @@ public class BoxAuthentication extends Activity {
     /**
      * Max number of retries on for getAuthToken.
      */
-    private static final int GET_AUTH_TOKEN_MAX_RETRIES = 5; 
+    private static final int GET_AUTH_TOKEN_MAX_RETRIES = 5;
     /**
      * Delay in milliseconds between each getAuthToken retry.
      */
-    private static final int GET_AUTH_TOKEN_INTERVAL = 500; 
+    private static final int GET_AUTH_TOKEN_INTERVAL = 500;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -92,11 +88,13 @@ public class BoxAuthentication extends Activity {
         // Once we have a ticket, launch a login webview.
         box = Box.getInstance(mApiKey);
         box.getTicket(new GetTicketListener() {
+
             @Override
             public void onComplete(final String ticket, final String status) {
                 if (status.equals("get_ticket_ok")) {
                     loadLoginWebview(ticket);
-                } else {
+                }
+                else {
                     onGetTicketFail();
                 }
             }
@@ -122,6 +120,7 @@ public class BoxAuthentication extends Activity {
         mLoginWebView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
         mLoginWebView.getSettings().setJavaScriptEnabled(true);
         mLoginWebView.setWebViewClient(new WebViewClient() {
+
             @Override
             public void onPageFinished(final WebView view, final String url) {
                 // Listen for page loads and execute Box.getAuthToken() after
@@ -141,10 +140,8 @@ public class BoxAuthentication extends Activity {
     }
 
     /**
-     * Try to get an auth token. Due to a bug with Android webviews, it is
-     * possible for WebViewClient.onPageFinished to be called before the page
-     * has actually loaded. So we may have to try the getAuthToken request
-     * several times.
+     * Try to get an auth token. Due to a bug with Android webviews, it is possible for WebViewClient.onPageFinished to be called before the page has actually
+     * loaded. So we may have to try the getAuthToken request several times.
      * http://stackoverflow.com/questions/3702627/onpagefinished-not-firing-correctly-when-rendering-web-page
      * 
      * @param ticket
@@ -158,12 +155,15 @@ public class BoxAuthentication extends Activity {
         }
         final Handler handler = new Handler();
         box.getAuthToken(ticket, new GetAuthTokenListener() {
+
             @Override
             public void onComplete(final User user, final String status) {
                 if (status.equals("get_auth_token_ok") && user != null) {
                     onAuthTokenRetreived(user.getAuthToken());
-                } else if (status.equals("error_unknown_http_response_code")) {
+                }
+                else if (status.equals("error_unknown_http_response_code")) {
                     handler.postDelayed(new Runnable() {
+
                         @Override
                         public void run() {
                             getAuthToken(ticket, tries + 1);

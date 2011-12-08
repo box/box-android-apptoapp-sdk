@@ -1,17 +1,13 @@
 /*******************************************************************************
  * Copyright 2011 Box.net.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the
+ * License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  ******************************************************************************/
 package com.box.androidlib.DAO;
 
@@ -43,8 +39,7 @@ public class BoxFile extends DAO {
      */
     protected long mFolderId = -1;
     /**
-     * The BoxFolder that this file belongs to. Set to transient to avoid
-     * circular references when serializing to JSON.
+     * The BoxFolder that this file belongs to. Set to transient to avoid circular references when serializing to JSON.
      */
     protected transient BoxFolder mFolder;
     /**
@@ -304,8 +299,7 @@ public class BoxFile extends DAO {
     /**
      * Get the folder_id of the folder that the file resides in.
      * 
-     * @return folder id. 0 means the root folder. -1 means the folder id is not
-     *         known by this object.
+     * @return folder id. 0 means the root folder. -1 means the folder id is not known by this object.
      */
     public long getFolderId() {
         return mFolderId;
@@ -314,9 +308,7 @@ public class BoxFile extends DAO {
     /**
      * Get the parent folder.
      * 
-     * @return The BoxFolder that owns this file. This may be null if this
-     *         BoxFile was created through an API call that did not contain its
-     *         parent folder.
+     * @return The BoxFolder that owns this file. This may be null if this BoxFile was created through an API call that did not contain its parent folder.
      */
     public BoxFolder getFolder() {
         return mFolder;
@@ -384,13 +376,17 @@ public class BoxFile extends DAO {
     public String getThumbnail() {
         if (mThumbnail != null) {
             return mThumbnail;
-        } else if (mLargerThumbnail != null) {
+        }
+        else if (mLargerThumbnail != null) {
             return mLargerThumbnail;
-        } else if (mLargeThumbnail != null) {
+        }
+        else if (mLargeThumbnail != null) {
             return mLargeThumbnail;
-        } else if (mSmallThumbnail != null) {
+        }
+        else if (mSmallThumbnail != null) {
             return mSmallThumbnail;
-        } else {
+        }
+        else {
             return null;
         }
     }
@@ -450,49 +446,63 @@ public class BoxFile extends DAO {
     }
 
     /**
-     * Utility method to parse attributes into DAO member data. Used by SAX
-     * parsers.
+     * Utility method to parse attributes into DAO member data. Used by SAX parsers.
      * 
      * @param key
-     *            Corresponds to attribute names and element names returned by
-     *            Box API
+     *            Corresponds to attribute names and element names returned by Box API
      * @param value
      *            The value to be set
      */
     public void parseAttribute(final String key, final String value) {
         if (key.equals("file_id") || key.equals("id")) {
             setId(BoxUtils.parseLong(value));
-        } else if (key.equals("folder_id")) {
+        }
+        else if (key.equals("folder_id")) {
             setFolderId(BoxUtils.parseLong(value, -1));
-        } else if (key.equals("file_name") || key.equals("name")) {
+        }
+        else if (key.equals("file_name") || key.equals("name")) {
             setFileName(value);
-        } else if (key.equals("shared_name")) {
+        }
+        else if (key.equals("shared_name")) {
             setSharedName(value);
-        } else if (key.equals("pic_l")) {
+        }
+        else if (key.equals("pic_l")) {
             setLargeThumbnail(value);
-        } else if (key.equals("pic_s")) {
+        }
+        else if (key.equals("pic_s")) {
             setSmallThumbnail(value);
-        } else if (key.equals("pic_x")) {
+        }
+        else if (key.equals("pic_x")) {
             setLargerThumbnail(value);
-        } else if (key.equals("size")) {
+        }
+        else if (key.equals("size")) {
             setSize(BoxUtils.parseSizeString(value));
-        } else if (key.equals("sha1")) {
+        }
+        else if (key.equals("sha1")) {
             setSha1(value);
-        } else if (key.equals("created")) {
+        }
+        else if (key.equals("created")) {
             setCreated(BoxUtils.parseLong(value));
-        } else if (key.equals("updated")) {
+        }
+        else if (key.equals("updated")) {
             setUpdated(BoxUtils.parseLong(value));
-        } else if (key.equals("thumbnail")) {
+        }
+        else if (key.equals("thumbnail")) {
             setThumbnail(value);
-        } else if (key.equals("small_thumbnail")) {
+        }
+        else if (key.equals("small_thumbnail")) {
             setSmallThumbnail(value);
-        } else if (key.equals("large_thumbnail")) {
+        }
+        else if (key.equals("large_thumbnail")) {
             setLargeThumbnail(value);
-        } else if (key.equals("larger_thumbnail")) {
+        }
+        else if (key.equals("larger_thumbnail")) {
             setLargerThumbnail(value);
-        } else if (key.equals("preview_thumbnail")) {
+        }
+        else if (key.equals("preview_thumbnail")) {
             setPreviewThumbnail(value);
-        } else if (key.equals("permissions")) {
+        }
+        else if (key.equals("permissions")) {
             setPermissions(value);
         }
     }

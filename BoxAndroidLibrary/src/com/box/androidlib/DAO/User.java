@@ -1,17 +1,13 @@
 /*******************************************************************************
  * Copyright 2011 Box.net.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the
+ * License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  ******************************************************************************/
 package com.box.androidlib.DAO;
 
@@ -29,9 +25,7 @@ public class User extends DAO {
      */
     protected long mUserId;
     /**
-     * If the user is a guest, the access_id will be the user_id of the guest's
-     * parent. If this is a full user, the access_id will be the same as the
-     * user_id.
+     * If the user is a guest, the access_id will be the user_id of the guest's parent. If this is a full user, the access_id will be the same as the user_id.
      */
     protected long mAccessId;
     /**
@@ -90,9 +84,8 @@ public class User extends DAO {
     }
 
     /**
-     * Set access id. If the user is a guest, the access_id will be the user_id
-     * of the guest's parent. If this is a full user, the access_id will be the
-     * same as the user_id.
+     * Set access id. If the user is a guest, the access_id will be the user_id of the guest's parent. If this is a full user, the access_id will be the same as
+     * the user_id.
      * 
      * @param accessId
      *            access id
@@ -102,9 +95,8 @@ public class User extends DAO {
     }
 
     /**
-     * Get access id. If the user is a guest, the access_id will be the user_id
-     * of the guest's parent. If this is a full user, the access_id will be the
-     * same as the user_id.
+     * Get access id. If the user is a guest, the access_id will be the user_id of the guest's parent. If this is a full user, the access_id will be the same as
+     * the user_id.
      * 
      * @return access id
      */
@@ -208,8 +200,7 @@ public class User extends DAO {
     }
 
     /**
-     * Set the maximum size in bytes for any individual file uploaded by the
-     * user.
+     * Set the maximum size in bytes for any individual file uploaded by the user.
      * 
      * @param maxUploadSize
      *            max upload size
@@ -219,8 +210,7 @@ public class User extends DAO {
     }
 
     /**
-     * Get the maximum size in bytes for any individual file uploaded by the
-     * user.
+     * Get the maximum size in bytes for any individual file uploaded by the user.
      * 
      * @return max upload size
      */
@@ -229,12 +219,10 @@ public class User extends DAO {
     }
 
     /**
-     * Utility method to parse attributes into DAO member data. Used by SAX
-     * parsers.
+     * Utility method to parse attributes into DAO member data. Used by SAX parsers.
      * 
      * @param key
-     *            Corresponds to attribute names and element names returned by
-     *            Box API
+     *            Corresponds to attribute names and element names returned by Box API
      * @param value
      *            The value to be set
      */
@@ -244,17 +232,23 @@ public class User extends DAO {
         }
         if (key.equals("login")) {
             setLogin(value);
-        } else if (key.equals("email")) {
+        }
+        else if (key.equals("email")) {
             setEmail(value);
-        } else if (key.equals("space_amount")) {
+        }
+        else if (key.equals("space_amount")) {
             setSpaceAmount(BoxUtils.parseLong(value));
-        } else if (key.equals("space_used")) {
+        }
+        else if (key.equals("space_used")) {
             setSpaceUsed(BoxUtils.parseLong(value));
-        } else if (key.equals("max_upload_size")) {
+        }
+        else if (key.equals("max_upload_size")) {
             setMaxUploadSize(BoxUtils.parseLong(value));
-        } else if (key.equals("access_id")) {
+        }
+        else if (key.equals("access_id")) {
             setAccessId(BoxUtils.parseLong(value));
-        } else if (key.equals("auth_token")) {
+        }
+        else if (key.equals("auth_token")) {
             setAuthToken(value);
         }
     }

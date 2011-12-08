@@ -1,17 +1,13 @@
 /*******************************************************************************
  * Copyright 2011 Box.net.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the
+ * License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  ******************************************************************************/
 package com.box.androidlib.DAO;
 
@@ -104,8 +100,7 @@ public class BoxFolder extends DAO {
      */
     protected String mPath;
     /**
-     * A unique identifier of a publicly shared file. This can be used to
-     * generate shared page URLs.
+     * A unique identifier of a publicly shared file. This can be used to generate shared page URLs.
      */
     protected String mPublicName;
     /**
@@ -113,8 +108,7 @@ public class BoxFolder extends DAO {
      */
     protected long mParentFolderId = -1;
     /**
-     * The parent folder. Set to transient to avoid circular references when
-     * serializing to JSON.
+     * The parent folder. Set to transient to avoid circular references when serializing to JSON.
      */
     protected transient BoxFolder mParentFolder;
     /**
@@ -187,8 +181,7 @@ public class BoxFolder extends DAO {
     }
 
     /**
-     * Set shared name (a unique identifier for the file, which can be used to
-     * generate a shared page).
+     * Set shared name (a unique identifier for the file, which can be used to generate a shared page).
      * 
      * @param sharedName
      *            shared name
@@ -211,8 +204,9 @@ public class BoxFolder extends DAO {
      * Set whether the folder has collaborators or not.
      * 
      * @param hasCollaborators
+     *            True if the folder has collaborators.
      */
-    public void setHasCollaborators(boolean hasCollaborators) {
+    public void setHasCollaborators(final boolean hasCollaborators) {
         mHasCollaborators = hasCollaborators;
     }
 
@@ -312,7 +306,7 @@ public class BoxFolder extends DAO {
      * @param folderPathIds
      *            folder path ids
      */
-    public void setFolderPathIds(String folderPathIds) {
+    public void setFolderPathIds(final String folderPathIds) {
         mFolderPathIds = folderPathIds;
     }
 
@@ -414,8 +408,7 @@ public class BoxFolder extends DAO {
     }
 
     /**
-     * Get shared name, which is a unique identifier for the file, which can be
-     * used to generate a shared page.
+     * Get shared name, which is a unique identifier for the file, which can be used to generate a shared page.
      * 
      * @return shared name
      */
@@ -467,13 +460,17 @@ public class BoxFolder extends DAO {
     public String getThumbnail() {
         if (mThumbnail != null) {
             return mThumbnail;
-        } else if (mLargerThumbnail != null) {
+        }
+        else if (mLargerThumbnail != null) {
             return mLargerThumbnail;
-        } else if (mLargeThumbnail != null) {
+        }
+        else if (mLargeThumbnail != null) {
             return mLargeThumbnail;
-        } else if (mSmallThumbnail != null) {
+        }
+        else if (mSmallThumbnail != null) {
             return mSmallThumbnail;
-        } else {
+        }
+        else {
             return null;
         }
     }
@@ -515,8 +512,7 @@ public class BoxFolder extends DAO {
     }
 
     /**
-     * Get public name which is a unique identifier of a publicly shared file.
-     * This can be used to generate shared page URLs.
+     * Get public name which is a unique identifier of a publicly shared file. This can be used to generate shared page URLs.
      * 
      * @return public name
      */
@@ -527,8 +523,7 @@ public class BoxFolder extends DAO {
     /**
      * Get the folder id of the folder in which this folder resides.
      * 
-     * @return Parent folder id. 0 means the root folder. -1 means the parent
-     *         folder id is not known by this object.
+     * @return Parent folder id. 0 means the root folder. -1 means the parent folder id is not known by this object.
      */
     public long getParentFolderId() {
         return mParentFolderId;
@@ -544,8 +539,7 @@ public class BoxFolder extends DAO {
     }
 
     /**
-     * Get the file count. Note that this is not always returned in all API
-     * requests.
+     * Get the file count. Note that this is not always returned in all API requests.
      * 
      * @return the number of files in the folder
      */
@@ -599,15 +593,14 @@ public class BoxFolder extends DAO {
     }
 
     /**
-     * Add a child file to this folder. Response parsers always use this method
-     * to add child files to the folder rather than directly adding to the list
-     * through getFilesInFolder().add(). So if you want to override how the list
-     * of child files are populated, you can override this method in your own
-     * custom BoxFolder class.
+     * Add a child file to this folder. Response parsers always use this method to add child files to the folder rather than directly adding to the list through
+     * getFilesInFolder().add(). So if you want to override how the list of child files are populated, you can override this method in your own custom BoxFolder
+     * class.
      * 
      * @param boxFile
+     *            The BoxFile to add as a child of this folder.
      */
-    public void addChildFile(BoxFile boxFile) {
+    public void addChildFile(final BoxFile boxFile) {
         mFilesInFolder.add(boxFile);
     }
 
@@ -621,18 +614,17 @@ public class BoxFolder extends DAO {
     }
 
     /**
-     * Add a child folder to this folder. Response parsers always use this method
-     * to add child folders to the folder rather than directly adding to the list
-     * through getFoldersInFolder().add(). So if you want to override how the list
-     * of child folders are populated, you can override this method in your own
+     * Add a child folder to this folder. Response parsers always use this method to add child folders to the folder rather than directly adding to the list
+     * through getFoldersInFolder().add(). So if you want to override how the list of child folders are populated, you can override this method in your own
      * custom BoxFolder class.
      * 
-     * @param boxFile
+     * @param boxFolder
+     *            The BoxFolder to add as a child of this folder.
      */
-    public void addChildFolder(BoxFolder boxFolder) {
+    public void addChildFolder(final BoxFolder boxFolder) {
         mFoldersInFolder.add(boxFolder);
     }
-    
+
     /**
      * Get list of tag ids in folder.
      * 
@@ -643,8 +635,7 @@ public class BoxFolder extends DAO {
     }
 
     /**
-     * Set upward references of all child folders and files to the parent
-     * folder.
+     * Set upward references of all child folders and files to the parent folder.
      */
     public void repairParentFolderReferences() {
         for (int i = 0; i < mFoldersInFolder.size(); i++) {
@@ -659,63 +650,84 @@ public class BoxFolder extends DAO {
     }
 
     /**
-     * Utility method to parse attributes into DAO member data. Used by SAX
-     * parsers.
+     * Utility method to parse attributes into DAO member data. Used by SAX parsers.
      * 
      * @param key
-     *            Corresponds to attribute names and element names returned by
-     *            Box API
+     *            Corresponds to attribute names and element names returned by Box API
      * @param value
      *            The value to be set
      */
     public void parseAttribute(final String key, final String value) {
         if (key.equals("folder_id") || key.equals("id")) {
             setId(BoxUtils.parseLong(value));
-        } else if (key.equals("folder_name") || key.equals("name")) {
+        }
+        else if (key.equals("folder_name") || key.equals("name")) {
             setFolderName(value);
-        } else if (key.equals("shared")) {
+        }
+        else if (key.equals("shared")) {
             setShared(value.equals("1") ? true : false);
-        } else if (key.equals("shared_name")) {
+        }
+        else if (key.equals("shared_name")) {
             setSharedName(value);
-        } else if (key.equals("shared_link")) {
+        }
+        else if (key.equals("shared_link")) {
             setSharedLink(value);
-        } else if (key.equals("size")) {
+        }
+        else if (key.equals("size")) {
             setSize(BoxUtils.parseSizeString(value));
-        } else if (key.equals("pic_l")) {
+        }
+        else if (key.equals("pic_l")) {
             setLargeThumbnail(value);
-        } else if (key.equals("pic_s")) {
+        }
+        else if (key.equals("pic_s")) {
             setSmallThumbnail(value);
-        } else if (key.equals("pic_x")) {
+        }
+        else if (key.equals("pic_x")) {
             setLargerThumbnail(value);
-        } else if (key.equals("created")) {
+        }
+        else if (key.equals("created")) {
             setCreated(BoxUtils.parseLong(value));
-        } else if (key.equals("updated")) {
+        }
+        else if (key.equals("updated")) {
             setUpdated(BoxUtils.parseLong(value));
-        } else if (key.equals("file_count")) {
+        }
+        else if (key.equals("file_count")) {
             setFileCount(BoxUtils.parseLong(value));
-        } else if (key.equals("user_id")) {
+        }
+        else if (key.equals("user_id")) {
             setUserId(BoxUtils.parseLong(value));
-        } else if (key.equals("path")) {
+        }
+        else if (key.equals("path")) {
             setPath(value);
-        } else if (key.equals("public_name")) {
+        }
+        else if (key.equals("public_name")) {
             setPublicName(value);
-        } else if (key.equals("parent_folder_id")) {
+        }
+        else if (key.equals("parent_folder_id")) {
             setParentFolderId(BoxUtils.parseLong(value));
-        } else if (key.equals("password")) {
+        }
+        else if (key.equals("password")) {
             setPassword(value);
-        } else if (key.equals("thumbnail")) {
+        }
+        else if (key.equals("thumbnail")) {
             setThumbnail(value);
-        } else if (key.equals("small_thumbnail")) {
+        }
+        else if (key.equals("small_thumbnail")) {
             setSmallThumbnail(value);
-        } else if (key.equals("large_thumbnail")) {
+        }
+        else if (key.equals("large_thumbnail")) {
             setLargeThumbnail(value);
-        } else if (key.equals("larger_thumbnail")) {
+        }
+        else if (key.equals("larger_thumbnail")) {
             setLargerThumbnail(value);
-        } else if (key.equals("permissions")) {
+        }
+        else if (key.equals("permissions")) {
             setPermissions(value);
-        } else if (key.equals("has_collaborators")) {
+        }
+        else if (key.equals("has_collaborators")) {
             setHasCollaborators(value.equals("1") ? true : false);
-        } else if (key.equals("folder_path_ids")) {
+        }
+        else if (key.equals("folder_path_ids")) {
             setFolderPathIds(value);
         }
     }

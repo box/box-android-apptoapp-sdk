@@ -1,17 +1,13 @@
 /*******************************************************************************
  * Copyright 2011 Box.net.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the
+ * License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  ******************************************************************************/
 package com.box.androidlib.DAO;
 
@@ -164,27 +160,30 @@ public class Comment extends DAO {
     }
 
     /**
-     * Utility method to parse attributes into DAO member data. Used by SAX
-     * parsers.
+     * Utility method to parse attributes into DAO member data. Used by SAX parsers.
      * 
      * @param key
-     *            Corresponds to attribute names and element names returned by
-     *            Box API
+     *            Corresponds to attribute names and element names returned by Box API
      * @param value
      *            The value to be set
      */
     public void parseAttribute(final String key, final String value) {
         if (key.equals("comment_id") || key.equals("id")) {
             setId(BoxUtils.parseLong(value));
-        } else if (key.equals("message")) {
+        }
+        else if (key.equals("message")) {
             setMessage(value.trim());
-        } else if (key.equals("user_id")) {
+        }
+        else if (key.equals("user_id")) {
             setFromUserId(BoxUtils.parseLong(value));
-        } else if (key.equals("user_name")) {
+        }
+        else if (key.equals("user_name")) {
             setFromUserName(value.trim());
-        } else if (key.equals("created")) {
+        }
+        else if (key.equals("created")) {
             setCreated(BoxUtils.parseLong(value));
-        } else if (key.equals("avatar_url")) {
+        }
+        else if (key.equals("avatar_url")) {
             setAvatarURL(value);
         }
     }

@@ -1,17 +1,13 @@
 /*******************************************************************************
  * Copyright 2011 Box.net.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the
+ * License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  ******************************************************************************/
 package com.box.androidlib.ResponseParsers;
 
@@ -26,8 +22,7 @@ import com.box.androidlib.DAO.BoxFolder;
 import com.box.androidlib.DAO.Update;
 
 /**
- * Parser for Box API response containing a list of updates. Used for API action
- * get_updates.
+ * Parser for Box API response containing a list of updates. Used for API action get_updates.
  * 
  * @author developers@box.net
  */
@@ -51,8 +46,7 @@ public class UpdatesResponseParser extends DefaultResponseParser {
     private BoxFolder folder;
 
     /**
-     * Enum definition used to indicate what type of element we are currently
-     * parsing.
+     * Enum definition used to indicate what type of element we are currently parsing.
      */
     private enum CurrentlyParsing {
         /** Indicates we are parsing an update element. */
@@ -69,35 +63,41 @@ public class UpdatesResponseParser extends DefaultResponseParser {
     private CurrentlyParsing mCurrentlyParsing;
 
     @Override
-    public void startElement(final String uri, final String localName, final String qName,
-        final Attributes attributes) throws SAXException {
+    public void startElement(final String uri, final String localName, final String qName, final Attributes attributes) throws SAXException {
         super.startElement(uri, localName, qName, attributes);
         if (localName.equals("updates")) {
             updates = new ArrayList<Update>();
-        } else if (localName.equals("update")) {
+        }
+        else if (localName.equals("update")) {
             update = new Update();
             if (updates != null) {
                 updates.add(update);
             }
             mCurrentlyParsing = CurrentlyParsing.UPDATE;
-        } else if (localName.equals("file")) {
+        }
+        else if (localName.equals("file")) {
             try {
                 file = Box.getBoxFileClass().newInstance();
-            } catch (InstantiationException e) {
+            }
+            catch (InstantiationException e) {
                 e.printStackTrace();
-            } catch (IllegalAccessException e) {
+            }
+            catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
             if (update != null) {
                 update.getFiles().add(file);
             }
             mCurrentlyParsing = CurrentlyParsing.FILE;
-        } else if (localName.equals("folder")) {
+        }
+        else if (localName.equals("folder")) {
             try {
                 folder = Box.getBoxFolderClass().newInstance();
-            } catch (InstantiationException e) {
+            }
+            catch (InstantiationException e) {
                 e.printStackTrace();
-            } catch (IllegalAccessException e) {
+            }
+            catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
             if (update != null) {
@@ -108,22 +108,21 @@ public class UpdatesResponseParser extends DefaultResponseParser {
     }
 
     @Override
-    public void endElement(final String uri, final String localName, final String qName)
-        throws SAXException {
+    public void endElement(final String uri, final String localName, final String qName) throws SAXException {
         super.endElement(uri, localName, qName);
         if (mCurrentlyParsing != null) {
             switch (mCurrentlyParsing) {
-            case UPDATE:
-                update.parseAttribute(localName, mTextNode.toString());
-                break;
-            case FILE:
-                file.parseAttribute(localName, mTextNode.toString());
-                break;
-            case FOLDER:
-                folder.parseAttribute(localName, mTextNode.toString());
-                break;
-            default:
-                break;
+                case UPDATE:
+                    update.parseAttribute(localName, mTextNode.toString());
+                    break;
+                case FILE:
+                    file.parseAttribute(localName, mTextNode.toString());
+                    break;
+                case FOLDER:
+                    folder.parseAttribute(localName, mTextNode.toString());
+                    break;
+                default:
+                    break;
             }
         }
     }

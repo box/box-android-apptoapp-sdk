@@ -1,17 +1,13 @@
 /*******************************************************************************
  * Copyright 2011 Box.net.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the
+ * License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  ******************************************************************************/
 package com.box.androidlib.DAO;
 
@@ -31,15 +27,13 @@ import com.google.gson.Gson;
 public abstract class DAO {
 
     /**
-     * The local timestamp in milliseconds, that the DAO was created. This
-     * initially gets set at construction using Java.util.Date.getTime().
+     * The local timestamp in milliseconds, that the DAO was created. This initially gets set at construction using Java.util.Date.getTime().
      */
     protected long mDAOCreated;
 
     /**
-     * The local timestamp in milliseconds of the last time the DAO was updated.
-     * The library currently doesn't ever use this, but the field is included
-     * for developers to use.
+     * The local timestamp in milliseconds of the last time the DAO was updated. The library currently doesn't ever use this, but the field is included for
+     * developers to use.
      */
     protected long mDAOUpdated;
 
@@ -52,9 +46,8 @@ public abstract class DAO {
     }
 
     /**
-     * Get the creation timestamp in milliseconds of this object. Note that this
-     * does NOT mean the creation timestamp of the actual element in Box. This
-     * simply returns the timestamp of object construction.
+     * Get the creation timestamp in milliseconds of this object. Note that this does NOT mean the creation timestamp of the actual element in Box. This simply
+     * returns the timestamp of object construction.
      * 
      * @return Timestamp of DAO construction.
      */
@@ -63,23 +56,20 @@ public abstract class DAO {
     }
 
     /**
-     * Sets the creation timestamp in milliseconds of this object. Note that
-     * this does NOT mean the creation timestamp of the actual element in Box.
-     * This changes the timestamp of object construction.
+     * Sets the creation timestamp in milliseconds of this object. Note that this does NOT mean the creation timestamp of the actual element in Box. This
+     * changes the timestamp of object construction.
      * 
-     * @param daoUpdated
+     * @param daoCreated
      *            DAO object updated timestamp.
      */
-    public void setDAOCreated(long daoCreated) {
+    public void setDAOCreated(final long daoCreated) {
         mDAOCreated = daoCreated;
     }
 
     /**
-     * Get the timestamp that was last set with setDAOUpdated(). This timestamp
-     * is never set by the library. This is included purely as a way for
-     * developers to set a modification timestamp on the DAO for their own
-     * purposes. This will return null unless you set it with setDAOUpdated().
-     * This does NOT return the updated timestamp of the actualy element in Box.
+     * Get the timestamp that was last set with setDAOUpdated(). This timestamp is never set by the library. This is included purely as a way for developers to
+     * set a modification timestamp on the DAO for their own purposes. This will return null unless you set it with setDAOUpdated(). This does NOT return the
+     * updated timestamp of the actualy element in Box.
      * 
      * @return The last DAOUpdated timestamp set.
      */
@@ -88,10 +78,8 @@ public abstract class DAO {
     }
 
     /**
-     * Set a timestamp to indicate that the DAO has been updated. This is never
-     * used by the library itself. It is simply included as a convenience for
-     * developers to set an object-update timestamp if needed. You can retrieve
-     * the value set here through getDAOUpdated().
+     * Set a timestamp to indicate that the DAO has been updated. This is never used by the library itself. It is simply included as a convenience for
+     * developers to set an object-update timestamp if needed. You can retrieve the value set here through getDAOUpdated().
      * 
      * @param daoUpdated
      *            DAO object updated timestamp.
@@ -106,8 +94,7 @@ public abstract class DAO {
     private final HashSet<Integer> hashCodesToStringed = new HashSet<Integer>();
 
     /**
-     * Get a formatted output of the object. Useful for development, but <b>you
-     * should never execute this in a final release</b>.
+     * Get a formatted output of the object. Useful for development, but <b>you should never execute this in a final release</b>.
      * 
      * @return A formatted string with member variables.
      */
@@ -116,8 +103,7 @@ public abstract class DAO {
     }
 
     /**
-     * Not meant to be called manually. Get a formatted output of the object.
-     * Useful for development, but <b>you should never execute this in a final
+     * Not meant to be called manually. Get a formatted output of the object. Useful for development, but <b>you should never execute this in a final
      * release</b>.
      * 
      * @param indents
@@ -148,7 +134,8 @@ public abstract class DAO {
                 if (field.get(this) instanceof DAO) {
                     final DAO dao = (DAO) field.get(this);
                     value.append(dao.toStringDebug(indents + 1));
-                } else if (field.get(this) instanceof List) {
+                }
+                else if (field.get(this) instanceof List) {
                     @SuppressWarnings("unchecked")
                     final List<Object> list = (List<Object>) field.get(this);
                     for (int i = 0; i < list.size(); i++) {
@@ -156,15 +143,18 @@ public abstract class DAO {
                             final DAO dao = (DAO) list.get(i);
                             value.append(newLine + "    ");
                             value.append(dao.toStringDebug(indents + 2));
-                        } else {
+                        }
+                        else {
                             value.append(newLine);
                             value.append(list.get(i).toString());
                         }
                     }
-                } else {
+                }
+                else {
                     value.append(String.valueOf(field.get(this)));
                 }
-            } catch (final IllegalAccessException e) {
+            }
+            catch (final IllegalAccessException e) {
                 value.append("CANNOT ACCESS PRIVATE MEMBERS");
             }
             sb.append(newLine);
@@ -183,7 +173,7 @@ public abstract class DAO {
      *            The DAO object to be serialized.
      * @return A serialized JSON string.
      */
-    public static String toJSON(DAO dao) {
+    public static String toJSON(final DAO dao) {
         Gson gson = new Gson();
         return gson.toJson(dao);
     }
@@ -191,15 +181,16 @@ public abstract class DAO {
     /**
      * Create a DAO object by unserializing a JSON string.
      * 
+     * @param <T>
+     *            The class of the DAO. Will match the daoClass parameter.
      * @param json
      *            A JSON string.
      * @param daoClass
-     *            The DAO class you want to unserialize to (e.g.
-     *            BoxFolder.class).
+     *            The DAO class you want to unserialize to (e.g. BoxFolder.class).
      * @return A DAO object.
      */
     @SuppressWarnings("unchecked")
-    public static <T> T fromJSON(String json, Class<? extends DAO> daoClass) {
+    public static <T extends DAO> T fromJSON(final String json, final Class<? extends DAO> daoClass) {
         Gson gson = new Gson();
         T dao = (T) gson.fromJson(json, daoClass);
 

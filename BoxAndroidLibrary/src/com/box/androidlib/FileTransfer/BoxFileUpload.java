@@ -1,19 +1,13 @@
 /*******************************************************************************
  * Copyright 2011 Box.net.
- *
- * Licensed
-import com.box.androidlib.Utils.DevUtils;
- under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * 
+ * Licensed import com.box.androidlib.Utils.DevUtils; under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  ******************************************************************************/
 package com.box.androidlib.FileTransfer;
 
@@ -52,13 +46,10 @@ import com.box.androidlib.ResponseParsers.FileResponseParser;
 import com.box.androidlib.Utils.BoxConfig;
 
 /**
- * Contains logic for uploading to Box and reporting errors that may have
- * occurred. You should not call this directly, and instead use
- * {@link com.box.androidlib.Box#upload(String, String, String, long, FileUploadListener)}
- * or
- * {@link com.box.androidlib.BoxSynchronous#upload(String, String, File, String, long, FileUploadListener)}
- * to download.
- *
+ * Contains logic for uploading to Box and reporting errors that may have occurred. You should not call this directly, and instead use
+ * {@link com.box.androidlib.Box#upload(String, String, String, long, FileUploadListener)} or
+ * {@link com.box.androidlib.BoxSynchronous#upload(String, String, File, String, long, FileUploadListener)} to download.
+ * 
  * @author developers@box.net
  */
 public class BoxFileUpload {
@@ -75,10 +66,10 @@ public class BoxFileUpload {
      * Handler to execute onProgress callbacks.
      */
     private Handler mHandler;
-    
+
     /**
      * Instantiate a new BoxFileUpload.
-     *
+     * 
      * @param authToken
      *            auth token
      */
@@ -87,14 +78,11 @@ public class BoxFileUpload {
     }
 
     /**
-     * Set an upload listener which allows you to monitor download progress and
-     * see the response status.
-     *
+     * Set an upload listener which allows you to monitor download progress and see the response status.
+     * 
      * @param listener
-     *            A file upload listener. You will likely be interested in
-     *            callbacks
-     *            {@link com.box.androidlib.ResponseListeners.FileUploadListener#onProgress(long)}
-     *            and
+     *            A file upload listener. You will likely be interested in callbacks
+     *            {@link com.box.androidlib.ResponseListeners.FileUploadListener#onProgress(long)} and
      *            {@link com.box.androidlib.ResponseListeners.FileUploadListener#onComplete(BoxFile, String)}
      * @param handler
      *            The handler through which FileUploadListener.onProgress will be invoked.
@@ -106,44 +94,33 @@ public class BoxFileUpload {
 
     /**
      * Execute a file upload.
-     *
+     * 
      * @param action
-     *            Set to {@link com.box.androidlib.Box#UPLOAD_ACTION_UPLOAD} or
-     *            {@link com.box.androidlib.Box#UPLOAD_ACTION_OVERWRITE} or
+     *            Set to {@link com.box.androidlib.Box#UPLOAD_ACTION_UPLOAD} or {@link com.box.androidlib.Box#UPLOAD_ACTION_OVERWRITE} or
      *            {@link com.box.androidlib.Box#UPLOAD_ACTION_NEW_COPY}
      * @param file
-     *            A File resource pointing to the file you wish to upload. Make
-     *            sure File.isFile() and File.canRead() are true for this
-     *            resource.
+     *            A File resource pointing to the file you wish to upload. Make sure File.isFile() and File.canRead() are true for this resource.
      * @param filename
-     *            The desired filename on Box after upload (just the file name,
-     *            do not include the path)
+     *            The desired filename on Box after upload (just the file name, do not include the path)
      * @param destinationId
-     *            If action is
-     *            {@link com.box.androidlib.Box#UPLOAD_ACTION_UPLOAD}, then this
-     *            is the folder id where the file will uploaded to. If action is
-     *            {@link com.box.androidlib.Box#UPLOAD_ACTION_OVERWRITE} or
-     *            {@link com.box.androidlib.Box#UPLOAD_ACTION_NEW_COPY}, then
-     *            this is the file_id that is being overwritten, or copied.
+     *            If action is {@link com.box.androidlib.Box#UPLOAD_ACTION_UPLOAD}, then this is the folder id where the file will uploaded to. If action is
+     *            {@link com.box.androidlib.Box#UPLOAD_ACTION_OVERWRITE} or {@link com.box.androidlib.Box#UPLOAD_ACTION_NEW_COPY}, then this is the file_id that
+     *            is being overwritten, or copied.
      * @return A FileResponseParser with information about the upload.
      * @throws IOException
-     *             Can be thrown if there is no connection, or if some other
-     *             connection problem exists.
+     *             Can be thrown if there is no connection, or if some other connection problem exists.
      * @throws FileNotFoundException
-     *             File being uploaded either doesn't exist, is not a file, or
-     *             cannot be read
+     *             File being uploaded either doesn't exist, is not a file, or cannot be read
      * @throws MalformedURLException
      *             Make sure you have specified a valid upload action
      */
-    public FileResponseParser execute(final String action, final File file, final String filename,
-        final long destinationId) throws IOException, MalformedURLException, FileNotFoundException {
+    public FileResponseParser execute(final String action, final File file, final String filename, final long destinationId) throws IOException,
+        MalformedURLException, FileNotFoundException {
         if (!file.isFile() || !file.canRead()) {
-            throw new FileNotFoundException(
-                "Specified upload file is either not a file, or cannot be read");
+            throw new FileNotFoundException("Specified upload file is either not a file, or cannot be read");
         }
 
-        if (!action.equals(Box.UPLOAD_ACTION_UPLOAD) && !action.equals(Box.UPLOAD_ACTION_OVERWRITE)
-            && !action.equals(Box.UPLOAD_ACTION_NEW_COPY)) {
+        if (!action.equals(Box.UPLOAD_ACTION_UPLOAD) && !action.equals(Box.UPLOAD_ACTION_OVERWRITE) && !action.equals(Box.UPLOAD_ACTION_NEW_COPY)) {
             throw new MalformedURLException("action must be upload, overwrite or new_copy");
         }
 
@@ -158,24 +135,25 @@ public class BoxFileUpload {
 
         // Set up post body
         final HttpPost post = new HttpPost(builder.build().toString());
-        final MultipartEntityWithProgressListener reqEntity = new MultipartEntityWithProgressListener(
-            HttpMultipartMode.BROWSER_COMPATIBLE);
+        final MultipartEntityWithProgressListener reqEntity = new MultipartEntityWithProgressListener(HttpMultipartMode.BROWSER_COMPATIBLE);
         if (mListener != null && mHandler != null) {
-            reqEntity
-                .setProgressListener(new MultipartEntityWithProgressListener.ProgressListener() {
-                    @Override
-                    public void onTransferred(final long bytesTransferredCumulative) {
-                        mHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                mListener.onProgress(bytesTransferredCumulative);
-                            }
-                        });
-                    }
-                });
+            reqEntity.setProgressListener(new MultipartEntityWithProgressListener.ProgressListener() {
+
+                @Override
+                public void onTransferred(final long bytesTransferredCumulative) {
+                    mHandler.post(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            mListener.onProgress(bytesTransferredCumulative);
+                        }
+                    });
+                }
+            });
         }
 
         reqEntity.addPart(filename, new FileBody(file) {
+
             @Override
             public String getFilename() {
                 return filename;
@@ -186,17 +164,19 @@ public class BoxFileUpload {
         // Send request
         final HttpResponse httpResponse;
         try {
-        	httpResponse = (new DefaultHttpClient()).execute(post);
-        } catch (final IOException e) {
-        	// Detect if the download was cancelled through thread interrupt.
-        	// See CountingOutputStream.write() for when this exception is thrown.
-        	if (e.getMessage().equals(FileUploadListener.STATUS_CANCELLED)) {
-	            final FileResponseParser handler = new FileResponseParser();
-	            handler.setStatus(FileUploadListener.STATUS_CANCELLED);
-	            return handler;
-        	} else {
-        		throw e;
-        	}
+            httpResponse = (new DefaultHttpClient()).execute(post);
+        }
+        catch (final IOException e) {
+            // Detect if the download was cancelled through thread interrupt.
+            // See CountingOutputStream.write() for when this exception is thrown.
+            if (e.getMessage().equals(FileUploadListener.STATUS_CANCELLED)) {
+                final FileResponseParser handler = new FileResponseParser();
+                handler.setStatus(FileUploadListener.STATUS_CANCELLED);
+                return handler;
+            }
+            else {
+                throw e;
+            }
         }
 
         String status = null;
@@ -213,8 +193,7 @@ public class BoxFileUpload {
         final String xml = sb.toString();
 
         try {
-            final Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-                .parse(new ByteArrayInputStream(xml.getBytes()));
+            final Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(xml.getBytes()));
             final Node statusNode = doc.getElementsByTagName("status").item(0);
             if (statusNode != null) {
                 status = statusNode.getFirstChild().getNodeValue();
@@ -223,14 +202,15 @@ public class BoxFileUpload {
             if (fileEl != null) {
                 try {
                     boxFile = Box.getBoxFileClass().newInstance();
-                } catch (InstantiationException e) {
+                }
+                catch (InstantiationException e) {
                     e.printStackTrace();
-                } catch (IllegalAccessException e) {
+                }
+                catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
                 for (int i = 0; i < fileEl.getAttributes().getLength(); i++) {
-                    boxFile.parseAttribute(fileEl.getAttributes().item(i).getNodeName(), fileEl
-                        .getAttributes().item(i).getNodeValue());
+                    boxFile.parseAttribute(fileEl.getAttributes().item(i).getNodeName(), fileEl.getAttributes().item(i).getNodeValue());
                 }
             }
 
@@ -241,13 +221,15 @@ public class BoxFileUpload {
             if (status == null) {
                 status = xml;
             }
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             // errors are NOT returned as properly formatted XML yet so in this
             // case the raw response is the error status code
             // see
             // http://developers.box.net/w/page/12923951/ApiFunction_Upload-and-Download
             status = xml;
-        } catch (final ParserConfigurationException e) {
+        }
+        catch (final ParserConfigurationException e) {
             e.printStackTrace();
         }
         final FileResponseParser handler = new FileResponseParser();
@@ -257,11 +239,8 @@ public class BoxFileUpload {
     }
 
     /**
-     * Extension of MultiPartEntity which adds the ability to monitor file
-     * upload progress. Inspiration for code from:
-     * http://stackoverflow.com/questions
-     * /3213899/cant-grab-progress-on-http-post
-     * -file-upload-android/3246050#3246050
+     * Extension of MultiPartEntity which adds the ability to monitor file upload progress. Inspiration for code from: http://stackoverflow.com/questions
+     * /3213899/cant-grab-progress-on-http-post -file-upload-android/3246050#3246050
      */
     private static class MultipartEntityWithProgressListener extends MultipartEntity {
 
@@ -272,7 +251,7 @@ public class BoxFileUpload {
 
         /**
          * base constructor.
-         *
+         * 
          * @param mode
          *            mode
          */
@@ -281,10 +260,8 @@ public class BoxFileUpload {
         }
 
         /**
-         * Set a ProgressListener that will fire events when bytes have been
-         * written to the outputstream. Subscribe to
-         * ProgressListener.transferred()
-         *
+         * Set a ProgressListener that will fire events when bytes have been written to the outputstream. Subscribe to ProgressListener.transferred()
+         * 
          * @param progressListener
          *            progress listener.
          */
@@ -298,24 +275,21 @@ public class BoxFileUpload {
         }
 
         /**
-         * Interface definition for a callback to be invoked during data
-         * transfer.
+         * Interface definition for a callback to be invoked during data transfer.
          */
-        public static interface ProgressListener {
+        public interface ProgressListener {
+
             /**
-             * Called periodically during data transfer to report the number of
-             * bytes that have been transferred.
-             *
+             * Called periodically during data transfer to report the number of bytes that have been transferred.
+             * 
              * @param bytesTransferredCumulative
-             *            The number of bytes (cumulative) that have been
-             *            transfered
+             *            The number of bytes (cumulative) that have been transfered
              */
             void onTransferred(long bytesTransferredCumulative);
         }
 
         /**
-         * FilterOutputStream that fires progress callbacks so we can monitor
-         * upload progress.
+         * FilterOutputStream that fires progress callbacks so we can monitor upload progress.
          */
         private static class CountingOutputStream extends FilterOutputStream {
 
@@ -330,22 +304,20 @@ public class BoxFileUpload {
 
             /**
              * constructor that also takes a progress listener.
-             *
+             * 
              * @param out
              *            output stream
              * @param progressListener
              *            progress listener
              */
-            public CountingOutputStream(final OutputStream out,
-                final ProgressListener progressListener) {
+            public CountingOutputStream(final OutputStream out, final ProgressListener progressListener) {
                 super(out);
                 mProgresslistener = progressListener;
                 bytesBransferred = 0;
             }
 
             @Override
-            public void write(final byte[] buffer, final int offset, final int length)
-                throws IOException {
+            public void write(final byte[] buffer, final int offset, final int length) throws IOException {
                 out.write(buffer, offset, length);
                 bytesBransferred += length;
                 if (mProgresslistener != null) {
@@ -353,7 +325,7 @@ public class BoxFileUpload {
                 }
                 // Allow canceling of downloads through thread interrupt.
                 if (Thread.currentThread().isInterrupted()) {
-                	throw new IOException(FileUploadListener.STATUS_CANCELLED);
+                    throw new IOException(FileUploadListener.STATUS_CANCELLED);
                 }
             }
         }
