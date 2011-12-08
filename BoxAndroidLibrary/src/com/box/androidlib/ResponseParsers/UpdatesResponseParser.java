@@ -86,6 +86,7 @@ public class UpdatesResponseParser extends DefaultResponseParser {
                 e.printStackTrace();
             }
             if (update != null) {
+                file.setFolderId(update.getFolderId());
                 update.getFiles().add(file);
             }
             mCurrentlyParsing = CurrentlyParsing.FILE;
@@ -101,6 +102,7 @@ public class UpdatesResponseParser extends DefaultResponseParser {
                 e.printStackTrace();
             }
             if (update != null) {
+                folder.setParentFolderId(update.getFolderId());
                 update.getFolders().add(folder);
             }
             mCurrentlyParsing = CurrentlyParsing.FOLDER;
