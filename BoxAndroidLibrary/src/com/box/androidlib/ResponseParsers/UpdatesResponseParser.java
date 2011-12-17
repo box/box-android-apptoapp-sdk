@@ -78,6 +78,9 @@ public class UpdatesResponseParser extends DefaultResponseParser {
         else if (localName.equals("file")) {
             try {
                 file = Box.getBoxFileClass().newInstance();
+                for (int i = 0; i < attributes.getLength(); i++) {
+                    file.parseAttribute(attributes.getLocalName(i), attributes.getValue(i));
+                }
             }
             catch (InstantiationException e) {
                 e.printStackTrace();
@@ -94,6 +97,9 @@ public class UpdatesResponseParser extends DefaultResponseParser {
         else if (localName.equals("folder")) {
             try {
                 folder = Box.getBoxFolderClass().newInstance();
+                for (int i = 0; i < attributes.getLength(); i++) {
+                    folder.parseAttribute(attributes.getLocalName(i), attributes.getValue(i));
+                }
             }
             catch (InstantiationException e) {
                 e.printStackTrace();
@@ -116,12 +122,6 @@ public class UpdatesResponseParser extends DefaultResponseParser {
             switch (mCurrentlyParsing) {
                 case UPDATE:
                     update.parseAttribute(localName, mTextNode.toString());
-                    break;
-                case FILE:
-                    file.parseAttribute(localName, mTextNode.toString());
-                    break;
-                case FOLDER:
-                    folder.parseAttribute(localName, mTextNode.toString());
                     break;
                 default:
                     break;

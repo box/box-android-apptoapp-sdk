@@ -584,11 +584,22 @@ public class BoxSynchronous {
         final Uri.Builder builder = BoxUriBuilder.getBuilder(mApiKey, authToken, "get_updates");
         builder.appendQueryParameter("begin_timestamp", String.valueOf(beginTimeStamp));
         builder.appendQueryParameter("end_timestamp", String.valueOf(endTimeStamp));
-        if (params != null) {
-            for (int i = 0; i < params.length; i++) {
-                builder.appendQueryParameter("params[" + i + "]", params[i]);
-            }
+
+        // use_attributes should always be included
+        final ArrayList<String> paramsList;
+        if (params == null) {
+            paramsList = new ArrayList<String>();
         }
+        else {
+            paramsList = new ArrayList<String>(Arrays.asList(params));
+        }
+        if (!paramsList.contains(Box.PARAM_USE_ATTRIBUTES)) {
+            paramsList.add(Box.PARAM_USE_ATTRIBUTES);
+        }
+        for (int i = 0; i < paramsList.size(); i++) {
+            builder.appendQueryParameter("params[" + i + "]", paramsList.get(i));
+        }
+
         saxRequest(parser, builder.build());
         return parser;
     }

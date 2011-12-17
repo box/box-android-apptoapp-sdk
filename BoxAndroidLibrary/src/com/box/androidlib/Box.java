@@ -108,6 +108,10 @@ public class Box {
      */
     public static final String PARAM_SIMPLE = "simple";
     /**
+     * Parameter for certain API requests such as get_udpates that tells server to return attributes instead of elements.
+     */
+    public static final String PARAM_USE_ATTRIBUTES = "use_attributes";
+    /**
      * Used in search to set the sort criteria of results to be by relevance.
      */
     public static final String SORT_RELEVANCE = "relevance";
