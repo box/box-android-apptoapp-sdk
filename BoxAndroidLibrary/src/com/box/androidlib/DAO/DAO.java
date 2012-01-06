@@ -17,7 +17,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
-import com.google.gson.Gson;
+import com.google.renamedgson.Gson;
 
 /**
  * Base DAO class.
