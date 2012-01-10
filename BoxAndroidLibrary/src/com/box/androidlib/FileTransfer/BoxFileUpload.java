@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.nio.charset.Charset;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -31,6 +32,7 @@ import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.HTTP;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -131,11 +133,18 @@ public class BoxFileUpload {
         builder.appendPath(action);
         builder.appendPath(mAuthToken);
         builder.appendPath(String.valueOf(destinationId));
-        builder.appendQueryParameter("file_name", filename);
+        if (action.equals(Box.UPLOAD_ACTION_OVERWRITE)) {
+            builder.appendQueryParameter("file_name", filename);
+        }
+        else if (action.equals(Box.UPLOAD_ACTION_NEW_COPY)) {
+            builder.appendQueryParameter("new_file_name", filename);
+        }
 
         // Set up post body
         final HttpPost post = new HttpPost(builder.build().toString());
-        final MultipartEntityWithProgressListener reqEntity = new MultipartEntityWithProgressListener(HttpMultipartMode.BROWSER_COMPATIBLE);
+        final MultipartEntityWithProgressListener reqEntity = new MultipartEntityWithProgressListener(HttpMultipartMode.BROWSER_COMPATIBLE, null,
+            Charset.forName(HTTP.UTF_8));
+
         if (mListener != null && mHandler != null) {
             reqEntity.setProgressListener(new MultipartEntityWithProgressListener.ProgressListener() {
 
@@ -152,7 +161,7 @@ public class BoxFileUpload {
             });
         }
 
-        reqEntity.addPart(filename, new FileBody(file) {
+        reqEntity.addPart("file_name", new FileBody(file) {
 
             @Override
             public String getFilename() {
@@ -254,9 +263,27 @@ public class BoxFileUpload {
          * 
          * @param mode
          *            mode
+         * @param boundary
+         *            boundary
+         * @param charset
+         *            charset
          */
-        public MultipartEntityWithProgressListener(final HttpMultipartMode mode) {
-            super(mode);
+        public MultipartEntityWithProgressListener(final HttpMultipartMode mode, final String boundary, final Charset charset) {
+            super(mode, boundary, charset);
+        }
+
+        @Override
+        protected String generateContentType(final String boundary, final Charset charset) {
+            StringBuilder buffer = new StringBuilder();
+            buffer.append("multipart/form-data; boundary=");
+            buffer.append(boundary);
+            if (charset != null) {
+                // Box upload servers appear to fail if the charset is specified. So this method is almost identical to the parent's version, except that the 2
+                // lines below are commented out.
+                // buffer.append("; charset=");
+                // buffer.append(charset.name());
+            }
+            return buffer.toString();
         }
 
         /**
