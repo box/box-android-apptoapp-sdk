@@ -26,6 +26,7 @@ limitations under the License.
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/box_logo"
+        android:contentDescription="@string/app_name"
         />
 
     <TextView
@@ -34,7 +35,7 @@ limitations under the License.
 	    android:textSize="20dp"
 	    android:textColor="#333333"
 	    android:paddingTop="10dp"
-	    android:text="Sample App"  
+	    android:text="@string/sample_app"  
         />
         
     <TextView
@@ -53,7 +54,7 @@ limitations under the License.
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingTop="10dp"
-        android:text="Continue"  
+        android:text="@string/continuex"  
         android:visibility="gone"
         /> 
 
@@ -62,7 +63,7 @@ limitations under the License.
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingTop="10dp"
-        android:text="Log in"  
+        android:text="@string/log_in"  
         android:visibility="gone"
         /> 
 

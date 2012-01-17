@@ -24,21 +24,21 @@ limitations under the License.
         android:id="@+id/userInfoButton"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="View User Info"
+        android:text="@string/view_user_info"
     />
 
     <Button
         android:id="@+id/treeButton"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Browse"
+        android:text="@string/browse"
     />
 
     <Button
         android:id="@+id/logoutButton"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Log out"
+        android:text="@string/log_out"
     />
 
 </LinearLayout>

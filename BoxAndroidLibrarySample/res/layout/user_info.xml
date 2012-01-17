@@ -24,7 +24,7 @@ limitations under the License.
         android:id="@+id/userInfoText"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Loading..."
+        android:text="@string/loading"
     />
 
 </LinearLayout>

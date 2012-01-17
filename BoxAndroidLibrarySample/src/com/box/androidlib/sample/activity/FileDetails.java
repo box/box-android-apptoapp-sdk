@@ -1,21 +1,22 @@
-//  Copyright 2011 Box.net.
+// Copyright 2011 Box.net.
 //
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//  http://www.apache.org/licenses/LICENSE-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //
 
 package com.box.androidlib.sample.activity;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -25,6 +26,8 @@ import android.widget.Toast;
 
 import com.box.androidlib.Box;
 import com.box.androidlib.DAO.BoxFile;
+import com.box.androidlib.DAO.Comment;
+import com.box.androidlib.ResponseListeners.GetCommentsListener;
 import com.box.androidlib.ResponseListeners.GetFileInfoListener;
 import com.box.androidlib.sample.Constants;
 import com.box.androidlib.sample.R;
@@ -40,8 +43,7 @@ public class FileDetails extends Activity {
         final SharedPreferences prefs = getSharedPreferences(Constants.PREFS_FILE_NAME, 0);
         authToken = prefs.getString(Constants.PREFS_KEY_AUTH_TOKEN, null);
         if (authToken == null) {
-            Toast.makeText(getApplicationContext(), "You are not logged in.", Toast.LENGTH_SHORT)
-                .show();
+            Toast.makeText(getApplicationContext(), "You are not logged in.", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
@@ -60,6 +62,23 @@ public class FileDetails extends Activity {
                     final TextView detailsText = (TextView) findViewById(R.id.detailsText);
                     StringBuffer sb = new StringBuffer("FILE:\n").append(boxFile.toStringDebug());
                     detailsText.setText(sb.toString());
+                }
+            }
+
+            @Override
+            public void onIOException(IOException e) {
+            }
+        });
+
+        box.getComments(authToken, Box.TYPE_FILE, file_id, new GetCommentsListener() {
+
+            @Override
+            public void onComplete(ArrayList<Comment> comments, String status) {
+                StringBuffer sb = new StringBuffer("COMMENTS:\n");
+                for (Comment comment : comments) {
+                    final TextView commentsText = (TextView) findViewById(R.id.commentsText);
+                    sb.append(comment.toStringDebug()).append("\n");
+                    commentsText.setText(sb.toString());
                 }
             }
 

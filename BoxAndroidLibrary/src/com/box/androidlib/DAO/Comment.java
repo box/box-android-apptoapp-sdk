@@ -11,6 +11,9 @@
  ******************************************************************************/
 package com.box.androidlib.DAO;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.box.androidlib.Utils.BoxUtils;
 
 /**
@@ -44,6 +47,14 @@ public class Comment extends DAO {
      * Image URL of the author of the comment.
      */
     protected String mAvatarUrl;
+    /**
+     * List of reply comments to this comment.
+     */
+    protected List<Comment> mReplyComments = new ArrayList<Comment>();
+    /**
+     * Parent comment id.
+     */
+    protected long mParentCommentId = -1;
 
     /**
      * Get comment id.
@@ -157,6 +168,44 @@ public class Comment extends DAO {
      */
     public void setAvatarURL(final String avatarURL) {
         mAvatarUrl = avatarURL;
+    }
+
+    /**
+     * Get the list of reply comments to this comment.
+     * 
+     * @return List of reply comments.
+     */
+    public List<Comment> getReplyComments() {
+        return mReplyComments;
+    }
+
+    /**
+     * Add a reply comment to this comment. In general, only the repsonse parsers should be calling this.
+     * 
+     * @param replyComment
+     *            Reply comment to add.
+     */
+    public void addReplyComment(final Comment replyComment) {
+        mReplyComments.add(replyComment);
+    }
+
+    /**
+     * Get the comment id of the parent comment.
+     * 
+     * @return Parent comment id or -1 if this comment has no parent.
+     */
+    public long getParentCommentId() {
+        return mParentCommentId;
+    }
+
+    /**
+     * Set the parent comment id.
+     * 
+     * @param parentCommentId
+     *            Comment id of this comment's parent.
+     */
+    public void setParentCommentId(final long parentCommentId) {
+        mParentCommentId = parentCommentId;
     }
 
     /**

@@ -27,8 +27,25 @@ public class CommentsResponseParser extends DefaultResponseParser {
 
     /** The comment currently being parsed. */
     private Comment mComment;
+    /** The reply-comment currently being parsed. */
+    private Comment mReplyComment;
     /** The list of comments representing the response from Box API. */
     private ArrayList<Comment> mComments;
+
+    /**
+     * Enum definition to indicate whether we are currently parsing a comment or a subcomment.
+     */
+    private enum ParentOrChild {
+        /** Indicates that we are processing a parent comment. */
+        PARENT,
+        /** Indicates that we are processing a child comment. */
+        CHILD
+    };
+
+    /**
+     * Instance of ParentOrChild.
+     */
+    private ParentOrChild mParentOrChild = ParentOrChild.PARENT;
 
     @Override
     public void startElement(final String uri, final String localName, final String qName, final Attributes attributes) throws SAXException {
@@ -37,20 +54,41 @@ public class CommentsResponseParser extends DefaultResponseParser {
             mComments = new ArrayList<Comment>();
         }
         else if (localName.equals("comment")) {
+            mParentOrChild = ParentOrChild.PARENT;
             mComment = new Comment();
+        }
+        else if (localName.equals("item")) {
+            mParentOrChild = ParentOrChild.CHILD;
+            mReplyComment = new Comment();
         }
     }
 
     @Override
     public void endElement(final String uri, final String localName, final String qName) throws SAXException {
         super.endElement(uri, localName, qName);
-        if (mComment != null) {
-            mComment.parseAttribute(localName, mTextNode.toString());
-        }
+
         if (localName.equals("comment")) {
             if (mComments != null && mComment != null) {
+                for (Comment replyComment : mComment.getReplyComments()) {
+                    replyComment.setParentCommentId(mComment.getId());
+                }
                 mComments.add(mComment);
+                mComment = null;
+                mParentOrChild = null;
             }
+        }
+        else if (localName.equals("item")) {
+            if (mComment != null && mReplyComment != null) {
+                mComment.addReplyComment(mReplyComment);
+                mReplyComment = null;
+                mParentOrChild = ParentOrChild.PARENT;
+            }
+        }
+        else if (mParentOrChild == ParentOrChild.PARENT && mComment != null) {
+            mComment.parseAttribute(localName, mTextNode.toString());
+        }
+        else if (mParentOrChild == ParentOrChild.CHILD && mReplyComment != null) {
+            mReplyComment.parseAttribute(localName, mTextNode.toString());
         }
     }
 
