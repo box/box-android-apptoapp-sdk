@@ -32,13 +32,43 @@ public final class BoxUtils {
     }
 
     /**
+     * Convert a String to an int if possible. Instead of throwing an exception like Integer.parseInt() does, return a specified default int value if an error
+     * is encountered.
+     * 
+     * @param string
+     *            String to be parsed.
+     * @param defaultValue
+     *            default value to be returned if there is a parse error
+     * @return parsed int value
+     */
+    public static int parseInt(final String string, final int defaultValue) {
+        try {
+            return Integer.parseInt(string);
+        }
+        catch (final Exception e) {
+            return defaultValue;
+        }
+    }
+
+    /**
+     * Converts a String to an int if possible. Instead of throwing an exception like Integer.parseInt() does, return 0 if an error is encountered.
+     * 
+     * @param string
+     *            String to be parsed.
+     * @return parsed int valoue
+     */
+    public static int parseInt(final String string) {
+        return parseInt(string, 0);
+    }
+
+    /**
      * Convert a String to a long if possible. Instead of throwing an exception like Long.parseLong() does, return a specified default long value if an error is
      * encountered.
      * 
      * @param string
      *            String to be parsed
      * @param defaultValue
-     *            default value to be returned if a parse error
+     *            default value to be returned if there is a parse error
      * @return parsed long value
      */
     public static long parseLong(final String string, final long defaultValue) {

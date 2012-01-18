@@ -94,6 +94,10 @@ public class BoxFile extends DAO {
      * List of tag ids associated with the file.
      */
     protected ArrayList<Long> mTagIds = new ArrayList<Long>();
+    /**
+     * Number of comments.
+     */
+    protected int mCommentCount;
 
     // Setters
 
@@ -446,6 +450,25 @@ public class BoxFile extends DAO {
     }
 
     /**
+     * Get the number of comments that have been made on this file.
+     * 
+     * @return Number of comments.
+     */
+    public int getCommentCount() {
+        return mCommentCount;
+    }
+
+    /**
+     * Set the number of comments. Usually only called by the response parsers.
+     * 
+     * @param count
+     *            Number of comments.
+     */
+    public void setCommentCount(final int count) {
+        mCommentCount = count;
+    }
+
+    /**
      * Utility method to parse attributes into DAO member data. Used by SAX parsers.
      * 
      * @param key
@@ -504,6 +527,9 @@ public class BoxFile extends DAO {
         }
         else if (key.equals("permissions")) {
             setPermissions(value);
+        }
+        else if (key.equals("comment_count")) {
+            setCommentCount(BoxUtils.parseInt(value));
         }
     }
 }

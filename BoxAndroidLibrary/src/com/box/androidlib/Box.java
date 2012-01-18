@@ -91,6 +91,10 @@ public class Box {
      */
     public static final String TYPE_FOLDER = "folder";
     /**
+     * Used in API methods such as addComment.
+     */
+    public static final String TYPE_COMMENT = "comment";
+    /**
      * Parameter for getAccountTree() so that you will only get one level of files and folders.
      */
     public static final String PARAM_ONELEVEL = "onelevel";
@@ -111,6 +115,10 @@ public class Box {
      * Parameter for certain API requests such as get_udpates that tells server to return attributes instead of elements.
      */
     public static final String PARAM_USE_ATTRIBUTES = "use_attributes";
+    /**
+     * Parameter used in getAccountTree to indicate that the server should return the number of comments.
+     */
+    public static final String PARAM_COMMENT_COUNT = "comment_count";
     /**
      * Used in search to set the sort criteria of results to be by relevance.
      */
