@@ -259,6 +259,11 @@ public class BoxFileUpload {
         private ProgressListener mListener;
 
         /**
+         * Instance of CountingOutputStream.
+         */
+        private CountingOutputStream mCountingOutputStream;
+
+        /**
          * base constructor.
          * 
          * @param mode
@@ -298,7 +303,10 @@ public class BoxFileUpload {
 
         @Override
         public void writeTo(final OutputStream outstream) throws IOException {
-            super.writeTo(new CountingOutputStream(outstream, mListener));
+            if (mCountingOutputStream == null) {
+                mCountingOutputStream = new CountingOutputStream(outstream, mListener);
+            }
+            super.writeTo(mCountingOutputStream);
         }
 
         /**
