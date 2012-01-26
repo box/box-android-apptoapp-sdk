@@ -14,6 +14,7 @@ package com.box.androidlib;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 
 import android.os.Handler;
@@ -65,6 +66,7 @@ import com.box.androidlib.ResponseParsers.ToggleFolderEmailResponseParser;
 import com.box.androidlib.ResponseParsers.UpdatesResponseParser;
 import com.box.androidlib.ResponseParsers.UserResponseParser;
 import com.box.androidlib.ResponseParsers.VersionsResponseParser;
+import com.box.androidlib.Utils.Cancelable;
 
 /**
  * Use this class to execute requests <b>asynchronously</b> against the Box REST API. Full details about the Box API can be found at
@@ -1524,6 +1526,8 @@ public class Box {
      * Download a file. Uses the download API as described here:
      * {@link <a href="http://developers.box.net/w/page/12923951/ApiFunction_Upload-and-Download">http://developers.box.net/w/page/12923951/ApiFunction_Upload-and-Download</a>}
      * 
+     * This method returns a Cancelable which you can use to cancel a download in progress.
+     * 
      * @param authToken
      *            The auth token retrieved through {@link Box#getAuthToken(String, GetAuthTokenListener)}
      * @param fileId
@@ -1536,10 +1540,12 @@ public class Box {
      *            A file download listener. You will likely be interested in callbacks
      *            {@link com.box.androidlib.ResponseListeners.FileDownloadListener#onProgress(long)} and
      *            {@link com.box.androidlib.ResponseListeners.FileDownloadListener#onComplete(String)}
+     * @return A Cancelable that allows you to try to cancel a download in progress.
      */
-    public final void download(final String authToken, final long fileId, final File destinationFile, final Long versionId, final FileDownloadListener listener) {
+    public final Cancelable download(final String authToken, final long fileId, final File destinationFile, final Long versionId,
+        final FileDownloadListener listener) {
 
-        final Thread t = new Thread() {
+        final Thread thread = new Thread() {
 
             @Override
             public void run() {
@@ -1565,12 +1571,27 @@ public class Box {
                 }
             }
         };
-        t.start();
+        thread.start();
+
+        Cancelable cancelable = new Cancelable() {
+
+            @Override
+            public boolean cancel() {
+                if (thread.isAlive()) {
+                    thread.interrupt();
+                    return true;
+                }
+                return false;
+            }
+        };
+        return cancelable;
     }
 
     /**
      * Upload a file from the device to a folder at Box. Uses the upload API as described here:
      * {@link <a href="http://developers.box.net/w/page/12923951/ApiFunction_Upload-and-Download">http://developers.box.net/w/page/12923951/ApiFunction_Upload-and-Download</a>}
+     * 
+     * This method returns a Cancelable which you can use to cancel an upload in progress.
      * 
      * @param authToken
      *            The auth token retrieved through {@link Box#getAuthToken(String, GetAuthTokenListener)}
@@ -1587,11 +1608,12 @@ public class Box {
      *            A file upload listener. You will likely be interested in callbacks
      *            {@link com.box.androidlib.ResponseListeners.FileUploadListener#onProgress(long)} and
      *            {@link com.box.androidlib.ResponseListeners.FileUploadListener#onComplete(com.box.androidlib.DAO.BoxFile, String)}
+     * @return A Cancelable that allows you to try to cancel an upload in progress.
      */
-    public final void upload(final String authToken, final String action, final File file, final String filename, final long destinationId,
+    public final Cancelable upload(final String authToken, final String action, final File file, final String filename, final long destinationId,
         final FileUploadListener listener) {
 
-        new Thread() {
+        final Thread thread = new Thread() {
 
             @Override
             public void run() {
@@ -1634,7 +1656,107 @@ public class Box {
                     });
                 }
             }
-        }.start();
+        };
+        thread.start();
+
+        Cancelable cancelable = new Cancelable() {
+
+            @Override
+            public boolean cancel() {
+                if (thread.isAlive()) {
+                    thread.interrupt();
+                    return true;
+                }
+                return false;
+            }
+        };
+        return cancelable;
+    }
+
+    /**
+     * Upload a file from the device to a folder at Box. Uses the upload API as described here:
+     * {@link <a href="http://developers.box.net/w/page/12923951/ApiFunction_Upload-and-Download">http://developers.box.net/w/page/12923951/ApiFunction_Upload-and-Download</a>}
+     * 
+     * This method returns a Cancelable which you can use to cancel an upload in progress.
+     * 
+     * @param authToken
+     *            The auth token retrieved through {@link Box#getAuthToken(String, GetAuthTokenListener)}
+     * @param action
+     *            Set to {@link Box#UPLOAD_ACTION_UPLOAD} or {@link Box#UPLOAD_ACTION_OVERWRITE} or {@link Box#UPLOAD_ACTION_NEW_COPY}
+     * @param sourceInputStream
+     *            An input stream targeting the data you wish to upload.
+     * @param filename
+     *            The desired filename on Box after upload (just the file name, do not include the path)
+     * @param destinationId
+     *            If action is {@link Box#UPLOAD_ACTION_UPLOAD}, then this is the folder id where the file will uploaded to. If action is
+     *            {@link Box#UPLOAD_ACTION_OVERWRITE} or {@link Box#UPLOAD_ACTION_NEW_COPY}, then this is the file_id that is being overwrriten, or copied.
+     * @param listener
+     *            A file upload listener. You will likely be interested in callbacks
+     *            {@link com.box.androidlib.ResponseListeners.FileUploadListener#onProgress(long)} and
+     *            {@link com.box.androidlib.ResponseListeners.FileUploadListener#onComplete(com.box.androidlib.DAO.BoxFile, String)}
+     * @return A Cancelable that allows you to try to cancel an upload in progress.
+     */
+    public final Cancelable upload(final String authToken, final String action, final InputStream sourceInputStream, final String filename,
+        final long destinationId, final FileUploadListener listener) {
+
+        final Thread thread = new Thread() {
+
+            @Override
+            public void run() {
+                try {
+                    final FileResponseParser response = BoxSynchronous.getInstance(mApiKey).upload(authToken, action, sourceInputStream, filename,
+                        destinationId, listener, mHandler);
+                    mHandler.post(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            listener.onComplete(response.getFile(), response.getStatus());
+                        }
+                    });
+                }
+                catch (final FileNotFoundException e) {
+                    mHandler.post(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            listener.onFileNotFoundException(e);
+                        }
+                    });
+                }
+                catch (final MalformedURLException e) {
+                    mHandler.post(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            listener.onMalformedURLException(e);
+                        }
+                    });
+                }
+                catch (final IOException e) {
+                    mHandler.post(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            listener.onIOException(e);
+                        }
+                    });
+                }
+            }
+        };
+        thread.start();
+
+        Cancelable cancelable = new Cancelable() {
+
+            @Override
+            public boolean cancel() {
+                if (thread.isAlive()) {
+                    thread.interrupt();
+                    return true;
+                }
+                return false;
+            }
+        };
+        return cancelable;
     }
 
     /**

@@ -13,7 +13,6 @@ package com.box.androidlib.FileTransfer;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilterOutputStream;
 import java.io.IOException;
@@ -30,7 +29,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HTTP;
 import org.w3c.dom.Document;
@@ -100,8 +99,8 @@ public class BoxFileUpload {
      * @param action
      *            Set to {@link com.box.androidlib.Box#UPLOAD_ACTION_UPLOAD} or {@link com.box.androidlib.Box#UPLOAD_ACTION_OVERWRITE} or
      *            {@link com.box.androidlib.Box#UPLOAD_ACTION_NEW_COPY}
-     * @param file
-     *            A File resource pointing to the file you wish to upload. Make sure File.isFile() and File.canRead() are true for this resource.
+     * @param sourceInputStream
+     *            Input stream targeting the data for the file you wish to create/upload to Box.
      * @param filename
      *            The desired filename on Box after upload (just the file name, do not include the path)
      * @param destinationId
@@ -116,11 +115,8 @@ public class BoxFileUpload {
      * @throws MalformedURLException
      *             Make sure you have specified a valid upload action
      */
-    public FileResponseParser execute(final String action, final File file, final String filename, final long destinationId) throws IOException,
-        MalformedURLException, FileNotFoundException {
-        if (!file.isFile() || !file.canRead()) {
-            throw new FileNotFoundException("Specified upload file is either not a file, or cannot be read");
-        }
+    public FileResponseParser execute(final String action, final InputStream sourceInputStream, final String filename, final long destinationId)
+        throws IOException, MalformedURLException, FileNotFoundException {
 
         if (!action.equals(Box.UPLOAD_ACTION_UPLOAD) && !action.equals(Box.UPLOAD_ACTION_OVERWRITE) && !action.equals(Box.UPLOAD_ACTION_NEW_COPY)) {
             throw new MalformedURLException("action must be upload, overwrite or new_copy");
@@ -161,7 +157,7 @@ public class BoxFileUpload {
             });
         }
 
-        reqEntity.addPart("file_name", new FileBody(file) {
+        reqEntity.addPart("file_name", new InputStreamBody(sourceInputStream, filename) {
 
             @Override
             public String getFilename() {
@@ -178,7 +174,7 @@ public class BoxFileUpload {
         catch (final IOException e) {
             // Detect if the download was cancelled through thread interrupt.
             // See CountingOutputStream.write() for when this exception is thrown.
-            if (e.getMessage().equals(FileUploadListener.STATUS_CANCELLED)) {
+            if ((e.getMessage() != null && e.getMessage().equals(FileUploadListener.STATUS_CANCELLED)) || Thread.currentThread().isInterrupted()) {
                 final FileResponseParser handler = new FileResponseParser();
                 handler.setStatus(FileUploadListener.STATUS_CANCELLED);
                 return handler;

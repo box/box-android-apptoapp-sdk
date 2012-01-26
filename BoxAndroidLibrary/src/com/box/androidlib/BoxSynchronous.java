@@ -12,6 +12,7 @@
 package com.box.androidlib;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -903,6 +904,9 @@ public class BoxSynchronous {
      * Download a file. Uses the download API as described here:
      * {@link <a href="http://developers.box.net/w/page/12923951/ApiFunction_Upload-and-Download">http://developers.box.net/w/page/12923951/ApiFunction_Upload-and-Download</a>}
      * 
+     * If you want to cancel a download in progress, you must interrupt the thread that you executed this method in. For a more convenient way to cancel, use
+     * Box.download() which returns a Cancelable.
+     * 
      * @param authToken
      *            The auth token retrieved through {@link BoxSynchronous#getAuthToken(String)}
      * @param fileId
@@ -965,7 +969,47 @@ public class BoxSynchronous {
         final FileUploadListener listener, final Handler handler) throws FileNotFoundException, MalformedURLException, IOException {
         final BoxFileUpload upload = new BoxFileUpload(authToken);
         upload.setListener(listener, handler);
-        return upload.execute(action, file, filename, destinationId);
+        return upload.execute(action, new FileInputStream(file), filename, destinationId);
+    }
+
+    /**
+     * Upload a file from the device to a folder at Box. Uses the upload API as described here: {@see {@link <a href=
+     * "http://developers.box.net/w/page/12923951/ApiFunction_Upload-and-Download" >http://developers.box.net/w/page/12923951/ApiFunction_Upload-and- Download}
+     * </a>}
+     * 
+     * @param authToken
+     *            The auth token retrieved through {@link BoxSynchronous#getAuthToken(String)}
+     * @param action
+     *            Set to {@link com.box.androidlib.Box#UPLOAD_ACTION_UPLOAD} or {@link com.box.androidlib.Box#UPLOAD_ACTION_OVERWRITE} or
+     *            {@link com.box.androidlib.Box#UPLOAD_ACTION_NEW_COPY}
+     * @param sourceInputStream
+     *            Input stream targetting the data to be uploaded.
+     * @param filename
+     *            The desired filename on Box after upload (just the file name, do not include the path)
+     * @param destinationId
+     *            If action is {@link com.box.androidlib.Box#UPLOAD_ACTION_UPLOAD}, then this is the folder id where the file will uploaded to. If action is
+     *            {@link com.box.androidlib.Box#UPLOAD_ACTION_OVERWRITE} or {@link com.box.androidlib.Box#UPLOAD_ACTION_NEW_COPY}, then this is the file_id that
+     *            is being overwritten, or copied.
+     * @param listener
+     *            A file upload listener. You will likely be interested in callbacks
+     *            {@link com.box.androidlib.ResponseListeners.FileUploadListener#onProgress(long)} and
+     *            {@link com.box.androidlib.ResponseListeners.FileUploadListener#onComplete(com.box.androidlib.DAO.BoxFile, String)}
+     * @param handler
+     *            The handler through which FileUploadListener.onProgress will be invoked.
+     * @return the response parser used to capture the data of interest from the response. See the doc for the specific parser type returned to see what data is
+     *         now available. All parsers implement getStatus() at a minimum.
+     * @throws IOException
+     *             Can be thrown if there is no connection, or if some other connection problem exists.
+     * @throws FileNotFoundException
+     *             File being uploaded either doesn't exist, is not a file, or cannot be read
+     * @throws MalformedURLException
+     *             Make sure you have specified a valid upload action
+     */
+    public final FileResponseParser upload(final String authToken, final String action, final InputStream sourceInputStream, final String filename,
+        final long destinationId, final FileUploadListener listener, final Handler handler) throws FileNotFoundException, MalformedURLException, IOException {
+        final BoxFileUpload upload = new BoxFileUpload(authToken);
+        upload.setListener(listener, handler);
+        return upload.execute(action, sourceInputStream, filename, destinationId);
     }
 
     /**

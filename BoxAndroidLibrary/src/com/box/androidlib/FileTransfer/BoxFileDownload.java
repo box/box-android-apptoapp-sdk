@@ -147,6 +147,7 @@ public class BoxFileDownload {
         catch (URISyntaxException e) {
             throw new IOException("Invalid Download URL");
         }
+        httpGet.setHeader("Connection", "close");
         HttpResponse httpResponse = httpclient.execute(httpGet);
         InputStream is = httpResponse.getEntity().getContent();
         int responseCode = httpResponse.getStatusLine().getStatusCode();
@@ -157,7 +158,7 @@ public class BoxFileDownload {
             int bufferLength = 0;
             mBytesTransferred = 0;
             long lastOnProgressPost = 0;
-            while ((bufferLength = is.read(buffer)) > 0 && !Thread.currentThread().isInterrupted()) {
+            while (!Thread.currentThread().isInterrupted() && (bufferLength = is.read(buffer)) > 0) {
                 fos.write(buffer, 0, bufferLength);
                 mBytesTransferred += bufferLength;
                 long currTime = SystemClock.uptimeMillis();
@@ -172,6 +173,7 @@ public class BoxFileDownload {
 
             // If download thread was interrupted, set to STATUS_DOWNLOAD_CANCELED
             if (Thread.currentThread().isInterrupted()) {
+                httpGet.abort();
                 handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_CANCELLED);
             }
             // Even if download completed, Box API may have put an error message

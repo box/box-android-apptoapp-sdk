@@ -1,16 +1,16 @@
-//  Copyright 2011 Box.net.
+// Copyright 2011 Box.net.
 //
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//  http://www.apache.org/licenses/LICENSE-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //
 
 package com.box.androidlib.sample.activity;
@@ -18,6 +18,7 @@ package com.box.androidlib.sample.activity;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
@@ -29,12 +30,15 @@ import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -54,6 +58,7 @@ import com.box.androidlib.ResponseListeners.FileDownloadListener;
 import com.box.androidlib.ResponseListeners.FileUploadListener;
 import com.box.androidlib.ResponseListeners.GetAccountTreeListener;
 import com.box.androidlib.ResponseListeners.RenameListener;
+import com.box.androidlib.Utils.Cancelable;
 import com.box.androidlib.sample.Constants;
 import com.box.androidlib.sample.R;
 
@@ -89,8 +94,7 @@ public class Browse extends ListActivity {
         final SharedPreferences prefs = getSharedPreferences(Constants.PREFS_FILE_NAME, 0);
         authToken = prefs.getString(Constants.PREFS_KEY_AUTH_TOKEN, null);
         if (authToken == null) {
-            Toast.makeText(getApplicationContext(), "You are not logged in.", Toast.LENGTH_SHORT)
-                .show();
+            Toast.makeText(getApplicationContext(), "You are not logged in.", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
@@ -117,63 +121,59 @@ public class Browse extends ListActivity {
      */
     private void refresh() {
         final Box box = Box.getInstance(Constants.API_KEY);
-        box.getAccountTree(authToken, folderId,
-            new String[] { Box.PARAM_ONELEVEL }, new GetAccountTreeListener() {
-                @Override
-                public void onComplete(BoxFolder boxFolder, String status) {
-                    if (!status.equals(GetAccountTreeListener.STATUS_LISTING_OK)) {
-                        Toast.makeText(getApplicationContext(), "There was an error.",
-                            Toast.LENGTH_SHORT).show();
-                        finish();
-                        return;
-                    }
+        box.getAccountTree(authToken, folderId, new String[] {Box.PARAM_ONELEVEL}, new GetAccountTreeListener() {
 
-                    /**
-                     * Box.getAccountTree() was successful. boxFolder contains a
-                     * list of subfolders and files. Shove those into an array
-                     * so that our list adapter displays them.
-                     */
-
-                    items = new TreeListItem[boxFolder.getFoldersInFolder().size()
-                        + boxFolder.getFilesInFolder().size()];
-
-                    int i = 0;
-
-                    Iterator<? extends BoxFolder> foldersIterator = boxFolder.getFoldersInFolder().iterator();
-                    while (foldersIterator.hasNext()) {
-                        BoxFolder subfolder = foldersIterator.next();
-                        TreeListItem item = new TreeListItem();
-                        item.id = subfolder.getId();
-                        item.name = subfolder.getFolderName();
-                        item.type = TreeListItem.TYPE_FOLDER;
-                        item.folder = subfolder;
-                        items[i] = item;
-                        i++;
-                    }
-
-                    Iterator<? extends BoxFile> filesIterator = boxFolder.getFilesInFolder().iterator();
-                    while (filesIterator.hasNext()) {
-                        BoxFile boxFile = filesIterator.next();
-                        TreeListItem item = new TreeListItem();
-                        item.id = boxFile.getId();
-                        item.name = boxFile.getFileName();
-                        item.type = TreeListItem.TYPE_FILE;
-                        item.file = boxFile;
-                        items[i] = item;
-                        i++;
-                    }
-
-                    adapter.notifyDataSetChanged();
-                    ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
-                    progressBar.setVisibility(View.GONE);
+            @Override
+            public void onComplete(BoxFolder boxFolder, String status) {
+                if (!status.equals(GetAccountTreeListener.STATUS_LISTING_OK)) {
+                    Toast.makeText(getApplicationContext(), "There was an error.", Toast.LENGTH_SHORT).show();
+                    finish();
+                    return;
                 }
 
-                @Override
-                public void onIOException(final IOException e) {
-                    Toast.makeText(getApplicationContext(),
-                        "Failed to get tree - " + e.getMessage(), Toast.LENGTH_LONG).show();
+                /**
+                 * Box.getAccountTree() was successful. boxFolder contains a list of subfolders and files. Shove those into an array so that our list adapter
+                 * displays them.
+                 */
+
+                items = new TreeListItem[boxFolder.getFoldersInFolder().size() + boxFolder.getFilesInFolder().size()];
+
+                int i = 0;
+
+                Iterator<? extends BoxFolder> foldersIterator = boxFolder.getFoldersInFolder().iterator();
+                while (foldersIterator.hasNext()) {
+                    BoxFolder subfolder = foldersIterator.next();
+                    TreeListItem item = new TreeListItem();
+                    item.id = subfolder.getId();
+                    item.name = subfolder.getFolderName();
+                    item.type = TreeListItem.TYPE_FOLDER;
+                    item.folder = subfolder;
+                    items[i] = item;
+                    i++;
                 }
-            });
+
+                Iterator<? extends BoxFile> filesIterator = boxFolder.getFilesInFolder().iterator();
+                while (filesIterator.hasNext()) {
+                    BoxFile boxFile = filesIterator.next();
+                    TreeListItem item = new TreeListItem();
+                    item.id = boxFile.getId();
+                    item.name = boxFile.getFileName();
+                    item.type = TreeListItem.TYPE_FILE;
+                    item.file = boxFile;
+                    items[i] = item;
+                    i++;
+                }
+
+                adapter.notifyDataSetChanged();
+                ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
+                progressBar.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onIOException(final IOException e) {
+                Toast.makeText(getApplicationContext(), "Failed to get tree - " + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     @Override
@@ -183,87 +183,102 @@ public class Browse extends ListActivity {
          * Demonstrates some of the actions you can perform on files and folders
          */
 
-        final CharSequence[] options = items[position].type == TreeListItem.TYPE_FOLDER ? new String[] {
-            OPTION_FOLDER_DETAILS, OPTION_FOLDER_CONTENTS, OPTION_SHARE, OPTION_DELETE,
-            OPTION_RENAME }
-            : new String[] { OPTION_FILE_DETAILS, OPTION_SHARE, OPTION_FILE_DOWNLOAD,
-                OPTION_DELETE, OPTION_RENAME };
+        final CharSequence[] options = items[position].type == TreeListItem.TYPE_FOLDER ? new String[] {OPTION_FOLDER_DETAILS, OPTION_FOLDER_CONTENTS,
+                                                                                                        OPTION_SHARE, OPTION_DELETE, OPTION_RENAME}
+                                                                                       : new String[] {OPTION_FILE_DETAILS, OPTION_SHARE, OPTION_FILE_DOWNLOAD,
+                                                                                                       OPTION_DELETE, OPTION_RENAME};
 
         AlertDialog.Builder builder = new AlertDialog.Builder(Browse.this);
         builder.setTitle(items[position].name);
         builder.setItems(options, new DialogInterface.OnClickListener() {
+
             @Override
             public void onClick(DialogInterface dialog, int selected) {
                 if (options[selected].equals(OPTION_SHARE)) {
                     Intent i = new Intent(Browse.this, Share.class);
                     if (items[position].type == TreeListItem.TYPE_FOLDER) {
                         i.putExtra("itemType", Box.TYPE_FOLDER);
-                    } else {
+                    }
+                    else {
                         i.putExtra("itemType", Box.TYPE_FILE);
                     }
                     i.putExtra("itemId", items[position].id);
                     i.putExtra("itemName", items[position].name);
                     startActivity(i);
-                } else if (options[selected].equals(OPTION_FILE_DETAILS)) {
+                }
+                else if (options[selected].equals(OPTION_FILE_DETAILS)) {
                     Intent i = new Intent(Browse.this, FileDetails.class);
                     i.putExtra("file_id", items[position].id);
                     startActivity(i);
-                } else if (options[selected].equals(OPTION_FOLDER_DETAILS)) {
+                }
+                else if (options[selected].equals(OPTION_FOLDER_DETAILS)) {
                     Intent i = new Intent(Browse.this, FolderDetails.class);
                     i.putExtra("folder_id", items[position].id);
                     startActivity(i);
-                } else if (options[selected].equals(OPTION_FOLDER_CONTENTS)) {
+                }
+                else if (options[selected].equals(OPTION_FOLDER_CONTENTS)) {
                     Intent i = new Intent(Browse.this, Browse.class);
                     i.putExtra("folder_id", items[position].id);
                     startActivity(i);
-                } else if (options[selected].equals(OPTION_FILE_DOWNLOAD)) {
+                }
+                else if (options[selected].equals(OPTION_FILE_DOWNLOAD)) {
 
                     /**
-                     * Download a file and put it into the SD card. In your app,
-                     * you can put the file wherever you have access to.
+                     * Download a file and put it into the SD card. In your app, you can put the file wherever you have access to.
                      */
                     final Box box = Box.getInstance(Constants.API_KEY);
-                    final java.io.File destinationFile = new java.io.File(Environment
-                        .getExternalStorageDirectory()
-                        + "/"
-                        + URLEncoder.encode(items[position].name));
+                    final java.io.File destinationFile = new java.io.File(Environment.getExternalStorageDirectory() + "/"
+                                                                          + URLEncoder.encode(items[position].name));
 
                     final ProgressDialog downloadDialog = new ProgressDialog(Browse.this);
                     downloadDialog.setMessage("Downloading " + items[position].name);
                     downloadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
                     downloadDialog.setMax((int) items[position].file.getSize());
+                    downloadDialog.setCancelable(true);
                     downloadDialog.show();
 
-                    box.download(authToken, items[position].id, destinationFile, null,
-                        new FileDownloadListener() {
-                            @Override
-                            public void onComplete(final String status) {
-                                downloadDialog.dismiss();
-                                if (status.equals(FileDownloadListener.STATUS_DOWNLOAD_OK)) {
-                                    Toast.makeText(getApplicationContext(),
-                                        "File downloaded to " + destinationFile.getAbsolutePath(),
-                                        Toast.LENGTH_LONG).show();
-                                }
-                            }
+                    Toast.makeText(getApplicationContext(), "Click BACK to cancel the download.", Toast.LENGTH_SHORT).show();
 
-                            @Override
-                            public void onIOException(final IOException e) {
-                                e.printStackTrace();
-                                Toast.makeText(getApplicationContext(),
-                                    "Download failed " + e.getMessage(), Toast.LENGTH_LONG).show();
-                            }
+                    final Cancelable cancelable = box.download(authToken, items[position].id, destinationFile, null, new FileDownloadListener() {
 
-                            @Override
-                            public void onProgress(final long bytesDownloaded) {
-                                downloadDialog.setProgress((int) bytesDownloaded);
+                        @Override
+                        public void onComplete(final String status) {
+                            downloadDialog.dismiss();
+                            if (status.equals(FileDownloadListener.STATUS_DOWNLOAD_OK)) {
+                                Toast.makeText(getApplicationContext(), "File downloaded to " + destinationFile.getAbsolutePath(), Toast.LENGTH_LONG).show();
                             }
-                        });
-                } else if (options[selected].equals(OPTION_DELETE)) {
+                            else if (status.equals(FileDownloadListener.STATUS_DOWNLOAD_CANCELLED)) {
+                                Toast.makeText(getApplicationContext(), "Download canceled.", Toast.LENGTH_LONG).show();
+                            }
+                        }
+
+                        @Override
+                        public void onIOException(final IOException e) {
+                            e.printStackTrace();
+                            downloadDialog.dismiss();
+                            Toast.makeText(getApplicationContext(), "Download failed " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+
+                        @Override
+                        public void onProgress(final long bytesDownloaded) {
+                            downloadDialog.setProgress((int) bytesDownloaded);
+                        }
+                    });
+                    downloadDialog.setOnCancelListener(new OnCancelListener() {
+
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+                            cancelable.cancel();
+                        }
+                    });
+                }
+                else if (options[selected].equals(OPTION_DELETE)) {
                     final Box box = Box.getInstance(Constants.API_KEY);
                     String target;
                     if (items[position].type == TreeListItem.TYPE_FOLDER) {
                         target = Box.TYPE_FOLDER;
-                    } else {
+                    }
+                    else {
                         target = Box.TYPE_FILE;
                     }
                     box.delete(authToken, target, items[position].id, new DeleteListener() {
@@ -271,54 +286,48 @@ public class Browse extends ListActivity {
                         @Override
                         public void onComplete(final String status) {
                             if (status.equals(DeleteListener.STATUS_S_DELETE_NODE)) {
-                                Toast.makeText(getApplicationContext(),
-                                    "Successfully deleted " + items[position].name,
-                                    Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "Successfully deleted " + items[position].name, Toast.LENGTH_SHORT).show();
                                 refresh();
-                            } else {
-                                Toast.makeText(getApplicationContext(),
-                                    "Delete failed - " + status, Toast.LENGTH_SHORT).show();
+                            }
+                            else {
+                                Toast.makeText(getApplicationContext(), "Delete failed - " + status, Toast.LENGTH_SHORT).show();
                             }
                         }
 
                         @Override
                         public void onIOException(final IOException e) {
-                            Toast.makeText(getApplicationContext(),
-                                "Delete failed - " + e.getMessage(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), "Delete failed - " + e.getMessage(), Toast.LENGTH_LONG).show();
                         }
                     });
-                } else if (options[selected].equals(OPTION_RENAME)) {
+                }
+                else if (options[selected].equals(OPTION_RENAME)) {
                     /**
-                     * In this example, we simply demonstrate renaming a file to
-                     * "renamed [ORIGINAL_FILENAME]"
+                     * In this example, we simply demonstrate renaming a file to "renamed [ORIGINAL_FILENAME]"
                      */
                     final Box box = Box.getInstance(Constants.API_KEY);
                     String target;
                     if (items[position].type == TreeListItem.TYPE_FOLDER) {
                         target = Box.TYPE_FOLDER;
-                    } else {
+                    }
+                    else {
                         target = Box.TYPE_FILE;
                     }
-                    box.rename(authToken, target, items[position].id, "renamed "
-                        + items[position].name, new RenameListener() {
+                    box.rename(authToken, target, items[position].id, "renamed " + items[position].name, new RenameListener() {
 
                         @Override
                         public void onComplete(final String status) {
                             if (status.equals(RenameListener.STATUS_S_RENAME_NODE)) {
-                                Toast.makeText(getApplicationContext(),
-                                    "Successfully renamed " + items[position].name,
-                                    Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "Successfully renamed " + items[position].name, Toast.LENGTH_SHORT).show();
                                 refresh();
-                            } else {
-                                Toast.makeText(getApplicationContext(),
-                                    "Rename failed - " + status, Toast.LENGTH_SHORT).show();
+                            }
+                            else {
+                                Toast.makeText(getApplicationContext(), "Rename failed - " + status, Toast.LENGTH_SHORT).show();
                             }
                         }
 
                         @Override
                         public void onIOException(final IOException e) {
-                            Toast.makeText(getApplicationContext(),
-                                "Rename failed - " + e.getMessage(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), "Rename failed - " + e.getMessage(), Toast.LENGTH_LONG).show();
                         }
                     });
                 }
@@ -327,10 +336,10 @@ public class Browse extends ListActivity {
     }
 
     /**
-     * Just a utility class to store BoxFile and BoxFolder objects, which can be
-     * passed as the source data of our list adapter.
+     * Just a utility class to store BoxFile and BoxFolder objects, which can be passed as the source data of our list adapter.
      */
     private class TreeListItem {
+
         public static final int TYPE_FILE = 1;
         public static final int TYPE_FOLDER = 2;
         public int type;
@@ -355,7 +364,8 @@ public class Browse extends ListActivity {
             TextView tv = new TextView(context);
             if (items[position].type == TreeListItem.TYPE_FOLDER) {
                 tv.append("FOLDER: ");
-            } else if (items[position].type == TreeListItem.TYPE_FILE) {
+            }
+            else if (items[position].type == TreeListItem.TYPE_FILE) {
                 tv.append("FILE: ");
             }
             tv.append(items[position].name);
@@ -380,58 +390,47 @@ public class Browse extends ListActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         switch (menuItem.getItemId()) {
-        case MENU_ID_UPLOAD:
-            /**
-             * To demonstrate file uploads, make sure you have an app that can
-             * handle file choosing. Look at onActivityResult to see the actual
-             * file upload. You don't have to use a file picker in your app. All
-             * you need is the absolute path of the filename you wish to upload.
-             */
-            Intent intent = new Intent();
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-            intent.setType("text/csv");
-            intent.setAction(Intent.ACTION_GET_CONTENT);
-            startActivityForResult(Intent.createChooser(intent, "Select file picker"), 1);
-            Toast
-                .makeText(
-                    getApplicationContext(),
-                    "Install ASTRO FILE MANAGER if you don't already have an app that can handle file choosing",
+            case MENU_ID_UPLOAD:
+                /**
+                 * To demonstrate file uploads, make sure you have an app that can handle file choosing. Look at onActivityResult to see the actual file upload.
+                 * You don't have to use a file picker in your app. All you need is the absolute path of the filename you wish to upload.
+                 */
+                Intent intent = new Intent();
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("*/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, "Select file picker"), 1);
+                Toast.makeText(getApplicationContext(), "Install ASTRO FILE MANAGER if you don't already have an app that can handle file choosing",
                     Toast.LENGTH_LONG).show();
-            return true;
-        case MENU_ID_CREATE_FOLDER:
-            /**
-             * In this example, we create a folder with the current time as its
-             * name
-             */
-            final Box box = Box.getInstance(Constants.API_KEY);
-            Date d = new Date();
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-DD HH.mm.ss");
-            String new_folder_name = sdf.format(d);
-            box.createFolder(authToken, folderId, new_folder_name, false,
-                new CreateFolderListener() {
+                return true;
+            case MENU_ID_CREATE_FOLDER:
+                /**
+                 * In this example, we create a folder with the current time as its name
+                 */
+                final Box box = Box.getInstance(Constants.API_KEY);
+                Date d = new Date();
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-DD HH.mm.ss");
+                String new_folder_name = sdf.format(d);
+                box.createFolder(authToken, folderId, new_folder_name, false, new CreateFolderListener() {
 
                     @Override
                     public void onComplete(final BoxFolder boxFolder, final String status) {
                         if (status.equals(CreateFolderListener.STATUS_CREATE_OK)) {
-                            Toast
-                                .makeText(getApplicationContext(),
-                                    "Folder created - " + boxFolder.getFolderName(),
-                                    Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "Folder created - " + boxFolder.getFolderName(), Toast.LENGTH_SHORT).show();
                             refresh();
-                        } else {
-                            Toast.makeText(getApplicationContext(),
-                                "Folder creation failed - " + status, Toast.LENGTH_LONG).show();
+                        }
+                        else {
+                            Toast.makeText(getApplicationContext(), "Folder creation failed - " + status, Toast.LENGTH_LONG).show();
                         }
                     }
 
                     @Override
                     public void onIOException(final IOException e) {
                         e.printStackTrace();
-                        Toast.makeText(getApplicationContext(),
-                            "Folder creation failed - " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Folder creation failed - " + e.getMessage(), Toast.LENGTH_LONG).show();
                     }
                 });
-            return true;
+                return true;
         }
         return false;
     }
@@ -442,28 +441,84 @@ public class Browse extends ListActivity {
             /**
              * A file has been selected for upload
              */
-            Uri uri = data.getData();
-            final String filepath = uri.getPath();
-            final File file = new File(filepath);
-
             final ProgressDialog uploadDialog = new ProgressDialog(this);
-            uploadDialog.setMessage("Uploading " + filepath);
-            uploadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            uploadDialog.setMax((int) file.length());
+            final Uri uri = data.getData();
+            InputStream inputStream;
+            try {
+                inputStream = getContentResolver().openInputStream(uri);
+            }
+            catch (FileNotFoundException e) {
+                e.printStackTrace();
+                Toast.makeText(getApplicationContext(), "Unable to read file for upload - " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (uri.getScheme() == null) {
+                Toast.makeText(getApplicationContext(), "Unable to read file for upload - " + uri, Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            final String filename;
+            final int size;
+            if (uri.getScheme().equals("file")) {
+                File file = new File(uri.getPath());
+                filename = file.getName();
+                size = (int) file.length();
+            }
+            else if (uri.getScheme().equals("content")) {
+                String[] proj = {MediaStore.Images.Media.TITLE, MediaStore.Images.Media.SIZE};
+                Cursor cursor = getContentResolver().query(uri, proj, null, null, null);
+                if (cursor != null && cursor.getCount() != 0) {
+                    int nameIndex = cursor.getColumnIndex(MediaStore.Images.Media.TITLE);
+                    int sizeIndex = cursor.getColumnIndex(MediaStore.Images.Media.SIZE);
+                    cursor.moveToFirst();
+                    if (nameIndex > -1 && cursor.getString(nameIndex) != null && cursor.getString(nameIndex).length() > 0) {
+                        filename = cursor.getString(nameIndex);
+                    }
+                    else {
+                        filename = uri.getLastPathSegment();
+                    }
+                    if (sizeIndex > -1 && cursor.getInt(sizeIndex) > 0) {
+                        size = cursor.getInt(sizeIndex);
+                    }
+                    else {
+                        size = -1;
+                    }
+                }
+                else {
+                    filename = uri.getLastPathSegment();
+                    size = -1;
+                }
+            }
+            else {
+                Toast.makeText(getApplicationContext(), "Unable to read file for upload", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            uploadDialog.setMessage("Uploading " + filename);
+            if (size > 0) {
+                uploadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                uploadDialog.setMax(size);
+            }
+            else {
+                uploadDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            }
             uploadDialog.show();
 
             final Box boxServiceHandler = Box.getInstance(Constants.API_KEY);
-            boxServiceHandler.upload(authToken, Box.UPLOAD_ACTION_UPLOAD, file, file.getName(),
-                folderId, new FileUploadListener() {
+            final Cancelable cancelable = boxServiceHandler.upload(authToken, Box.UPLOAD_ACTION_UPLOAD, inputStream, filename, folderId,
+                new FileUploadListener() {
+
                     @Override
                     public void onComplete(BoxFile file, final String status) {
                         if (status.equals(FileUploadListener.STATUS_UPLOAD_OK)) {
-                            Toast.makeText(getApplicationContext(),
-                                "Successfully uploaded " + filepath, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "Successfully uploaded " + filename, Toast.LENGTH_SHORT).show();
                             refresh();
-                        } else {
-                            Toast.makeText(getApplicationContext(), "Upload failed - " + status,
-                                Toast.LENGTH_SHORT).show();
+                        }
+                        else if (status.equals(FileUploadListener.STATUS_CANCELLED)) {
+                            Toast.makeText(getApplicationContext(), "Upload cancelled.", Toast.LENGTH_SHORT).show();
+                        }
+                        else {
+                            Toast.makeText(getApplicationContext(), "Upload failed - " + status, Toast.LENGTH_SHORT).show();
                         }
                         uploadDialog.dismiss();
                     }
@@ -471,35 +526,42 @@ public class Browse extends ListActivity {
                     @Override
                     public void onIOException(final IOException e) {
                         e.printStackTrace();
-                        Toast.makeText(getApplicationContext(),
-                            "Upload failed - " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Upload failed - " + e.getMessage(), Toast.LENGTH_LONG).show();
                         uploadDialog.dismiss();
                     }
 
                     @Override
                     public void onMalformedURLException(final MalformedURLException e) {
                         e.printStackTrace();
-                        Toast.makeText(getApplicationContext(),
-                            "Upload failed - " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Upload failed - " + e.getMessage(), Toast.LENGTH_LONG).show();
                         uploadDialog.dismiss();
                     }
 
                     @Override
                     public void onFileNotFoundException(final FileNotFoundException e) {
                         e.printStackTrace();
-                        Toast.makeText(getApplicationContext(),
-                            "Upload failed - " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Upload failed - " + e.getMessage(), Toast.LENGTH_LONG).show();
                         uploadDialog.dismiss();
                     }
 
                     @Override
                     public void onProgress(final long bytesUploaded) {
                         uploadDialog.setProgress((int) bytesUploaded);
-                        if (bytesUploaded >= file.length()) {
-                            uploadDialog.setMessage("Syncing on Box servers. Please Wait...");
+                        if (uri.getScheme().equals("content")) {
+                            uploadDialog.setMessage("Uploading " + filename + " (" + bytesUploaded + ")");
                         }
                     }
                 });
+
+            uploadDialog.setCancelable(true);
+            uploadDialog.setOnCancelListener(new OnCancelListener() {
+
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    cancelable.cancel();
+                }
+            });
+            Toast.makeText(getApplicationContext(), "Click BACK to cancel the upload.", Toast.LENGTH_SHORT).show();
         }
     }
 }
