@@ -39,6 +39,7 @@ import com.box.androidlib.ResponseListeners.FileDownloadListener;
 import com.box.androidlib.ResponseListeners.FileUploadListener;
 import com.box.androidlib.ResponseListeners.ResponseListener;
 import com.box.androidlib.ResponseParsers.AccountTreeResponseParser;
+import com.box.androidlib.ResponseParsers.CollaborationsResponseParser;
 import com.box.androidlib.ResponseParsers.CommentResponseParser;
 import com.box.androidlib.ResponseParsers.CommentsResponseParser;
 import com.box.androidlib.ResponseParsers.DefaultResponseParser;
@@ -852,6 +853,28 @@ public class BoxSynchronous {
         }
         saxRequest(parser, builder.build());
         return parser.getStatus();
+    }
+
+    /**
+     * Obtain a list of collaborators for a file or folder. Executes API action invite_collaborators:
+     * {@link <a href="http://developers.box.net/w/page/12923933/ApiFunction_get_collaborations">http://developers.box.net/w/page/12923933/ApiFunction_get_collaborations</a>}
+     * 
+     * @param authToken
+     *            The auth token retrieved through {@link BoxSynchronous#getAuthToken(String)}
+     * @param type
+     *            The type of item to be shared. Set to {@link com.box.androidlib.Box#TYPE_FOLDER}
+     * @param targetId
+     *            The file_id or folder_id of the item
+     * @return CollaborationsResponseParser.
+     * @throws IOException
+     *             Can be thrown if there is no connection, or if some other connection problem exists.
+     */
+    public CollaborationsResponseParser getCollaborations(final String authToken, final String type, final long targetId) throws IOException {
+        CollaborationsResponseParser parser = new CollaborationsResponseParser();
+        final Uri.Builder builder = BoxUriBuilder.getBuilder(mApiKey, authToken, "get_collaborations").appendQueryParameter("target", type)
+            .appendQueryParameter("target_id", String.valueOf(targetId));
+        saxRequest(parser, builder.build());
+        return parser;
     }
 
     /**

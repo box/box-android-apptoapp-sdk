@@ -34,6 +34,7 @@ import com.box.androidlib.ResponseListeners.FileUploadListener;
 import com.box.androidlib.ResponseListeners.GetAccountInfoListener;
 import com.box.androidlib.ResponseListeners.GetAccountTreeListener;
 import com.box.androidlib.ResponseListeners.GetAuthTokenListener;
+import com.box.androidlib.ResponseListeners.GetCollaborationsListener;
 import com.box.androidlib.ResponseListeners.GetCommentsListener;
 import com.box.androidlib.ResponseListeners.GetFileInfoListener;
 import com.box.androidlib.ResponseListeners.GetTicketListener;
@@ -53,6 +54,7 @@ import com.box.androidlib.ResponseListeners.SetDescriptionListener;
 import com.box.androidlib.ResponseListeners.ToggleFolderEmailListener;
 import com.box.androidlib.ResponseListeners.VerifyRegistrationEmailListener;
 import com.box.androidlib.ResponseParsers.AccountTreeResponseParser;
+import com.box.androidlib.ResponseParsers.CollaborationsResponseParser;
 import com.box.androidlib.ResponseParsers.CommentResponseParser;
 import com.box.androidlib.ResponseParsers.CommentsResponseParser;
 import com.box.androidlib.ResponseParsers.DefaultResponseParser;
@@ -1458,6 +1460,47 @@ public class Box {
                         @Override
                         public void run() {
                             listener.onComplete(status);
+                        }
+                    });
+                }
+                catch (final IOException e) {
+                    mHandler.post(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            listener.onIOException(e);
+                        }
+                    });
+                }
+            }
+        }.start();
+    }
+
+    /**
+     * Obtain a list of collaborators for a file or folder. Executes API action invite_collaborators:
+     * {@link <a href="http://developers.box.net/w/page/12923933/ApiFunction_get_collaborations">http://developers.box.net/w/page/12923933/ApiFunction_get_collaborations</a>}
+     * 
+     * @param authToken
+     *            The auth token retrieved through {@link BoxSynchronous#getAuthToken(String)}
+     * @param type
+     *            The type of item to be shared. Set to {@link com.box.androidlib.Box#TYPE_FOLDER}
+     * @param targetId
+     *            The file_id or folder_id of the item
+     * @param listener
+     *            The callback that will run
+     */
+    public void getCollaborations(final String authToken, final String type, final long targetId, final GetCollaborationsListener listener) {
+        new Thread() {
+
+            @Override
+            public void run() {
+                try {
+                    final CollaborationsResponseParser parser = BoxSynchronous.getInstance(mApiKey).getCollaborations(authToken, type, targetId);
+                    mHandler.post(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            listener.onComplete(parser.getCollaborations(), parser.getStatus());
                         }
                     });
                 }
