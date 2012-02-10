@@ -33,7 +33,7 @@ public final class DevUtils {
      *            the string to log
      */
     public static void logcat(final String str) {
-        if (!BoxConstants.DEBUG_LOGGING_ENABLED) {
+        if (!BoxConfig.getInstance().getHttpLoggingEnabled()) {
             return;
         }
         @SuppressWarnings("unused")

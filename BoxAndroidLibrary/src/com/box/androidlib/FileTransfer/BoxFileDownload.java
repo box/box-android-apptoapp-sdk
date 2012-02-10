@@ -20,9 +20,11 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.HttpProtocolParams;
 
 import android.net.Uri;
 import android.os.Handler;
@@ -31,6 +33,7 @@ import android.os.SystemClock;
 import com.box.androidlib.ResponseListeners.FileDownloadListener;
 import com.box.androidlib.ResponseParsers.DefaultResponseParser;
 import com.box.androidlib.Utils.BoxConfig;
+import com.box.androidlib.Utils.DevUtils;
 
 /**
  * Contains logic for downloading a user's file from Box API and reporting errors that may have occurred. You should not call this directly, and instead use
@@ -136,21 +139,37 @@ public class BoxFileDownload {
             builder.appendPath(String.valueOf(versionId));
         }
 
-        // We normally prefer to use HttpUrlConnection, however that appears to fail
-        // for certain types of files. For downloads, it appears DefaultHttpClient works
+        // We normally prefer to use HttpUrlConnection, however that appears to
+        // fail
+        // for certain types of files. For downloads, it appears
+        // DefaultHttpClient works
         // more reliably.
         final DefaultHttpClient httpclient = new DefaultHttpClient();
+        HttpProtocolParams.setUserAgent(httpclient.getParams(), BoxConfig.getInstance().getUserAgent());
         HttpGet httpGet;
-        try {
-            httpGet = new HttpGet(new URI(builder.build().toString()));
+        //
+        String theUri = builder.build().toString();
+        if (BoxConfig.getInstance().getHttpLoggingEnabled()) {
+            DevUtils.logcat("User-Agent : " + HttpProtocolParams.getUserAgent(httpclient.getParams()));
+            DevUtils.logcat("Downloading FileId " + fileId + " To: " + destinationFile.getAbsolutePath() + destinationFile.getName());
+            DevUtils.logcat("Download URL : " + theUri);
         }
-        catch (URISyntaxException e) {
+        try {
+            httpGet = new HttpGet(new URI(theUri));
+        } catch (URISyntaxException e) {
             throw new IOException("Invalid Download URL");
         }
         httpGet.setHeader("Connection", "close");
         HttpResponse httpResponse = httpclient.execute(httpGet);
         InputStream is = httpResponse.getEntity().getContent();
         int responseCode = httpResponse.getStatusLine().getStatusCode();
+        if (BoxConfig.getInstance().getHttpLoggingEnabled()) {
+            DevUtils.logcat("HTTP Response Code: " + responseCode);
+            Header[] headers = httpResponse.getAllHeaders();
+            for (Header header : headers) {
+                DevUtils.logcat("Response Header: " + header.toString());
+            }
+        }
 
         if (responseCode == HttpURLConnection.HTTP_OK) {
             final FileOutputStream fos = new FileOutputStream(destinationFile);
@@ -171,7 +190,8 @@ public class BoxFileDownload {
             fos.close();
             handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_OK);
 
-            // If download thread was interrupted, set to STATUS_DOWNLOAD_CANCELED
+            // If download thread was interrupted, set to
+            // STATUS_DOWNLOAD_CANCELED
             if (Thread.currentThread().isInterrupted()) {
                 httpGet.abort();
                 handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_CANCELLED);
@@ -186,16 +206,13 @@ public class BoxFileDownload {
                 final String str = new String(buff).trim();
                 if (str.equals(FileDownloadListener.STATUS_DOWNLOAD_WRONG_AUTH_TOKEN)) {
                     handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_WRONG_AUTH_TOKEN);
-                }
-                else if (str.equals(FileDownloadListener.STATUS_DOWNLOAD_RESTRICTED)) {
+                } else if (str.equals(FileDownloadListener.STATUS_DOWNLOAD_RESTRICTED)) {
                     handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_RESTRICTED);
                 }
             }
-        }
-        else if (responseCode == HttpURLConnection.HTTP_FORBIDDEN) {
+        } else if (responseCode == HttpURLConnection.HTTP_FORBIDDEN) {
             handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_PERMISSIONS_ERROR);
-        }
-        else {
+        } else {
             handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_FAIL);
         }
 

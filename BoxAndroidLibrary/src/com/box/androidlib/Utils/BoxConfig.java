@@ -39,6 +39,8 @@ public final class BoxConfig {
     private static final String DOWNLOAD_URL_AUTHORITY = "www.box.net";
     /** Default Download url path. */
     private static final String DOWNLOAD_URL_PATH = "/api/1.0/download/";
+    /** Default User-Agent String. */
+    private static final String USER_AGENT = "BoxAndroidLibrary";
 
     /** API url scheme. */
     private String mApiUrlScheme = API_URL_SCHEME;
@@ -60,6 +62,10 @@ public final class BoxConfig {
     private String mDownloadUrlAuthority = DOWNLOAD_URL_AUTHORITY;
     /** Download url path. */
     private String mDownloadUrlPath = DOWNLOAD_URL_PATH;
+    /** User-Agent String to use. */
+    private String mUserAgent = USER_AGENT;
+    /** Enable Http Logging Flag NEVER ENABLE HTTP LOGGIN FOR PRODUCTION BUILDS. */
+    private boolean mEnableHttpLogging = false;
 
     /** Time to wait before connection timeout. */
     private static int mConnectionTimout = 0;
@@ -274,4 +280,47 @@ public final class BoxConfig {
     public int getConnectionTimeOut() {
         return mConnectionTimout;
     }
+
+    /**
+     * Set the String to use as the User-Agent HTTP header.
+     * 
+     * @param agent
+     *            User-Agent String
+     */
+    public void setUserAgent(final String agent) {
+        mUserAgent = agent;
+    }
+
+    /**
+     * Get the User-Agent String to apply to the HTTP(S) calls.
+     * 
+     * @return String to use for User-Agent.
+     */
+    public String getUserAgent() {
+        return mUserAgent;
+    }
+
+    /**
+     * SHOULD NEVER BE ENABLED FOR PRODUCTION BUILDS
+     * 
+     * Set the flag to enable HTTP Logging.
+     * 
+     * @param flag
+     *            boolean to Enable Http Logging
+     * 
+     *            SHOULD NEVER BE ENABLED FOR PRODUCTION BUILDS
+     */
+    public void setEnableHttpLogging(final boolean flag) {
+        mEnableHttpLogging = flag;
+    }
+
+    /**
+     * Get the flag indicating whether Http Logging is enabled.
+     * 
+     * @return boolean.
+     */
+    public boolean getHttpLoggingEnabled() {
+        return mEnableHttpLogging;
+    }
+
 }
