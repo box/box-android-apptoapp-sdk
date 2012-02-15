@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.URLDecoder;
 import java.nio.charset.Charset;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -140,6 +141,7 @@ public class BoxFileUpload {
         }
         //
         String theUri = builder.build().toString();
+        theUri = URLDecoder.decode(theUri);
         if (BoxConfig.getInstance().getHttpLoggingEnabled()) {
             DevUtils.logcat("Uploading : " + filename + "  Action= " + action + " DestinionID + " + destinationId);
             DevUtils.logcat("Upload URL : " + theUri);
@@ -184,6 +186,12 @@ public class BoxFileUpload {
             // Detect if the download was cancelled through thread interrupt.
             // See CountingOutputStream.write() for when this exception is
             // thrown.
+            if (BoxConfig.getInstance().getHttpLoggingEnabled()) {
+                DevUtils.logcat("IOException Uploading " + filename + " Exception Message: " + e.getMessage()  + e.toString());
+                DevUtils.logcat(" Exception : "   + e.toString());
+                e.printStackTrace();
+                DevUtils.logcat("Upload URL : " + theUri);
+            }
             if ((e.getMessage() != null && e.getMessage().equals(FileUploadListener.STATUS_CANCELLED)) || Thread.currentThread().isInterrupted()) {
                 final FileResponseParser handler = new FileResponseParser();
                 handler.setStatus(FileUploadListener.STATUS_CANCELLED);
