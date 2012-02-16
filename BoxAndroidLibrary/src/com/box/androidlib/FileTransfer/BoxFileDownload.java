@@ -131,7 +131,7 @@ public class BoxFileDownload {
 
         final Uri.Builder builder = new Uri.Builder();
         builder.scheme(BoxConfig.getInstance().getDownloadUrlScheme());
-        builder.authority(BoxConfig.getInstance().getDownloadUrlAuthority());
+        builder.encodedAuthority(BoxConfig.getInstance().getDownloadUrlAuthority());
         builder.path(BoxConfig.getInstance().getDownloadUrlPath());
         builder.appendPath(mAuthToken);
         builder.appendPath(String.valueOf(fileId));
@@ -156,7 +156,8 @@ public class BoxFileDownload {
         }
         try {
             httpGet = new HttpGet(new URI(theUri));
-        } catch (URISyntaxException e) {
+        }
+        catch (URISyntaxException e) {
             throw new IOException("Invalid Download URL");
         }
         httpGet.setHeader("Connection", "close");
@@ -206,13 +207,16 @@ public class BoxFileDownload {
                 final String str = new String(buff).trim();
                 if (str.equals(FileDownloadListener.STATUS_DOWNLOAD_WRONG_AUTH_TOKEN)) {
                     handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_WRONG_AUTH_TOKEN);
-                } else if (str.equals(FileDownloadListener.STATUS_DOWNLOAD_RESTRICTED)) {
+                }
+                else if (str.equals(FileDownloadListener.STATUS_DOWNLOAD_RESTRICTED)) {
                     handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_RESTRICTED);
                 }
             }
-        } else if (responseCode == HttpURLConnection.HTTP_FORBIDDEN) {
+        }
+        else if (responseCode == HttpURLConnection.HTTP_FORBIDDEN) {
             handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_PERMISSIONS_ERROR);
-        } else {
+        }
+        else {
             handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_FAIL);
         }
 

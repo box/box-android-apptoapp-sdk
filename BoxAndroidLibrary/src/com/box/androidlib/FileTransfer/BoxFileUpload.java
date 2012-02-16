@@ -13,6 +13,7 @@ package com.box.androidlib.FileTransfer;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilterOutputStream;
 import java.io.IOException;
@@ -48,7 +49,6 @@ import com.box.androidlib.DAO.BoxFile;
 import com.box.androidlib.ResponseListeners.FileUploadListener;
 import com.box.androidlib.ResponseParsers.FileResponseParser;
 import com.box.androidlib.Utils.BoxConfig;
-import com.box.androidlib.Utils.BoxConstants;
 import com.box.androidlib.Utils.DevUtils;
 
 /**
@@ -121,7 +121,7 @@ public class BoxFileUpload {
      *             Make sure you have specified a valid upload action
      */
     public FileResponseParser execute(final String action, final InputStream sourceInputStream, final String filename, final long destinationId)
-                    throws IOException, MalformedURLException, FileNotFoundException {
+        throws IOException, MalformedURLException, FileNotFoundException {
 
         if (!action.equals(Box.UPLOAD_ACTION_UPLOAD) && !action.equals(Box.UPLOAD_ACTION_OVERWRITE) && !action.equals(Box.UPLOAD_ACTION_NEW_COPY)) {
             throw new MalformedURLException("action must be upload, overwrite or new_copy");
@@ -129,14 +129,15 @@ public class BoxFileUpload {
 
         final Uri.Builder builder = new Uri.Builder();
         builder.scheme(BoxConfig.getInstance().getUploadUrlScheme());
-        builder.authority(BoxConfig.getInstance().getUploadUrlAuthority());
+        builder.encodedAuthority(BoxConfig.getInstance().getUploadUrlAuthority());
         builder.path(BoxConfig.getInstance().getUploadUrlPath());
         builder.appendPath(action);
         builder.appendPath(mAuthToken);
         builder.appendPath(String.valueOf(destinationId));
         if (action.equals(Box.UPLOAD_ACTION_OVERWRITE)) {
             builder.appendQueryParameter("file_name", filename);
-        } else if (action.equals(Box.UPLOAD_ACTION_NEW_COPY)) {
+        }
+        else if (action.equals(Box.UPLOAD_ACTION_NEW_COPY)) {
             builder.appendQueryParameter("new_file_name", filename);
         }
         //
@@ -148,8 +149,8 @@ public class BoxFileUpload {
         }
         // Set up post body
         final HttpPost post = new HttpPost(theUri);
-        final MultipartEntityWithProgressListener reqEntity = new MultipartEntityWithProgressListener(HttpMultipartMode.BROWSER_COMPATIBLE, null, Charset
-                        .forName(HTTP.UTF_8));
+        final MultipartEntityWithProgressListener reqEntity = new MultipartEntityWithProgressListener(HttpMultipartMode.BROWSER_COMPATIBLE, null,
+            Charset.forName(HTTP.UTF_8));
 
         if (mListener != null && mHandler != null) {
             reqEntity.setProgressListener(new MultipartEntityWithProgressListener.ProgressListener() {
@@ -182,13 +183,14 @@ public class BoxFileUpload {
         HttpProtocolParams.setUserAgent(httpClient.getParams(), BoxConfig.getInstance().getUserAgent());
         try {
             httpResponse = httpClient.execute(post);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             // Detect if the download was cancelled through thread interrupt.
             // See CountingOutputStream.write() for when this exception is
             // thrown.
             if (BoxConfig.getInstance().getHttpLoggingEnabled()) {
-                DevUtils.logcat("IOException Uploading " + filename + " Exception Message: " + e.getMessage()  + e.toString());
-                DevUtils.logcat(" Exception : "   + e.toString());
+                DevUtils.logcat("IOException Uploading " + filename + " Exception Message: " + e.getMessage() + e.toString());
+                DevUtils.logcat(" Exception : " + e.toString());
                 e.printStackTrace();
                 DevUtils.logcat("Upload URL : " + theUri);
             }
@@ -196,7 +198,8 @@ public class BoxFileUpload {
                 final FileResponseParser handler = new FileResponseParser();
                 handler.setStatus(FileUploadListener.STATUS_CANCELLED);
                 return handler;
-            } else {
+            }
+            else {
                 throw e;
             }
         }
@@ -232,9 +235,11 @@ public class BoxFileUpload {
             if (fileEl != null) {
                 try {
                     boxFile = Box.getBoxFileClass().newInstance();
-                } catch (InstantiationException e) {
+                }
+                catch (InstantiationException e) {
                     e.printStackTrace();
-                } catch (IllegalAccessException e) {
+                }
+                catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
                 for (int i = 0; i < fileEl.getAttributes().getLength(); i++) {
@@ -249,13 +254,15 @@ public class BoxFileUpload {
             if (status == null) {
                 status = xml;
             }
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             // errors are NOT returned as properly formatted XML yet so in this
             // case the raw response is the error status code
             // see
             // http://developers.box.net/w/page/12923951/ApiFunction_Upload-and-Download
             status = xml;
-        } catch (final ParserConfigurationException e) {
+        }
+        catch (final ParserConfigurationException e) {
             e.printStackTrace();
         }
         final FileResponseParser handler = new FileResponseParser();
