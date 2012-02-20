@@ -29,6 +29,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
@@ -47,6 +48,7 @@ import android.os.Handler;
 import com.box.androidlib.Box;
 import com.box.androidlib.DAO.BoxFile;
 import com.box.androidlib.ResponseListeners.FileUploadListener;
+import com.box.androidlib.ResponseListeners.ResponseListener;
 import com.box.androidlib.ResponseParsers.FileResponseParser;
 import com.box.androidlib.Utils.BoxConfig;
 import com.box.androidlib.Utils.DevUtils;
@@ -185,9 +187,7 @@ public class BoxFileUpload {
             httpResponse = httpClient.execute(post);
         }
         catch (final IOException e) {
-            // Detect if the download was cancelled through thread interrupt.
-            // See CountingOutputStream.write() for when this exception is
-            // thrown.
+            // Detect if the download was cancelled through thread interrupt. See CountingOutputStream.write() for when this exception is thrown.
             if (BoxConfig.getInstance().getHttpLoggingEnabled()) {
                 DevUtils.logcat("IOException Uploading " + filename + " Exception Message: " + e.getMessage() + e.toString());
                 DevUtils.logcat(" Exception : " + e.toString());
@@ -210,6 +210,13 @@ public class BoxFileUpload {
             for (Header header : headers) {
                 DevUtils.logcat("Response Header: " + header.toString());
             }
+        }
+
+        // Server returned a 503 Service Unavailable. Usually means a temporary unavailability.
+        if (httpResponse.getStatusLine().getStatusCode() == HttpStatus.SC_SERVICE_UNAVAILABLE) {
+            final FileResponseParser handler = new FileResponseParser();
+            handler.setStatus(ResponseListener.STATUS_SERVICE_UNAVAILABLE);
+            return handler;
         }
 
         String status = null;
@@ -247,18 +254,14 @@ public class BoxFileUpload {
                 }
             }
 
-            // errors are NOT returned as properly formatted XML yet so in this
-            // case the raw response is the error status code
-            // see
+            // errors are NOT returned as properly formatted XML yet so in this case the raw response is the error status code see
             // http://developers.box.net/w/page/12923951/ApiFunction_Upload-and-Download
             if (status == null) {
                 status = xml;
             }
         }
         catch (final SAXException e) {
-            // errors are NOT returned as properly formatted XML yet so in this
-            // case the raw response is the error status code
-            // see
+            // errors are NOT returned as properly formatted XML yet so in this case the raw response is the error status code see
             // http://developers.box.net/w/page/12923951/ApiFunction_Upload-and-Download
             status = xml;
         }
@@ -307,9 +310,7 @@ public class BoxFileUpload {
             buffer.append("multipart/form-data; boundary=");
             buffer.append(boundary);
             if (charset != null) {
-                // Box upload servers appear to fail if the charset is
-                // specified. So this method is almost identical to the parent's
-                // version, except that the 2
+                // Box upload servers appear to fail if the charset is specified. So this method is almost identical to the parent's version, except that the 2
                 // lines below are commented out.
                 // buffer.append("; charset=");
                 // buffer.append(charset.name());

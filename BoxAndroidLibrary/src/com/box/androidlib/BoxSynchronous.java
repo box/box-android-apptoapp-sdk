@@ -119,12 +119,14 @@ public class BoxSynchronous {
     /**
      * Change the API Key that this instance of BoxSynchronous is using.
      * 
+     * @param apiKey
+     *            API Key
+     * 
      */
     public final void setApiKey(final String apiKey) {
         mApiKey = apiKey;
     }
 
-    
     /**
      * This method is used in the authentication process. The ticket obtained from this method is used to generate an authentication page for the user to login.
      * Executes API action get_ticket:
@@ -206,7 +208,7 @@ public class BoxSynchronous {
     public final UserResponseParser registerNewUser(final String username, final String password) throws IOException {
         final UserResponseParser parser = new UserResponseParser();
         saxRequest(parser, BoxUriBuilder.getBuilder(mApiKey).appendQueryParameter("action", "register_new_user").appendQueryParameter("login", username)
-                        .appendQueryParameter("password", password).build());
+            .appendQueryParameter("password", password).build());
         return parser;
     }
 
@@ -224,7 +226,7 @@ public class BoxSynchronous {
     public final String verifyRegistrationEmail(final String email) throws IOException {
         final DefaultResponseParser parser = new DefaultResponseParser();
         saxRequest(parser, BoxUriBuilder.getBuilder(mApiKey).appendQueryParameter("action", "verify_registration_email").appendQueryParameter("login", email)
-                        .build());
+            .build());
         return parser.getStatus();
     }
 
@@ -251,7 +253,8 @@ public class BoxSynchronous {
         final ArrayList<String> paramsList;
         if (params == null) {
             paramsList = new ArrayList<String>();
-        } else {
+        }
+        else {
             paramsList = new ArrayList<String>(Arrays.asList(params));
         }
         if (!paramsList.contains(Box.PARAM_NOZIP)) {
@@ -304,10 +307,12 @@ public class BoxSynchronous {
      *             Can be thrown if there is no connection, or if some other connection problem exists.
      */
     public final FolderResponseParser createFolder(final String authToken, final long parentFolderId, final String folderName, final boolean share)
-                    throws IOException {
+        throws IOException {
         final FolderResponseParser parser = new FolderResponseParser();
-        saxRequest(parser, BoxUriBuilder.getBuilder(mApiKey, authToken, "create_folder").appendQueryParameter("name", folderName).appendQueryParameter(
-                        "parent_id", String.valueOf(parentFolderId)).appendQueryParameter("share", share ? "1" : "0").build());
+        saxRequest(
+            parser,
+            BoxUriBuilder.getBuilder(mApiKey, authToken, "create_folder").appendQueryParameter("name", folderName)
+                .appendQueryParameter("parent_id", String.valueOf(parentFolderId)).appendQueryParameter("share", share ? "1" : "0").build());
         return parser;
     }
 
@@ -330,8 +335,10 @@ public class BoxSynchronous {
      */
     public final String copy(final String authToken, final String type, final long targetId, final long destinationId) throws IOException {
         final DefaultResponseParser parser = new DefaultResponseParser();
-        saxRequest(parser, BoxUriBuilder.getBuilder(mApiKey, authToken, "copy").appendQueryParameter("target", type).appendQueryParameter("target_id",
-                        String.valueOf(targetId)).appendQueryParameter("destination_id", String.valueOf(destinationId)).build());
+        saxRequest(
+            parser,
+            BoxUriBuilder.getBuilder(mApiKey, authToken, "copy").appendQueryParameter("target", type)
+                .appendQueryParameter("target_id", String.valueOf(targetId)).appendQueryParameter("destination_id", String.valueOf(destinationId)).build());
         return parser.getStatus();
     }
 
@@ -353,8 +360,10 @@ public class BoxSynchronous {
      */
     public final String delete(final String authToken, final String type, final long targetId) throws IOException {
         final DefaultResponseParser parser = new DefaultResponseParser();
-        saxRequest(parser, BoxUriBuilder.getBuilder(mApiKey, authToken, "delete").appendQueryParameter("target", type).appendQueryParameter("target_id",
-                        String.valueOf(targetId)).build());
+        saxRequest(
+            parser,
+            BoxUriBuilder.getBuilder(mApiKey, authToken, "delete").appendQueryParameter("target", type)
+                .appendQueryParameter("target_id", String.valueOf(targetId)).build());
         return parser.getStatus();
     }
 
@@ -377,8 +386,10 @@ public class BoxSynchronous {
      */
     public final String move(final String authToken, final String type, final long targetId, final long destinationId) throws IOException {
         final DefaultResponseParser parser = new DefaultResponseParser();
-        saxRequest(parser, BoxUriBuilder.getBuilder(mApiKey, authToken, "move").appendQueryParameter("target", type).appendQueryParameter("target_id",
-                        String.valueOf(targetId)).appendQueryParameter("destination_id", String.valueOf(destinationId)).build());
+        saxRequest(
+            parser,
+            BoxUriBuilder.getBuilder(mApiKey, authToken, "move").appendQueryParameter("target", type)
+                .appendQueryParameter("target_id", String.valueOf(targetId)).appendQueryParameter("destination_id", String.valueOf(destinationId)).build());
         return parser.getStatus();
     }
 
@@ -401,8 +412,10 @@ public class BoxSynchronous {
      */
     public final String rename(final String authToken, final String type, final long targetId, final String newName) throws IOException {
         final DefaultResponseParser parser = new DefaultResponseParser();
-        saxRequest(parser, BoxUriBuilder.getBuilder(mApiKey, authToken, "rename").appendQueryParameter("target", type).appendQueryParameter("target_id",
-                        String.valueOf(targetId)).appendQueryParameter("new_name", newName).build());
+        saxRequest(
+            parser,
+            BoxUriBuilder.getBuilder(mApiKey, authToken, "rename").appendQueryParameter("target", type)
+                .appendQueryParameter("target_id", String.valueOf(targetId)).appendQueryParameter("new_name", newName).build());
         return parser.getStatus();
     }
 
@@ -432,11 +445,11 @@ public class BoxSynchronous {
      *             Can be thrown if there is no connection, or if some other connection problem exists.
      */
     public final SearchResponseParser search(final String authToken, final String query, final String sort, final int page, final int perPage,
-                    final String direction, final String[] params) throws IOException {
+        final String direction, final String[] params) throws IOException {
         final SearchResponseParser parser = new SearchResponseParser();
-        final Uri.Builder builder = BoxUriBuilder.getBuilder(mApiKey, authToken, "search").appendQueryParameter("query", query).appendQueryParameter("sort",
-                        sort).appendQueryParameter("page", String.valueOf(page)).appendQueryParameter("per_page", String.valueOf(perPage))
-                        .appendQueryParameter("direction", direction);
+        final Uri.Builder builder = BoxUriBuilder.getBuilder(mApiKey, authToken, "search").appendQueryParameter("query", query)
+            .appendQueryParameter("sort", sort).appendQueryParameter("page", String.valueOf(page)).appendQueryParameter("per_page", String.valueOf(perPage))
+            .appendQueryParameter("direction", direction);
         if (params != null) {
             for (int i = 0; i < params.length; i++) {
                 builder.appendQueryParameter("params[" + i + "]", params[i]);
@@ -467,8 +480,8 @@ public class BoxSynchronous {
      */
     public final String addToTag(final String authToken, final String type, final long targetId, final String[] tagNames) throws IOException {
         final DefaultResponseParser parser = new DefaultResponseParser();
-        final Uri.Builder builder = BoxUriBuilder.getBuilder(mApiKey, authToken, "add_to_tag").appendQueryParameter("target", type).appendQueryParameter(
-                        "target_id", String.valueOf(targetId));
+        final Uri.Builder builder = BoxUriBuilder.getBuilder(mApiKey, authToken, "add_to_tag").appendQueryParameter("target", type)
+            .appendQueryParameter("target_id", String.valueOf(targetId));
         if (tagNames != null) {
             for (int i = 0; i < tagNames.length; i++) {
                 builder.appendQueryParameter("tags[" + i + "]", tagNames[i]);
@@ -495,8 +508,10 @@ public class BoxSynchronous {
      */
     public final CommentsResponseParser getComments(final String authToken, final String type, final long targetId) throws IOException {
         final CommentsResponseParser parser = new CommentsResponseParser();
-        saxRequest(parser, BoxUriBuilder.getBuilder(mApiKey, authToken, "get_comments").appendQueryParameter("target", type).appendQueryParameter("target_id",
-                        String.valueOf(targetId)).build());
+        saxRequest(
+            parser,
+            BoxUriBuilder.getBuilder(mApiKey, authToken, "get_comments").appendQueryParameter("target", type)
+                .appendQueryParameter("target_id", String.valueOf(targetId)).build());
         return parser;
     }
 
@@ -520,8 +535,10 @@ public class BoxSynchronous {
      */
     public final CommentResponseParser addComment(final String authToken, final String type, final long targetId, final String message) throws IOException {
         final CommentResponseParser parser = new CommentResponseParser();
-        saxRequest(parser, BoxUriBuilder.getBuilder(mApiKey, authToken, "add_comment").appendQueryParameter("target", type).appendQueryParameter("target_id",
-                        String.valueOf(targetId)).appendQueryParameter("message", message).build());
+        saxRequest(
+            parser,
+            BoxUriBuilder.getBuilder(mApiKey, authToken, "add_comment").appendQueryParameter("target", type)
+                .appendQueryParameter("target_id", String.valueOf(targetId)).appendQueryParameter("message", message).build());
         return parser;
     }
 
@@ -580,7 +597,7 @@ public class BoxSynchronous {
      *             Can be thrown if there is no connection, or if some other connection problem exists.
      */
     public final UpdatesResponseParser getUpdates(final String authToken, final long beginTimeStamp, final long endTimeStamp, final String[] params)
-                    throws IOException {
+        throws IOException {
         final UpdatesResponseParser parser = new UpdatesResponseParser();
         final Uri.Builder builder = BoxUriBuilder.getBuilder(mApiKey, authToken, "get_updates");
         builder.appendQueryParameter("begin_timestamp", String.valueOf(beginTimeStamp));
@@ -590,7 +607,8 @@ public class BoxSynchronous {
         final ArrayList<String> paramsList;
         if (params == null) {
             paramsList = new ArrayList<String>();
-        } else {
+        }
+        else {
             paramsList = new ArrayList<String>(Arrays.asList(params));
         }
         if (!paramsList.contains(Box.PARAM_USE_ATTRIBUTES)) {
@@ -622,7 +640,7 @@ public class BoxSynchronous {
     public final ToggleFolderEmailResponseParser toggleFolderEmail(final String authToken, final long folderId, final boolean enable) throws IOException {
         final ToggleFolderEmailResponseParser parser = new ToggleFolderEmailResponseParser();
         saxRequest(parser, BoxUriBuilder.getBuilder(mApiKey, authToken, "toggle_folder_email").appendQueryParameter("folder_id", String.valueOf(folderId))
-                        .appendQueryParameter("enable", enable ? "1" : "0").build());
+            .appendQueryParameter("enable", enable ? "1" : "0").build());
         return parser;
     }
 
@@ -643,8 +661,10 @@ public class BoxSynchronous {
      */
     public final VersionsResponseParser getVersions(final String authToken, final String type, final long targetId) throws IOException {
         final VersionsResponseParser parser = new VersionsResponseParser();
-        saxRequest(parser, BoxUriBuilder.getBuilder(mApiKey, authToken, "get_versions").appendQueryParameter("target", type).appendQueryParameter("target_id",
-                        String.valueOf(targetId)).build());
+        saxRequest(
+            parser,
+            BoxUriBuilder.getBuilder(mApiKey, authToken, "get_versions").appendQueryParameter("target", type)
+                .appendQueryParameter("target_id", String.valueOf(targetId)).build());
         return parser;
     }
 
@@ -664,7 +684,7 @@ public class BoxSynchronous {
     public final VersionsResponseParser makeCurrentVersion(final String authToken, final long versionId) throws IOException {
         final VersionsResponseParser parser = new VersionsResponseParser();
         saxRequest(parser, BoxUriBuilder.getBuilder(mApiKey, authToken, "make_current_version").appendQueryParameter("version_id", String.valueOf(versionId))
-                        .build());
+            .build());
         return parser;
     }
 
@@ -686,8 +706,10 @@ public class BoxSynchronous {
      */
     public final String setDescription(final String authToken, final String type, final long targetId, final String description) throws IOException {
         final DefaultResponseParser parser = new DefaultResponseParser();
-        saxRequest(parser, BoxUriBuilder.getBuilder(mApiKey, authToken, "set_description").appendQueryParameter("target", type).appendQueryParameter(
-                        "target_id", String.valueOf(targetId)).appendQueryParameter("description", description).build());
+        saxRequest(
+            parser,
+            BoxUriBuilder.getBuilder(mApiKey, authToken, "set_description").appendQueryParameter("target", type)
+                .appendQueryParameter("target_id", String.valueOf(targetId)).appendQueryParameter("description", description).build());
         return parser.getStatus();
     }
 
@@ -713,17 +735,18 @@ public class BoxSynchronous {
      *             Can be thrown if there is no connection, or if some other connection problem exists.
      */
     public final PublicShareResponseParser publicShare(final String authToken, final String type, final long targetId, final String password,
-                    final String shareMsg, final String[] emails) throws IOException {
+        final String shareMsg, final String[] emails) throws IOException {
         final PublicShareResponseParser parser = new PublicShareResponseParser();
-        final Uri.Builder builder = BoxUriBuilder.getBuilder(mApiKey, authToken, "public_share").appendQueryParameter("target", type).appendQueryParameter(
-                        "target_id", String.valueOf(targetId));
+        final Uri.Builder builder = BoxUriBuilder.getBuilder(mApiKey, authToken, "public_share").appendQueryParameter("target", type)
+            .appendQueryParameter("target_id", String.valueOf(targetId));
         builder.appendQueryParameter("message", shareMsg == null ? "" : shareMsg);
         builder.appendQueryParameter("password", password == null ? "" : password);
         if (emails != null) {
             for (int i = 0; i < emails.length; i++) {
                 builder.appendQueryParameter("emails[" + i + "]", emails[i]);
             }
-        } else {
+        }
+        else {
             builder.appendQueryParameter("emails", "");
         }
         saxRequest(parser, builder.build());
@@ -746,8 +769,10 @@ public class BoxSynchronous {
      */
     public final String publicUnshare(final String authToken, final String type, final long targetId) throws IOException {
         final DefaultResponseParser parser = new DefaultResponseParser();
-        saxRequest(parser, BoxUriBuilder.getBuilder(mApiKey, authToken, "public_unshare").appendQueryParameter("target", type).appendQueryParameter(
-                        "target_id", String.valueOf(targetId)).build());
+        saxRequest(
+            parser,
+            BoxUriBuilder.getBuilder(mApiKey, authToken, "public_unshare").appendQueryParameter("target", type)
+                .appendQueryParameter("target_id", String.valueOf(targetId)).build());
         return parser.getStatus();
     }
 
@@ -772,11 +797,11 @@ public class BoxSynchronous {
      *             Can be thrown if there is no connection, or if some other connection problem exists.
      */
     public final String privateShare(final String authToken, final String type, final long targetId, final String message, final String[] emails,
-                    final boolean notify) throws IOException {
+        final boolean notify) throws IOException {
         final DefaultResponseParser parser = new DefaultResponseParser();
-        final Uri.Builder builder = BoxUriBuilder.getBuilder(mApiKey, authToken, "private_share").appendQueryParameter("target", type).appendQueryParameter(
-                        "target_id", String.valueOf(targetId)).appendQueryParameter("message", message != null ? message : "").appendQueryParameter("notify",
-                        notify ? "1" : "0");
+        final Uri.Builder builder = BoxUriBuilder.getBuilder(mApiKey, authToken, "private_share").appendQueryParameter("target", type)
+            .appendQueryParameter("target_id", String.valueOf(targetId)).appendQueryParameter("message", message != null ? message : "")
+            .appendQueryParameter("notify", notify ? "1" : "0");
         if (emails != null) {
             for (int i = 0; i < emails.length; i++) {
                 builder.appendQueryParameter("emails[" + i + "]", emails[i]);
@@ -813,30 +838,33 @@ public class BoxSynchronous {
      *             Can be thrown if there is no connection, or if some other connection problem exists.
      */
     public String inviteCollaborators(final String authToken, final String type, final long targetId, final long[] userIds, final String[] emails,
-                    final String itemRoleName, final boolean resendInvite, final boolean noEmail, final String[] params) throws IOException {
+        final String itemRoleName, final boolean resendInvite, final boolean noEmail, final String[] params) throws IOException {
         final DefaultResponseParser parser = new DefaultResponseParser();
         final Uri.Builder builder = BoxUriBuilder.getBuilder(mApiKey, authToken, "invite_collaborators").appendQueryParameter("target", type)
-                        .appendQueryParameter("target_id", String.valueOf(targetId)).appendQueryParameter("item_role_name", itemRoleName).appendQueryParameter(
-                                        "resend_invite", resendInvite ? "1" : "0").appendQueryParameter("no_email", noEmail ? "1" : "0");
+            .appendQueryParameter("target_id", String.valueOf(targetId)).appendQueryParameter("item_role_name", itemRoleName)
+            .appendQueryParameter("resend_invite", resendInvite ? "1" : "0").appendQueryParameter("no_email", noEmail ? "1" : "0");
         if (emails != null) {
             for (int i = 0; i < emails.length; i++) {
                 builder.appendQueryParameter("emails[" + i + "]", emails[i]);
             }
-        } else {
+        }
+        else {
             builder.appendQueryParameter("emails", "");
         }
         if (userIds != null) {
             for (int i = 0; i < userIds.length; i++) {
                 builder.appendQueryParameter("user_ids[" + i + "]", String.valueOf(userIds[i]));
             }
-        } else {
+        }
+        else {
             builder.appendQueryParameter("user_ids", "");
         }
         if (params != null) {
             for (int i = 0; i < params.length; i++) {
                 builder.appendQueryParameter("params[" + i + "]", params[i]);
             }
-        } else {
+        }
+        else {
             builder.appendQueryParameter("params", "");
         }
         saxRequest(parser, builder.build());
@@ -884,24 +912,27 @@ public class BoxSynchronous {
      *             Can be thrown if there is no connection, or if some other connection problem exists.
      */
     public final String addToMyBox(final String authToken, final Long fileId, final String publicName, final long folderId, final String[] tags)
-                    throws IOException {
+        throws IOException {
         final DefaultResponseParser parser = new DefaultResponseParser();
         final Uri.Builder builder = BoxUriBuilder.getBuilder(mApiKey, authToken, "add_to_mybox").appendQueryParameter("folder_id", String.valueOf(folderId));
         if (fileId != null) {
             builder.appendQueryParameter("file_id", String.valueOf(fileId));
-        } else {
+        }
+        else {
             builder.appendQueryParameter("file_id", "");
         }
         if (publicName != null) {
             builder.appendQueryParameter("public_name", publicName);
-        } else {
+        }
+        else {
             builder.appendQueryParameter("public_name", "");
         }
         if (tags != null) {
             for (int i = 0; i < tags.length; i++) {
                 builder.appendQueryParameter("tags[" + i + "]", tags[i]);
             }
-        } else {
+        }
+        else {
             builder.appendQueryParameter("tags", "");
         }
         saxRequest(parser, builder.build());
@@ -934,7 +965,7 @@ public class BoxSynchronous {
      * @return a response handler
      */
     public final DefaultResponseParser download(final String authToken, final long fileId, final File destinationFile, final Long versionId,
-                    final FileDownloadListener listener, final Handler handler) throws IOException {
+        final FileDownloadListener listener, final Handler handler) throws IOException {
         final BoxFileDownload download = new BoxFileDownload(authToken);
         download.setListener(listener, handler);
         return download.execute(fileId, destinationFile, versionId);
@@ -974,7 +1005,7 @@ public class BoxSynchronous {
      *             Make sure you have specified a valid upload action
      */
     public final FileResponseParser upload(final String authToken, final String action, final File file, final String filename, final long destinationId,
-                    final FileUploadListener listener, final Handler handler) throws FileNotFoundException, MalformedURLException, IOException {
+        final FileUploadListener listener, final Handler handler) throws FileNotFoundException, MalformedURLException, IOException {
         final BoxFileUpload upload = new BoxFileUpload(authToken);
         upload.setListener(listener, handler);
         return upload.execute(action, new FileInputStream(file), filename, destinationId);
@@ -1014,8 +1045,7 @@ public class BoxSynchronous {
      *             Make sure you have specified a valid upload action
      */
     public final FileResponseParser upload(final String authToken, final String action, final InputStream sourceInputStream, final String filename,
-                    final long destinationId, final FileUploadListener listener, final Handler handler) throws FileNotFoundException, MalformedURLException,
-                    IOException {
+        final long destinationId, final FileUploadListener listener, final Handler handler) throws FileNotFoundException, MalformedURLException, IOException {
         final BoxFileUpload upload = new BoxFileUpload(authToken);
         upload.setListener(listener, handler);
         return upload.execute(action, sourceInputStream, filename, destinationId);
@@ -1041,34 +1071,53 @@ public class BoxSynchronous {
             if (BoxConfig.getInstance().getHttpLoggingEnabled()) {
                 DevUtils.logcat("URL: " + uri.toString());
             }
-            conn.connect();
-            final int responseCode = conn.getResponseCode();
-            if (BoxConfig.getInstance().getHttpLoggingEnabled()) {
-                DevUtils.logcat("Response Code: " + responseCode);
-                DevUtils.logcat("User-Agent : " + conn.getRequestProperty("User-Agent"));
-                Map<String, List<String>> headerfields = conn.getHeaderFields();
-                if (headerfields != null) {
-                    Set<Entry<String, List<String>>> headers = headerfields.entrySet();
-                    for (Iterator<Map.Entry<String, List<String>>> i = headers.iterator(); i.hasNext();) {
-                        Map.Entry<String, List<String>> map = i.next();
-                        DevUtils.logcat(map.getKey() + " : " + map.getValue());
-                    }
+
+            int responseCode = -1;
+            try {
+                conn.connect();
+                responseCode = conn.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    InputStream inputStream = conn.getInputStream();
+                    xmlReader.parse(new InputSource(inputStream));
+                    inputStream.close();
+                }
+                else if (responseCode == -1) {
+                    parser.setStatus(ResponseListener.STATUS_UNKNOWN_HTTP_RESPONSE_CODE);
                 }
             }
-
-            final InputStream is = conn.getInputStream();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                xmlReader.parse(new InputSource(is));
-            } else if (responseCode == -1) {
-                parser.setStatus(ResponseListener.STATUS_UNKNOWN_HTTP_RESPONSE_CODE);
+            catch (IOException e) {
+                responseCode = conn.getResponseCode();
+                // Server returned a 503 Service Unavailable. Usually means a temporary unavailability.
+                if (responseCode == HttpURLConnection.HTTP_UNAVAILABLE) {
+                    parser.setStatus(ResponseListener.STATUS_SERVICE_UNAVAILABLE);
+                }
+                else {
+                    throw e;
+                }
             }
-            is.close();
-            conn.disconnect();
-        } catch (final ParserConfigurationException e) {
+            finally {
+                if (BoxConfig.getInstance().getHttpLoggingEnabled()) {
+                    DevUtils.logcat("Response Code: " + responseCode);
+                    DevUtils.logcat("User-Agent : " + conn.getRequestProperty("User-Agent"));
+                    Map<String, List<String>> headerfields = conn.getHeaderFields();
+                    if (headerfields != null) {
+                        Set<Entry<String, List<String>>> headers = headerfields.entrySet();
+                        for (Iterator<Map.Entry<String, List<String>>> i = headers.iterator(); i.hasNext();) {
+                            Map.Entry<String, List<String>> map = i.next();
+                            DevUtils.logcat(map.getKey() + " : " + map.getValue());
+                        }
+                    }
+                }
+                conn.disconnect();
+            }
+        }
+        catch (final ParserConfigurationException e) {
             e.printStackTrace();
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             e.printStackTrace();
-        } catch (final FactoryConfigurationError e) {
+        }
+        catch (final FactoryConfigurationError e) {
             e.printStackTrace();
         }
     }

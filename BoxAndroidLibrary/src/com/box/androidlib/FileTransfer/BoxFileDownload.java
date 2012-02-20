@@ -22,6 +22,7 @@ import java.net.URISyntaxException;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpProtocolParams;
@@ -31,6 +32,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 
 import com.box.androidlib.ResponseListeners.FileDownloadListener;
+import com.box.androidlib.ResponseListeners.ResponseListener;
 import com.box.androidlib.ResponseParsers.DefaultResponseParser;
 import com.box.androidlib.Utils.BoxConfig;
 import com.box.androidlib.Utils.DevUtils;
@@ -139,11 +141,8 @@ public class BoxFileDownload {
             builder.appendPath(String.valueOf(versionId));
         }
 
-        // We normally prefer to use HttpUrlConnection, however that appears to
-        // fail
-        // for certain types of files. For downloads, it appears
-        // DefaultHttpClient works
-        // more reliably.
+        // We normally prefer to use HttpUrlConnection, however that appears to fail for certain types of files. For downloads, it appears DefaultHttpClient
+        // works more reliably.
         final DefaultHttpClient httpclient = new DefaultHttpClient();
         HttpProtocolParams.setUserAgent(httpclient.getParams(), BoxConfig.getInstance().getUserAgent());
         HttpGet httpGet;
@@ -162,8 +161,8 @@ public class BoxFileDownload {
         }
         httpGet.setHeader("Connection", "close");
         HttpResponse httpResponse = httpclient.execute(httpGet);
-        InputStream is = httpResponse.getEntity().getContent();
         int responseCode = httpResponse.getStatusLine().getStatusCode();
+
         if (BoxConfig.getInstance().getHttpLoggingEnabled()) {
             DevUtils.logcat("HTTP Response Code: " + responseCode);
             Header[] headers = httpResponse.getAllHeaders();
@@ -172,6 +171,16 @@ public class BoxFileDownload {
             }
         }
 
+        // Server returned a 503 Service Unavailable. Usually means a temporary unavailability.
+        if (responseCode == HttpStatus.SC_SERVICE_UNAVAILABLE) {
+            if (BoxConfig.getInstance().getHttpLoggingEnabled()) {
+                DevUtils.logcat("HTTP Response Code: " + HttpStatus.SC_SERVICE_UNAVAILABLE);
+            }
+            handler.setStatus(ResponseListener.STATUS_SERVICE_UNAVAILABLE);
+            return handler;
+        }
+
+        InputStream is = httpResponse.getEntity().getContent();
         if (responseCode == HttpURLConnection.HTTP_OK) {
             final FileOutputStream fos = new FileOutputStream(destinationFile);
             final byte[] buffer = new byte[DOWNLOAD_BUFFER_SIZE];
