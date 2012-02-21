@@ -39,6 +39,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -148,6 +149,7 @@ public class Browse extends ListActivity {
                     item.name = subfolder.getFolderName();
                     item.type = TreeListItem.TYPE_FOLDER;
                     item.folder = subfolder;
+                    item.updated = subfolder.getUpdated();
                     items[i] = item;
                     i++;
                 }
@@ -160,6 +162,7 @@ public class Browse extends ListActivity {
                     item.name = boxFile.getFileName();
                     item.type = TreeListItem.TYPE_FILE;
                     item.file = boxFile;
+                    item.updated = boxFile.getUpdated();
                     items[i] = item;
                     i++;
                 }
@@ -348,6 +351,7 @@ public class Browse extends ListActivity {
         public BoxFile file;
         @SuppressWarnings("unused")
         public BoxFolder folder;
+        public long updated;
     }
 
     private class MyArrayAdapter extends ArrayAdapter<TreeListItem> {
@@ -369,6 +373,8 @@ public class Browse extends ListActivity {
                 tv.append("FILE: ");
             }
             tv.append(items[position].name);
+            tv.append("\n");
+            tv.append(DateFormat.getDateFormat(getApplicationContext()).format(new Date(items[position].updated * 1000)));
             tv.setPadding(10, 20, 10, 20);
             tv.setTypeface(Typeface.DEFAULT_BOLD);
             return tv;
