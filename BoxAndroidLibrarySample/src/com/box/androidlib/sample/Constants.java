@@ -20,7 +20,7 @@ public class Constants {
     // IMPORTANT: Set this to your OpenBox API Key. This demo will not work
     // until you do so!!!
     // To get an API Key, go to https://www.box.net/developers
-    public static final String API_KEY = "yk98go4z0r5xqurbdjyz32t57ofy11xg";
+    public static final String API_KEY = null;
 
     public static final String PREFS_FILE_NAME = "prefs";
     public static final String PREFS_KEY_AUTH_TOKEN = "AUTH_TOKEN";
