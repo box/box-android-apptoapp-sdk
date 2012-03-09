@@ -1,5 +1,8 @@
 CHANGELOG
 
+1.0.2:
+- Maven support
+
 1.0.1:
 - Source code posted on GitHub.
 - Added BoxAsynchronous class for synchronous requests against Box API.
