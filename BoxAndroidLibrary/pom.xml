@@ -12,7 +12,6 @@
 	</parent>
 
 	<artifactId>androidlib-library</artifactId>
-	<version>1.0.2</version>
 
 	<packaging>apklib</packaging>
 

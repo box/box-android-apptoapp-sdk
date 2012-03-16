@@ -12,7 +12,6 @@
 	</parent>
 
 	<artifactId>androidlib-sample</artifactId>
-	<version>1.0.2</version>
 
 	<packaging>apk</packaging>
 
