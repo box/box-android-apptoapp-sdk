@@ -27,8 +27,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.google.code.gson</groupId>
-			<artifactId>gson</artifactId>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>gson-repackage</artifactId>
 		</dependency>
 
 		<dependency>

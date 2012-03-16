@@ -11,6 +11,7 @@
 	<packaging>pom</packaging>
 
 	<modules>
+		<module>GSON</module>
 		<module>BoxAndroidLibrary</module>
 		<module>BoxAndroidLibrarySample</module>
 	</modules>
@@ -62,6 +63,12 @@
 				<artifactId>gson</artifactId>
 				<version>2.1</version>
 			</dependency>
+			
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>gson-repackage</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 
 			<dependency>
 				<groupId>android</groupId>
@@ -81,7 +88,7 @@
 
 	<build>
 		<sourceDirectory>src/</sourceDirectory>
-	
+
 		<pluginManagement>
 			<plugins>
 				<plugin>
@@ -104,6 +111,12 @@
 							<platform>${android.platform}</platform>
 						</sdk>
 					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.sonatype.plugins</groupId>
+					<artifactId>jarjar-maven-plugin</artifactId>
+					<version>1.5</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
