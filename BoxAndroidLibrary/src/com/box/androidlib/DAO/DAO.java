@@ -11,6 +11,7 @@
  ******************************************************************************/
 package com.box.androidlib.DAO;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Date;
@@ -24,7 +25,12 @@ import com.google.renamedgson.Gson;
  * 
  * @author developers@box.net
  */
-public abstract class DAO {
+public abstract class DAO implements Serializable {
+
+    /**
+     * Serialialization version id.
+     */
+    private static final long serialVersionUID = 1L;
 
     /**
      * The local timestamp in milliseconds, that the DAO was created. This initially gets set at construction using Java.util.Date.getTime().

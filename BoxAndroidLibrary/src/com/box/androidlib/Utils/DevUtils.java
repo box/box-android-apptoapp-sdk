@@ -36,7 +36,6 @@ public final class DevUtils {
         if (!BoxConfig.getInstance().getHttpLoggingEnabled()) {
             return;
         }
-        @SuppressWarnings("unused")
         final String[] lines = str.split("\n");
         for (int i = 0; i < lines.length; i++) {
             Log.d("BOXBOX", lines[i]);

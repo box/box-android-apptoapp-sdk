@@ -24,6 +24,11 @@ import com.box.androidlib.Utils.BoxUtils;
 public class BoxFolder extends DAO {
 
     /**
+     * Serial version id.
+     */
+    private static final long serialVersionUID = 1L;
+
+    /**
      * Folder id.
      */
     protected long mId;
