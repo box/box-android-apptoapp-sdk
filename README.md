@@ -5,7 +5,7 @@ You can use the Android library to create applications based on the Box Rest API
 
 ### Javadoc ###
 
-Javadocs for the library can be found in the gh-pages branch, or by going to http://boxplatform.github.com/box-android/javadoc
+Javadocs for the library can be found in the gh-pages branch, or by going to http://box.github.com/box-android-sdk/javadoc/
 
 ### API Key ###
 
