@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>com.box</groupId>
 		<artifactId>androidlib</artifactId>
-		<version>1.0.2</version>
+		<version>1.0.3</version>
 	</parent>
 
 	<artifactId>gson-repackage</artifactId>
