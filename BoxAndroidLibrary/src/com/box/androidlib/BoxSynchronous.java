@@ -1086,7 +1086,12 @@ public class BoxSynchronous {
                 }
             }
             catch (IOException e) {
-                responseCode = conn.getResponseCode();
+                try {
+                    responseCode = conn.getResponseCode();
+                }
+                catch (NullPointerException ee) {
+                    // Honeycomb devices seem to throw a null pointer exception sometimes which traces to HttpURLConnectionImpl.
+                }
                 // Server returned a 503 Service Unavailable. Usually means a temporary unavailability.
                 if (responseCode == HttpURLConnection.HTTP_UNAVAILABLE) {
                     parser.setStatus(ResponseListener.STATUS_SERVICE_UNAVAILABLE);

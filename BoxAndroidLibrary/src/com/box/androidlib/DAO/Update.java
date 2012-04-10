@@ -23,6 +23,11 @@ import com.box.androidlib.Utils.BoxUtils;
 public class Update extends DAO {
 
     /**
+     * Serialialization version id.
+     */
+    private static final long serialVersionUID = 1L;
+
+    /**
      * update id.
      */
     protected long mId;

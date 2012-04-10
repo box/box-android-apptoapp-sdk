@@ -24,6 +24,11 @@ import com.box.androidlib.Utils.BoxUtils;
 public class Comment extends DAO {
 
     /**
+     * Serialialization version id.
+     */
+    private static final long serialVersionUID = 1L;
+
+    /**
      * Comment id.
      */
     protected long mId;

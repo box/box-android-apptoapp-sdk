@@ -8,6 +8,11 @@ import com.box.androidlib.Utils.BoxUtils;
  */
 public class Collaboration extends DAO {
 
+    /**
+     * Serialialization version id.
+     */
+    private static final long serialVersionUID = 1L;
+
     /** Collaboration id. */
     private long mId;
     /** Item role name. */

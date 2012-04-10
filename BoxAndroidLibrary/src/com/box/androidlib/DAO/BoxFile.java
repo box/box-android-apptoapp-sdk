@@ -23,6 +23,11 @@ import com.box.androidlib.Utils.BoxUtils;
 public class BoxFile extends DAO {
 
     /**
+     * Serialialization version id.
+     */
+    private static final long serialVersionUID = 1L;
+
+    /**
      * Id of the file.
      */
     protected long mId;

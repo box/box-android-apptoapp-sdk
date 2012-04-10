@@ -273,15 +273,16 @@ public class Box {
     public final String getApiKey() {
         return mApiKey;
     }
-    
+
     /**
      * set the API Key that this instance of BoxSynchronous is using.
      * 
+     * @param apiKey
+     *            API Key
      */
     public final void setApiKey(final String apiKey) {
         mApiKey = apiKey;
     }
-    
 
     /**
      * This method is used in the authentication process. The ticket obtained from this method is used to generate an authentication page for the user to login.
