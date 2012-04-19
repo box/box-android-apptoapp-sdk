@@ -43,6 +43,7 @@ import org.xml.sax.SAXException;
 
 import android.net.Uri;
 import android.os.Handler;
+import android.os.SystemClock;
 
 import com.box.androidlib.Box;
 import com.box.androidlib.DAO.BoxFile;
@@ -73,6 +74,11 @@ public class BoxFileUpload {
      * Handler to execute onProgress callbacks.
      */
     private Handler mHandler;
+
+    /**
+     * The minimum time in milliseconds that must pass between each firing of progress listener. This is to avoid excessive calls which may lock up the device.
+     */
+    private static final int ON_PROGRESS_UPDATE_THRESHOLD = 300;
 
     /**
      * Instantiate a new BoxFileUpload.
@@ -330,6 +336,7 @@ public class BoxFileUpload {
                 mCountingOutputStream = new CountingOutputStream(outstream, mListener);
             }
             super.writeTo(mCountingOutputStream);
+            mListener.onTransferred(mCountingOutputStream.getBytesTransferred());
         }
 
         /**
@@ -359,6 +366,10 @@ public class BoxFileUpload {
              * number of bytes transferred so far.
              */
             private long bytesBransferred;
+            /**
+             * last timestamp of progress listener being fired.
+             */
+            private long lastOnProgressPost = 0;
 
             /**
              * constructor that also takes a progress listener.
@@ -378,13 +389,24 @@ public class BoxFileUpload {
             public void write(final byte[] buffer, final int offset, final int length) throws IOException {
                 out.write(buffer, offset, length);
                 bytesBransferred += length;
-                if (mProgresslistener != null) {
+                long currTime = SystemClock.uptimeMillis();
+                if (mProgresslistener != null && currTime - lastOnProgressPost > ON_PROGRESS_UPDATE_THRESHOLD) {
+                    lastOnProgressPost = currTime;
                     mProgresslistener.onTransferred(bytesBransferred);
                 }
                 // Allow canceling of downloads through thread interrupt.
                 if (Thread.currentThread().isInterrupted()) {
                     throw new IOException(FileUploadListener.STATUS_CANCELLED);
                 }
+            }
+
+            /**
+             * Get the number of bytes transferred so far.
+             * 
+             * @return Number of bytes transferred so far.
+             */
+            public long getBytesTransferred() {
+                return bytesBransferred;
             }
         }
     }
