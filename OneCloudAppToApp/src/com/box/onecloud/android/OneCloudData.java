@@ -14,7 +14,7 @@ import android.os.RemoteException;
  * Represents a OneCloud transaction. Data can be read and written to through this, and can be uploaded back to Box. This class implements Parcelable which
  * means you can pass it around your activities and other contexts through intent extras.
  */
-public class OneCloud implements Parcelable {
+public class OneCloudData implements Parcelable {
 
     /** Binder back to Box through AIDL. */
     private OneCloudInterface mBinder;
@@ -28,7 +28,7 @@ public class OneCloud implements Parcelable {
      * @param binder
      *            OneCloudInterface.
      */
-    public OneCloud(OneCloudInterface binder) {
+    public OneCloudData(OneCloudInterface binder) {
         mBinder = binder;
     }
 
@@ -38,7 +38,7 @@ public class OneCloud implements Parcelable {
      * @param in
      *            Parcel.
      */
-    public OneCloud(Parcel in) {
+    public OneCloudData(Parcel in) {
         readFromParcel(in);
     }
 
@@ -447,16 +447,16 @@ public class OneCloud implements Parcelable {
     /**
      * Parcel CREATOR.
      */
-    public static final Parcelable.Creator<OneCloud> CREATOR = new Parcelable.Creator<OneCloud>() {
+    public static final Parcelable.Creator<OneCloudData> CREATOR = new Parcelable.Creator<OneCloudData>() {
 
         @Override
-        public OneCloud createFromParcel(Parcel in) {
-            return new OneCloud(in);
+        public OneCloudData createFromParcel(Parcel in) {
+            return new OneCloudData(in);
         }
 
         @Override
-        public OneCloud[] newArray(int size) {
-            return new OneCloud[size];
+        public OneCloudData[] newArray(int size) {
+            return new OneCloudData[size];
         }
     };
 

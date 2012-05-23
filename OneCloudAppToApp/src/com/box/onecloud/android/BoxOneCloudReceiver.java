@@ -22,7 +22,7 @@ public abstract class BoxOneCloudReceiver extends BroadcastReceiver {
     /** Intent action for requesting app launch. */
     public static final String ACTION_BOX_LAUNCH = "com.box.android.LAUNCH";
 
-    /** Extras key for a OneCloud transaction object. */
+    /** Extras key for a OneCloudData transaction object. */
     public static final String EXTRA_ONE_CLOUD = "com.box.android.ONE_CLOUD";
 
     /** Box package name. */
@@ -30,23 +30,23 @@ public abstract class BoxOneCloudReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(final Context context, final Intent intent) {
-        OneCloud oneCloud = null;
+        OneCloudData oneCloudData = null;
         if (intent.getParcelableExtra(EXTRA_ONE_CLOUD) != null) {
-            oneCloud = (OneCloud) intent.getParcelableExtra(EXTRA_ONE_CLOUD);
-            oneCloud.sendHandshake(context);
+            oneCloudData = (OneCloudData) intent.getParcelableExtra(EXTRA_ONE_CLOUD);
+            oneCloudData.sendHandshake(context);
         }
 
         if (intent.getAction().equals(ACTION_BOX_EDIT_FILE)) {
-            onEditFileRequested(context, oneCloud);
+            onEditFileRequested(context, oneCloudData);
         }
         else if (intent.getAction().equals(ACTION_BOX_CREATE_FILE)) {
-            onCreateFileRequested(context, oneCloud);
+            onCreateFileRequested(context, oneCloudData);
         }
         else if (intent.getAction().equals(ACTION_BOX_VIEW_FILE)) {
-            onViewFileRequested(context, oneCloud);
+            onViewFileRequested(context, oneCloudData);
         }
         else if (intent.getAction().equals(ACTION_BOX_LAUNCH)) {
-            onLaunchRequested(context, oneCloud);
+            onLaunchRequested(context, oneCloudData);
         }
     }
 
@@ -56,10 +56,10 @@ public abstract class BoxOneCloudReceiver extends BroadcastReceiver {
      * 
      * @param context
      *            The Context in which the receiver is running.
-     * @param oneCloud
-     *            OneCloud transaction object.
+     * @param oneCloudInfo
+     *            OneCloudInfo transaction object.
      */
-    public abstract void onEditFileRequested(final Context context, final OneCloud oneCloud);
+    public abstract void onEditFileRequested(final Context context, final OneCloudData oneCloudData);
 
     /**
      * Box has requested that you create a new file that should be uploaded to Box by calling uploadNewFile(). You should load UI for the user to create a new
@@ -67,28 +67,28 @@ public abstract class BoxOneCloudReceiver extends BroadcastReceiver {
      * 
      * @param context
      *            The Context in which the receiver is running.
-     * @param oneCloud
+     * @param oneCloudInfo
      *            OneCloud transaction object.
      */
-    public abstract void onCreateFileRequested(final Context context, final OneCloud oneCloud);
+    public abstract void onCreateFileRequested(final Context context, final OneCloudData oneCloudData);
 
     /**
      * Box has requested that you open and show the contents of a file to the user. You should load a read-only UI for the user to view the file.
      * 
      * @param context
      *            The Context in which the receiver is running.
-     * @param oneCloud
+     * @param oneCloudInfo
      *            OneCloud transaction object.
      */
-    public abstract void onViewFileRequested(final Context context, final OneCloud oneCloud);
+    public abstract void onViewFileRequested(final Context context, final OneCloudData oneCloudData);
 
     /**
      * Box has requested that you launch your app in no particular mode. You should load general UI that is most appropriate as a starting screen.
      * 
      * @param context
      *            The Context in which the receiver is running.
-     * @param boxToken
+     * @param oneCloudInfo
      *            A token that must be passed back to Box. You will need this when trying to send data back to Box.
      */
-    public abstract void onLaunchRequested(final Context context, final OneCloud oneCloud);
+    public abstract void onLaunchRequested(final Context context, final OneCloudData oneCloudData);
 }
