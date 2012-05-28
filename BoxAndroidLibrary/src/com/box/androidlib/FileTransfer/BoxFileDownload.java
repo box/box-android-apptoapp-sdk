@@ -80,7 +80,7 @@ public class BoxFileDownload {
      * The minimum time in milliseconds that must pass between each call to FileDownloadListener.onProgress. This is to avoid excessive calls which may lock up
      * the device.
      */
-    private static final int ON_PROGRESS_UPDATE_THRESHOLD = 100;
+    private static final int ON_PROGRESS_UPDATE_THRESHOLD = 300;
 
     /**
      * Instantiate a new BoxFileDownload.

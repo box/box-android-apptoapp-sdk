@@ -849,7 +849,7 @@ public class BoxSynchronous {
             }
         }
         else {
-            builder.appendQueryParameter("emails", "");
+            builder.appendQueryParameter("emails[]", "");
         }
         if (userIds != null) {
             for (int i = 0; i < userIds.length; i++) {
@@ -857,7 +857,7 @@ public class BoxSynchronous {
             }
         }
         else {
-            builder.appendQueryParameter("user_ids", "");
+            builder.appendQueryParameter("user_ids[]", "");
         }
         if (params != null) {
             for (int i = 0; i < params.length; i++) {
@@ -865,7 +865,7 @@ public class BoxSynchronous {
             }
         }
         else {
-            builder.appendQueryParameter("params", "");
+            builder.appendQueryParameter("params[]", "");
         }
         saxRequest(parser, builder.build());
         return parser.getStatus();
