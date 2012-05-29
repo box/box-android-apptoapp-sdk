@@ -13,8 +13,10 @@ package com.box.androidlib;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 
 import android.os.Handler;
@@ -1597,13 +1599,44 @@ public class Box {
      */
     public final Cancelable download(final String authToken, final long fileId, final File destinationFile, final Long versionId,
         final FileDownloadListener listener) {
+        try {
+            return download(authToken, fileId, new FileOutputStream(destinationFile), versionId, listener);
+        }
+        catch (FileNotFoundException e) {
+            // e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Download a file. Uses the download API as described here:
+     * {@link <a href="http://developers.box.net/w/page/12923951/ApiFunction_Upload-and-Download">http://developers.box.net/w/page/12923951/ApiFunction_Upload-and-Download</a>}
+     * 
+     * This method returns a Cancelable which you can use to cancel a download in progress.
+     * 
+     * @param authToken
+     *            The auth token retrieved through {@link Box#getAuthToken(String, GetAuthTokenListener)}
+     * @param fileId
+     *            The file_id of the file to be downloaded
+     * @param destinationOutputStream
+     *            A java.io.File resource to which the downloaded file will be written. Ensure that this points to a valid file-path that can be written to.
+     * @param versionId
+     *            The version_id of the version of the file to download. Set to null to download the latest version of the file.
+     * @param listener
+     *            A file download listener. You will likely be interested in callbacks
+     *            {@link com.box.androidlib.ResponseListeners.FileDownloadListener#onProgress(long)} and
+     *            {@link com.box.androidlib.ResponseListeners.FileDownloadListener#onComplete(String)}
+     * @return A Cancelable that allows you to try to cancel a download in progress.
+     */
+    public final Cancelable download(final String authToken, final long fileId, final OutputStream destinationOutputStream, final Long versionId,
+        final FileDownloadListener listener) {
 
         final Thread thread = new Thread() {
 
             @Override
             public void run() {
                 try {
-                    final DefaultResponseParser response = BoxSynchronous.getInstance(mApiKey).download(authToken, fileId, destinationFile, versionId,
+                    final DefaultResponseParser response = BoxSynchronous.getInstance(mApiKey).download(authToken, fileId, destinationOutputStream, versionId,
                         listener, mHandler);
                     mHandler.post(new Runnable() {
 

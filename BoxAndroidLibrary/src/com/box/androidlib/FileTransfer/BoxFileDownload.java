@@ -12,10 +12,9 @@
 package com.box.androidlib.FileTransfer;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -119,15 +118,15 @@ public class BoxFileDownload {
      * 
      * @param fileId
      *            The file_id of the file to be downloaded
-     * @param destinationFile
-     *            A java.io.File resource to which the downloaded file will be written. Ensure that this points to a valid file-path that can be written to.
+     * @param destinationOutputStream
+     *            An OutputStream to which the data should be written to as it is downloaded.
      * @param versionId
      *            The version_id of the version of the file to download. Set to null to download the latest version of the file.
      * @return a response handler
      * @throws IOException
      *             Can be thrown if there was a connection error, or if destination file could not be written.
      */
-    public DefaultResponseParser execute(final long fileId, final File destinationFile, final Long versionId) throws IOException {
+    public DefaultResponseParser execute(final long fileId, final OutputStream destinationOutputStream, final Long versionId) throws IOException {
 
         final DefaultResponseParser handler = new DefaultResponseParser();
 
@@ -146,11 +145,10 @@ public class BoxFileDownload {
         final DefaultHttpClient httpclient = new DefaultHttpClient();
         HttpProtocolParams.setUserAgent(httpclient.getParams(), BoxConfig.getInstance().getUserAgent());
         HttpGet httpGet;
-        //
+
         String theUri = builder.build().toString();
         if (BoxConfig.getInstance().getHttpLoggingEnabled()) {
             DevUtils.logcat("User-Agent : " + HttpProtocolParams.getUserAgent(httpclient.getParams()));
-            DevUtils.logcat("Downloading FileId " + fileId + " To: " + destinationFile.getAbsolutePath() + destinationFile.getName());
             DevUtils.logcat("Download URL : " + theUri);
         }
         try {
@@ -182,43 +180,44 @@ public class BoxFileDownload {
 
         InputStream is = httpResponse.getEntity().getContent();
         if (responseCode == HttpURLConnection.HTTP_OK) {
-            final FileOutputStream fos = new FileOutputStream(destinationFile);
-            final byte[] buffer = new byte[DOWNLOAD_BUFFER_SIZE];
-            int bufferLength = 0;
+            // Grab the first 100 bytes and check for an error string.
+            // Not a good way for the server to respond with errors but that's the way it is for now.
+            final byte[] errorCheckBuffer = new byte[FILE_ERROR_SIZE];
             mBytesTransferred = 0;
-            long lastOnProgressPost = 0;
-            while (!Thread.currentThread().isInterrupted() && (bufferLength = is.read(buffer)) > 0) {
-                fos.write(buffer, 0, bufferLength);
-                mBytesTransferred += bufferLength;
-                long currTime = SystemClock.uptimeMillis();
-                if (mListener != null && mHandler != null && currTime - lastOnProgressPost > ON_PROGRESS_UPDATE_THRESHOLD) {
-                    lastOnProgressPost = currTime;
-                    mHandler.post(mOnProgressRunnable);
-                }
+            mBytesTransferred += is.read(errorCheckBuffer);
+            final String str = new String(errorCheckBuffer).trim();
+            if (str.equals(FileDownloadListener.STATUS_DOWNLOAD_WRONG_AUTH_TOKEN)) {
+                handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_WRONG_AUTH_TOKEN);
             }
-            mHandler.post(mOnProgressRunnable);
-            fos.close();
-            handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_OK);
+            else if (str.equals(FileDownloadListener.STATUS_DOWNLOAD_RESTRICTED)) {
+                handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_RESTRICTED);
+            }
+            else {
+                // No error detected.
+                destinationOutputStream.write(errorCheckBuffer, 0, (int) mBytesTransferred); // Make sure we don't lose that first 100 bytes.
 
-            // If download thread was interrupted, set to
-            // STATUS_DOWNLOAD_CANCELED
-            if (Thread.currentThread().isInterrupted()) {
-                httpGet.abort();
-                handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_CANCELLED);
-            }
-            // Even if download completed, Box API may have put an error message
-            // in the file itself. Refer to
-            // http://developers.box.net/w/page/12923951/ApiFunction_Upload-and-Download
-            else if (destinationFile.length() < FILE_ERROR_SIZE) {
-                final byte[] buff = new byte[(int) destinationFile.length()];
-                final FileInputStream fis = new FileInputStream(destinationFile);
-                fis.read(buffer);
-                final String str = new String(buff).trim();
-                if (str.equals(FileDownloadListener.STATUS_DOWNLOAD_WRONG_AUTH_TOKEN)) {
-                    handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_WRONG_AUTH_TOKEN);
+                // Read the rest of the stream and write to the destination OutputStream.
+                final byte[] buffer = new byte[DOWNLOAD_BUFFER_SIZE];
+                int bufferLength = 0;
+                long lastOnProgressPost = 0;
+                while (!Thread.currentThread().isInterrupted() && (bufferLength = is.read(buffer)) > 0) {
+                    destinationOutputStream.write(buffer, 0, bufferLength);
+                    mBytesTransferred += bufferLength;
+                    long currTime = SystemClock.uptimeMillis();
+                    if (mListener != null && mHandler != null && currTime - lastOnProgressPost > ON_PROGRESS_UPDATE_THRESHOLD) {
+                        lastOnProgressPost = currTime;
+                        mHandler.post(mOnProgressRunnable);
+                    }
                 }
-                else if (str.equals(FileDownloadListener.STATUS_DOWNLOAD_RESTRICTED)) {
-                    handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_RESTRICTED);
+                mHandler.post(mOnProgressRunnable);
+                destinationOutputStream.close();
+                handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_OK);
+
+                // If download thread was interrupted, set to
+                // STATUS_DOWNLOAD_CANCELED
+                if (Thread.currentThread().isInterrupted()) {
+                    httpGet.abort();
+                    handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_CANCELLED);
                 }
             }
         }
