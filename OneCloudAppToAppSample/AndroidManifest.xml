@@ -27,11 +27,10 @@
                 <action android:name="com.box.android.CREATE_FILE"/>
                 <action android:name="com.box.android.VIEW_FILE"/>
                 <data android:mimeType="*/*"/>
-                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <intent-filter>
                 <action android:name="com.box.android.LAUNCH"/>
-                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="com.android.vending.INSTALL_REFERRER"/>
             </intent-filter>
         </receiver>
         

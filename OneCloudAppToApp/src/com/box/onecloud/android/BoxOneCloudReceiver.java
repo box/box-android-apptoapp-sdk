@@ -1,6 +1,7 @@
 package com.box.onecloud.android;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 
@@ -22,11 +23,23 @@ public abstract class BoxOneCloudReceiver extends BroadcastReceiver {
     /** Intent action for requesting app launch. */
     public static final String ACTION_BOX_LAUNCH = "com.box.android.LAUNCH";
 
+    /** Intent action for registering an installation that came through the OneCloud program. */
+    public static final String ACTION_BOX_INSTALL_REFERRED = "com.box.android.INSTALL_REFERRER";
+
     /** Extras key for a OneCloudData transaction object. */
     public static final String EXTRA_ONE_CLOUD = "com.box.android.ONE_CLOUD";
 
+    /** Extras key for package name. */
+    public static final String EXTRA_PACKAGE_NAME = "com.box.android.PACKAGE_NAME";
+
+    /** Extras key for package name. */
+    public static final String EXTRA_REFERRER = "com.box.android.REFERRER";
+
     /** Box package name. */
     public static final String BOX_PACKAGE_NAME = "com.box.android";
+
+    /** OneCloud receiver on Box side. */
+    public static final String BOX_RECEIVER_CLASS_NAME = "com.box.android.onecloud.OneCloudReceiver";
 
     @Override
     public void onReceive(final Context context, final Intent intent) {
@@ -47,6 +60,22 @@ public abstract class BoxOneCloudReceiver extends BroadcastReceiver {
         }
         else if (intent.getAction().equals(ACTION_BOX_LAUNCH)) {
             onLaunchRequested(context, oneCloudData);
+        }
+        else if (intent.getAction().equals("com.android.vending.INSTALL_REFERRER")) {
+            final String referrer = intent.getStringExtra("referrer");
+            if (referrer == null) {
+                return;
+            }
+            if (!referrer.toLowerCase().contains("box")) {
+                // We only care about installations that happened as a result of a Box referral.
+                return;
+            }
+
+            Intent broadcast = new Intent(ACTION_BOX_INSTALL_REFERRED);
+            broadcast.setComponent(new ComponentName(BOX_PACKAGE_NAME, BOX_RECEIVER_CLASS_NAME));
+            broadcast.putExtra(EXTRA_REFERRER, referrer);
+            broadcast.putExtra(EXTRA_PACKAGE_NAME, context.getPackageName());
+            context.sendBroadcast(broadcast);
         }
     }
 
