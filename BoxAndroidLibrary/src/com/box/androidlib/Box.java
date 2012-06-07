@@ -1619,7 +1619,7 @@ public class Box {
      * @param fileId
      *            The file_id of the file to be downloaded
      * @param destinationOutputStream
-     *            A java.io.File resource to which the downloaded file will be written. Ensure that this points to a valid file-path that can be written to.
+     *            Destination OutputStream that downloaded data will be written to.
      * @param versionId
      *            The version_id of the version of the file to download. Set to null to download the latest version of the file.
      * @param listener
@@ -1637,6 +1637,71 @@ public class Box {
             public void run() {
                 try {
                     final DefaultResponseParser response = BoxSynchronous.getInstance(mApiKey).download(authToken, fileId, destinationOutputStream, versionId,
+                        listener, mHandler);
+                    mHandler.post(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            listener.onComplete(response.getStatus());
+                        }
+                    });
+                }
+                catch (final IOException e) {
+                    mHandler.post(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            listener.onIOException(e);
+                        }
+                    });
+                }
+            }
+        };
+        thread.start();
+
+        Cancelable cancelable = new Cancelable() {
+
+            @Override
+            public boolean cancel() {
+                if (thread.isAlive()) {
+                    thread.interrupt();
+                    return true;
+                }
+                return false;
+            }
+        };
+        return cancelable;
+    }
+
+    /**
+     * Download a file. Uses the download API as described here:
+     * {@link <a href="http://developers.box.net/w/page/12923951/ApiFunction_Upload-and-Download">http://developers.box.net/w/page/12923951/ApiFunction_Upload-and-Download</a>}
+     * 
+     * This method returns a Cancelable which you can use to cancel a download in progress.
+     * 
+     * @param authToken
+     *            The auth token retrieved through {@link Box#getAuthToken(String, GetAuthTokenListener)}
+     * @param fileId
+     *            The file_id of the file to be downloaded
+     * @param destinationOutputStreams
+     *            Destination OutputStreams that downloaded data will be written to.
+     * @param versionId
+     *            The version_id of the version of the file to download. Set to null to download the latest version of the file.
+     * @param listener
+     *            A file download listener. You will likely be interested in callbacks
+     *            {@link com.box.androidlib.ResponseListeners.FileDownloadListener#onProgress(long)} and
+     *            {@link com.box.androidlib.ResponseListeners.FileDownloadListener#onComplete(String)}
+     * @return A Cancelable that allows you to try to cancel a download in progress.
+     */
+    public final Cancelable download(final String authToken, final long fileId, final OutputStream[] destinationOutputStreams, final Long versionId,
+        final FileDownloadListener listener) {
+
+        final Thread thread = new Thread() {
+
+            @Override
+            public void run() {
+                try {
+                    final DefaultResponseParser response = BoxSynchronous.getInstance(mApiKey).download(authToken, fileId, destinationOutputStreams, versionId,
                         listener, mHandler);
                     mHandler.post(new Runnable() {
 

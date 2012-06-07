@@ -118,15 +118,15 @@ public class BoxFileDownload {
      * 
      * @param fileId
      *            The file_id of the file to be downloaded
-     * @param destinationOutputStream
-     *            An OutputStream to which the data should be written to as it is downloaded.
+     * @param destinationOutputStreams
+     *            OutputStreams to which the data should be written to as it is downloaded.
      * @param versionId
      *            The version_id of the version of the file to download. Set to null to download the latest version of the file.
      * @return a response handler
      * @throws IOException
      *             Can be thrown if there was a connection error, or if destination file could not be written.
      */
-    public DefaultResponseParser execute(final long fileId, final OutputStream destinationOutputStream, final Long versionId) throws IOException {
+    public DefaultResponseParser execute(final long fileId, final OutputStream[] destinationOutputStreams, final Long versionId) throws IOException {
 
         final DefaultResponseParser handler = new DefaultResponseParser();
 
@@ -194,14 +194,18 @@ public class BoxFileDownload {
             }
             else {
                 // No error detected.
-                destinationOutputStream.write(errorCheckBuffer, 0, (int) mBytesTransferred); // Make sure we don't lose that first 100 bytes.
+                for (int i = 0; i < destinationOutputStreams.length; i++) {
+                    destinationOutputStreams[i].write(errorCheckBuffer, 0, (int) mBytesTransferred); // Make sure we don't lose that first 100 bytes.
+                }
 
                 // Read the rest of the stream and write to the destination OutputStream.
                 final byte[] buffer = new byte[DOWNLOAD_BUFFER_SIZE];
                 int bufferLength = 0;
                 long lastOnProgressPost = 0;
                 while (!Thread.currentThread().isInterrupted() && (bufferLength = is.read(buffer)) > 0) {
-                    destinationOutputStream.write(buffer, 0, bufferLength);
+                    for (int i = 0; i < destinationOutputStreams.length; i++) {
+                        destinationOutputStreams[i].write(buffer, 0, bufferLength);
+                    }
                     mBytesTransferred += bufferLength;
                     long currTime = SystemClock.uptimeMillis();
                     if (mListener != null && mHandler != null && currTime - lastOnProgressPost > ON_PROGRESS_UPDATE_THRESHOLD) {
@@ -210,7 +214,9 @@ public class BoxFileDownload {
                     }
                 }
                 mHandler.post(mOnProgressRunnable);
-                destinationOutputStream.close();
+                for (int i = 0; i < destinationOutputStreams.length; i++) {
+                    destinationOutputStreams[i].close();
+                }
                 handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_OK);
 
                 // If download thread was interrupted, set to

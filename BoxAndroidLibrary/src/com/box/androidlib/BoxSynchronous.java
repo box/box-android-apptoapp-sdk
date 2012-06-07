@@ -998,9 +998,39 @@ public class BoxSynchronous {
      */
     public final DefaultResponseParser download(final String authToken, final long fileId, final OutputStream destinationOutputStream, final Long versionId,
         final FileDownloadListener listener, final Handler handler) throws IOException {
+        return download(authToken, fileId, new OutputStream[] {destinationOutputStream}, versionId, listener, handler);
+    }
+
+    /**
+     * Download a file. Uses the download API as described here:
+     * {@link <a href="http://developers.box.net/w/page/12923951/ApiFunction_Upload-and-Download">http://developers.box.net/w/page/12923951/ApiFunction_Upload-and-Download</a>}
+     * 
+     * If you want to cancel a download in progress, you must interrupt the thread that you executed this method in. For a more convenient way to cancel, use
+     * Box.download() which returns a Cancelable.
+     * 
+     * @param authToken
+     *            The auth token retrieved through {@link BoxSynchronous#getAuthToken(String)}
+     * @param fileId
+     *            The file_id of the file to be downloaded
+     * @param destinationOutputStreams
+     *            OutputStreams to which the data being downloaded will be written.
+     * @param versionId
+     *            The version_id of the version of the file to download. Set to null to download the latest version of the file.
+     * @param listener
+     *            A file download listener. You will likely be interested in callbacks
+     *            {@link com.box.androidlib.ResponseListeners.FileDownloadListener#onProgress(long)} and
+     *            {@link com.box.androidlib.ResponseListeners.FileDownloadListener#onComplete(String)}
+     * @param handler
+     *            The handler through which FileDownloadListener.onProgress will be invoked.
+     * @throws IOException
+     *             Can be thrown if there is no connection, or if some other connection problem exists.
+     * @return a response handler
+     */
+    public final DefaultResponseParser download(final String authToken, final long fileId, final OutputStream[] destinationOutputStreams, final Long versionId,
+        final FileDownloadListener listener, final Handler handler) throws IOException {
         final BoxFileDownload download = new BoxFileDownload(authToken);
         download.setListener(listener, handler);
-        return download.execute(fileId, destinationOutputStream, versionId);
+        return download.execute(fileId, destinationOutputStreams, versionId);
     }
 
     /**
