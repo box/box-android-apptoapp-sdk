@@ -185,6 +185,7 @@ public class BoxFileUpload {
         final HttpResponse httpResponse;
         DefaultHttpClient httpClient = new DefaultHttpClient();
         HttpProtocolParams.setUserAgent(httpClient.getParams(), BoxConfig.getInstance().getUserAgent());
+        post.setHeader("Accept-Language", BoxConfig.getInstance().getAcceptLanguage());
         try {
             httpResponse = httpClient.execute(post);
         }

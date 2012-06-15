@@ -11,6 +11,8 @@
  ******************************************************************************/
 package com.box.androidlib.Utils;
 
+import java.util.Locale;
+
 /**
  * Class for retrieving configuration parameters.
  * 
@@ -323,4 +325,35 @@ public final class BoxConfig {
         return mEnableHttpLogging;
     }
 
+    /** Accept-Language header value for English (US). */
+    private static final String ENGLISH_ACCEPT_LANGUAGE = "en-us";
+
+    /**
+     * Get the Accept-Language HTTP header that we should set.
+     * 
+     * @return Accept-Language HTTP header.
+     */
+    public String getAcceptLanguage() {
+        if (Locale.getDefault() == null) {
+            return ENGLISH_ACCEPT_LANGUAGE;
+        }
+        StringBuffer sb = new StringBuffer();
+        String language = Locale.getDefault().getLanguage().toLowerCase().trim();
+        if (language.length() > 0) {
+            sb.append(language);
+            String country = Locale.getDefault().getCountry().toLowerCase().trim();
+            if (country.length() > 0) {
+                sb.append("-");
+                sb.append(country);
+            }
+        }
+        if (sb.length() == 0) {
+            sb.append(ENGLISH_ACCEPT_LANGUAGE);
+        }
+        else if (!sb.toString().equals(ENGLISH_ACCEPT_LANGUAGE)) {
+            sb.append(", ");
+            sb.append(ENGLISH_ACCEPT_LANGUAGE);
+        }
+        return sb.toString();
+    }
 }

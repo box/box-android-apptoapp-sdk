@@ -1129,9 +1129,15 @@ public class BoxSynchronous {
             xmlReader.setContentHandler(parser);
             HttpURLConnection conn = (HttpURLConnection) (new URL(uri.toString())).openConnection();
             conn.setRequestProperty("User-Agent", BoxConfig.getInstance().getUserAgent());
+            conn.setRequestProperty("Accept-Language", BoxConfig.getInstance().getAcceptLanguage());
             conn.setConnectTimeout(BoxConfig.getInstance().getConnectionTimeOut());
             if (BoxConfig.getInstance().getHttpLoggingEnabled()) {
                 DevUtils.logcat("URL: " + uri.toString());
+                Iterator<String> keys = conn.getRequestProperties().keySet().iterator();
+                while (keys.hasNext()) {
+                    String key = keys.next();
+                    DevUtils.logcat("Request Header: " + key + " => " + conn.getRequestProperties().get(key));
+                }
             }
 
             int responseCode = -1;
@@ -1171,7 +1177,7 @@ public class BoxSynchronous {
                         Set<Entry<String, List<String>>> headers = headerfields.entrySet();
                         for (Iterator<Map.Entry<String, List<String>>> i = headers.iterator(); i.hasNext();) {
                             Map.Entry<String, List<String>> map = i.next();
-                            DevUtils.logcat(map.getKey() + " : " + map.getValue());
+                            DevUtils.logcat("Response Header: " + map.getKey() + " : " + map.getValue());
                         }
                     }
                 }

@@ -158,6 +158,7 @@ public class BoxFileDownload {
             throw new IOException("Invalid Download URL");
         }
         httpGet.setHeader("Connection", "close");
+        httpGet.setHeader("Accept-Language", BoxConfig.getInstance().getAcceptLanguage());
         HttpResponse httpResponse = httpclient.execute(httpGet);
         int responseCode = httpResponse.getStatusLine().getStatusCode();
 
@@ -238,5 +239,4 @@ public class BoxFileDownload {
 
         return handler;
     }
-
 }
