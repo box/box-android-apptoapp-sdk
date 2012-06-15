@@ -127,6 +127,17 @@ public class BoxAuthentication extends Activity {
                 // each one to see if the user has successfully logged in.
                 getAuthToken(ticket, 0);
             }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                if (url != null && url.startsWith("market://")) {
+                    view.getContext().startActivity(
+                        new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                    return true;
+                } else {
+                    return false;
+                }
+            }
         });
         mLoginWebView.loadUrl(loginUrl);
     }
