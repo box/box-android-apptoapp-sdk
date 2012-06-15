@@ -14,7 +14,9 @@ package com.box.androidlib.activities;
 import java.io.IOException;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
@@ -129,14 +131,17 @@ public class BoxAuthentication extends Activity {
             }
 
             @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            public boolean shouldOverrideUrlLoading(final WebView view, final String url) {
                 if (url != null && url.startsWith("market://")) {
-                    view.getContext().startActivity(
-                        new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
-                    return true;
-                } else {
-                    return false;
+                    try {
+                        view.getContext().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                        return true;
+                    }
+                    catch (ActivityNotFoundException e) {
+                        // e.printStackTrace();
+                    }
                 }
+                return false;
             }
         });
         mLoginWebView.loadUrl(loginUrl);
