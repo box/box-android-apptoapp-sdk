@@ -18,7 +18,8 @@ public class MyReceiver extends BoxOneCloudReceiver {
 
         // Box has requested that a file be edited. Hand off to an activity to do this.
         Intent i = new Intent(context, Main.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP); // Must set FLAG_ACTIVITY_CLEAR_TOP or you won't get a new instance of your
+                                                                                    // Activity if one is already running.
         i.putExtra(Main.EXTRA_ONE_CLOUD, oneCloudData); // This is what we need to keep track of.
         context.startActivity(i);
     }
