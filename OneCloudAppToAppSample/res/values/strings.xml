@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="hello">Hello World, Main!</string>
-    <string name="app_name">OneCloudAppToAppSample</string>
+    <string name="hello">This is a sample app to demonstrate the OneCloudAppToApp library.\n\nTo see this app in action, open a file from the Box app.</string>
+    <string name="app_name">OneCloud File Zipper</string>
 
 </resources>
