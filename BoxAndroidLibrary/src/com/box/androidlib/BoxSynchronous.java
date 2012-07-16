@@ -483,6 +483,8 @@ public class BoxSynchronous {
      *            {@link com.box.androidlib.Box#SEARCH_PARAM_SHOW_PATH}
      * @return the response parser used to capture the data of interest from the response. See the doc for the specific parser type returned to see what data is
      *         now available. All parsers implement getStatus() at a minimum.
+     * @param subfolder_ids
+     *            Array of subfolder_ids to restrict the scope of the search to.
      * @throws IOException
      *             Can be thrown if there is no connection, or if some other connection problem exists.
      */
