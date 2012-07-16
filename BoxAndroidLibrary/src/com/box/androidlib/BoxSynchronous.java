@@ -462,6 +462,51 @@ public class BoxSynchronous {
     }
 
     /**
+     * This method gets a list of items that would normally be obtained through search. Executes API action search:
+     * {@link <a href="http://developers.box.net/w/page/22888693/ApiFunction_search">http://developers.box.net/w/page/22888693/ApiFunction_search</a>}
+     * 
+     * @param authToken
+     *            The auth token retrieved through {@link BoxSynchronous#getAuthToken(String)}
+     * @param query
+     *            The text to search for
+     * @param sort
+     *            The method in which the results may be sorted. Set to {@link com.box.androidlib.Box#SORT_RELEVANCE}, {@link com.box.androidlib.Box#SORT_NAME},
+     *            {@link com.box.androidlib.Box#SORT_DATE} or {@link com.box.androidlib.Box#SORT_SIZE}
+     * @param page
+     *            The page number, which begins on page 1. This coincides with the per_page parameter
+     * @param perPage
+     *            The number of search results to display per page
+     * @param direction
+     *            Set to either {@link com.box.androidlib.Box#DIRECTION_ASC} or {@link com.box.androidlib.Box#DIRECTION_DESC}
+     * @param params
+     *            Array of string params that can include {@link com.box.androidlib.Box#SEARCH_PARAM_SHOW_DESCRIPTION} and/or
+     *            {@link com.box.androidlib.Box#SEARCH_PARAM_SHOW_PATH}
+     * @return the response parser used to capture the data of interest from the response. See the doc for the specific parser type returned to see what data is
+     *         now available. All parsers implement getStatus() at a minimum.
+     * @throws IOException
+     *             Can be thrown if there is no connection, or if some other connection problem exists.
+     */
+    public final SearchResponseParser search(final String authToken, final String query, final String sort, final int page, final int perPage,
+        final String direction, final String[] params, final long[] subfolder_ids) throws IOException {
+        final SearchResponseParser parser = new SearchResponseParser();
+        final Uri.Builder builder = BoxUriBuilder.getBuilder(mApiKey, authToken, "search").appendQueryParameter("query", query)
+            .appendQueryParameter("sort", sort).appendQueryParameter("page", String.valueOf(page)).appendQueryParameter("per_page", String.valueOf(perPage))
+            .appendQueryParameter("direction", direction);
+        if (params != null) {
+            for (int i = 0; i < params.length; i++) {
+                builder.appendQueryParameter("params[" + i + "]", params[i]);
+            }
+        }
+        if (subfolder_ids != null) {
+            for (int i = 0; i < subfolder_ids.length; i++) {
+                builder.appendQueryParameter("subfolder_ids[]", Long.toString(subfolder_ids[i]));
+            }
+        }
+        saxRequest(parser, builder.build());
+        return parser;
+    }
+
+    /**
      * This method applies tags to a designated file or folder. Executes API action add_to_tag:
      * {@link <a href="http://developers.box.net/w/page/12923921/ApiFunction_add_to_tag">http://developers.box.net/w/page/12923921/ApiFunction_add_to_tag</a>}
      * 
