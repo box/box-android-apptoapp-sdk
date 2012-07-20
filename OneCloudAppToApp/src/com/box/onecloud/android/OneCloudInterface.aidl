@@ -5,6 +5,10 @@ import com.box.onecloud.android.FileUploadCallbacks;
 
 interface OneCloudInterface {
 
+	//////////
+    // 1.8.0
+    //////////
+
     // InputStream
     int iAvailable();
     void iClose();
@@ -38,4 +42,18 @@ interface OneCloudInterface {
     String getFileName();
     String getMimeType();
     long getFileSize();
+    
+    //////////
+    // 1.9.0
+    //////////
+    
+    // Additional info getters
+    long getToken();    
+    long getFileId();
+    long getFolderId();
+    String getFolderPath();
+    String getUsername();
+    
+    // Notify Box that data has changed
+    void notifyDataChanged();
 }

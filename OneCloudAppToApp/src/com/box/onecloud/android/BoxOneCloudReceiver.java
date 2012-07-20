@@ -26,6 +26,18 @@ public abstract class BoxOneCloudReceiver extends BroadcastReceiver {
     /** Intent action for registering an installation that came through the OneCloud program. */
     public static final String ACTION_BOX_INSTALL_REFERRED = "com.box.android.INSTALL_REFERRER";
 
+    /** Intent action for restoring a OneCloudData object. */
+    public static final String ACTION_BOX_RESTORE_ONE_CLOUD_DATA = "com.box.android.RESTORE_ONE_CLOUD_DATA";
+
+    /** Intent action for creating a sibling OneCloudData. */
+    public static final String ACTION_BOX_CREATE_SIBLING_ONE_CLOUD_DATA = "com.box.android.CREATE_SIBLING_ONE_CLOUD_DATA";
+
+    /** Extras key for a OneCloudData handshake. */
+    public static final String EXTRA_ONE_CLOUD_HANDSHAKE = "com.box.android.ONE_CLOUD_HANDSHAKE";
+
+    /** Extras key for a OneCloudData token. */
+    public static final String EXTRA_ONE_CLOUD_TOKEN = "com.box.android.ONE_CLOUD_TOKEN";
+
     /** Extras key for a OneCloudData transaction object. */
     public static final String EXTRA_ONE_CLOUD = "com.box.android.ONE_CLOUD";
 
@@ -85,8 +97,8 @@ public abstract class BoxOneCloudReceiver extends BroadcastReceiver {
      * 
      * @param context
      *            The Context in which the receiver is running.
-     * @param oneCloudInfo
-     *            OneCloudInfo transaction object.
+     * @param oneCloudData
+     *            OneCloudData transaction object.
      */
     public abstract void onEditFileRequested(final Context context, final OneCloudData oneCloudData);
 
@@ -96,8 +108,8 @@ public abstract class BoxOneCloudReceiver extends BroadcastReceiver {
      * 
      * @param context
      *            The Context in which the receiver is running.
-     * @param oneCloudInfo
-     *            OneCloud transaction object.
+     * @param oneCloudData
+     *            OneCloudData transaction object.
      */
     public abstract void onCreateFileRequested(final Context context, final OneCloudData oneCloudData);
 
@@ -106,8 +118,8 @@ public abstract class BoxOneCloudReceiver extends BroadcastReceiver {
      * 
      * @param context
      *            The Context in which the receiver is running.
-     * @param oneCloudInfo
-     *            OneCloud transaction object.
+     * @param oneCloudData
+     *            OneCloudData transaction object.
      */
     public abstract void onViewFileRequested(final Context context, final OneCloudData oneCloudData);
 
@@ -116,8 +128,8 @@ public abstract class BoxOneCloudReceiver extends BroadcastReceiver {
      * 
      * @param context
      *            The Context in which the receiver is running.
-     * @param oneCloudInfo
-     *            A token that must be passed back to Box. You will need this when trying to send data back to Box.
+     * @param oneCloudData
+     *            OneCloudData transaction object.
      */
     public abstract void onLaunchRequested(final Context context, final OneCloudData oneCloudData);
 }

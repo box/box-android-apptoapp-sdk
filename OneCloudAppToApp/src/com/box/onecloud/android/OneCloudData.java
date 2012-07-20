@@ -3,8 +3,13 @@ package com.box.onecloud.android;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Binder;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -22,13 +27,16 @@ public class OneCloudData implements Parcelable {
     /** Whether or not a handshake has taken place to verify the identity on the other side of the binder. */
     private boolean mHandshaken = false;
 
+    /** Box app version. Gets sent during handshake. */
+    private int mBoxAppVersionCode = 0;
+
     /**
      * Default constructor.
      * 
      * @param binder
      *            OneCloudInterface.
      */
-    public OneCloudData(OneCloudInterface binder) {
+    public OneCloudData(final OneCloudInterface binder) {
         mBinder = binder;
     }
 
@@ -38,8 +46,30 @@ public class OneCloudData implements Parcelable {
      * @param in
      *            Parcel.
      */
-    public OneCloudData(Parcel in) {
+    public OneCloudData(final Parcel in) {
         readFromParcel(in);
+    }
+
+    /**
+     * Get the token for this OneCloud transaction. This method requires the Box app to be at version 1.9.0 or greater.
+     * 
+     * @return OneCloud token, or -1 if this transaction is no longer valid. Valid tokens can be negative, except for -1 which denotes an invalid transaction.
+     * @throws NoSuchMethodException
+     *             Thrown if the Box app installed does not yet support this method (you should fail gracefully and/or ask the user to upgrade their Box app).
+     */
+    public long getToken() throws NoSuchMethodException {
+        if (mBoxAppVersionCode < 19000) {
+            throw new NoSuchMethodException("Requires Box app version 1.9.0 or later. Installed Box app is at " + mBoxAppVersionCode);
+        }
+        if (!isBinderValid()) {
+            return -1;
+        }
+        try {
+            return mBinder.getToken();
+        }
+        catch (RemoteException e) {
+            return -1;
+        }
     }
 
     /**
@@ -90,6 +120,95 @@ public class OneCloudData implements Parcelable {
         }
         try {
             return mBinder.getMimeType();
+        }
+        catch (RemoteException e) {
+            return null;
+        }
+    }
+
+    /**
+     * If this transaction relates to a file, this is the unique id of the file on Box. This method requires the Box app to be at version 1.9.0 or greater.
+     * 
+     * @return The file id of the file. Valid if value is greater than or equal to 0.
+     * @throws NoSuchMethodException
+     *             Thrown if the Box app installed does not yet support this method (you should fail gracefully and/or ask the user to upgrade their Box app).
+     */
+    public long getFileId() throws NoSuchMethodException {
+        if (mBoxAppVersionCode < 19000) {
+            throw new NoSuchMethodException("Requires Box app version 1.9.0 or later.");
+        }
+        if (!isBinderValid()) {
+            return -1;
+        }
+        try {
+            return mBinder.getFileId();
+        }
+        catch (RemoteException e) {
+            return -1;
+        }
+    }
+
+    /**
+     * If this transaction relates to a file, the parent folder id of the file. This method requires the Box app to be at version 1.9.0 or greater.
+     * 
+     * @return The folder id of the file. Valid if value is greater than or equal to 0.
+     * @throws NoSuchMethodException
+     *             Thrown if the Box app installed does not yet support this method (you should fail gracefully and/or ask the user to upgrade their Box app).
+     */
+    public long getFolderId() throws NoSuchMethodException {
+        if (mBoxAppVersionCode < 19000) {
+            throw new NoSuchMethodException("Requires Box app version 1.9.0 or later.");
+        }
+        if (!isBinderValid()) {
+            return -1;
+        }
+        try {
+            return mBinder.getFolderId();
+        }
+        catch (RemoteException e) {
+            return -1;
+        }
+    }
+
+    /**
+     * This is the folder path to the file on Box separated by "/". This method requires the Box app to be at version 1.9.0 or greater.
+     * 
+     * @return Folder path on box.
+     * @throws NoSuchMethodException
+     *             Thrown if the Box app installed does not yet support this method (you should fail gracefully and/or ask the user to upgrade their Box app).
+     */
+    public String getFolderPath() throws NoSuchMethodException {
+        if (mBoxAppVersionCode < 19000) {
+            throw new NoSuchMethodException("Requires Box app version 1.9.0 or later.");
+        }
+        if (!isBinderValid()) {
+            return null;
+        }
+        try {
+            return mBinder.getFolderPath();
+        }
+        catch (RemoteException e) {
+            return null;
+        }
+    }
+
+    /**
+     * This will be the username of the current box user if the current application has the privilege to know the user. Otherwise null. This method requires the
+     * Box app to be at version 1.9.0 or greater.
+     * 
+     * @return User name.
+     * @throws NoSuchMethodException
+     *             Thrown if the Box app installed does not yet support this method (you should fail gracefully and/or ask the user to upgrade their Box app).
+     */
+    public String getUsername() throws NoSuchMethodException {
+        if (mBoxAppVersionCode < 19000) {
+            throw new NoSuchMethodException("Requires Box app version 1.9.0 or later.");
+        }
+        if (!isBinderValid()) {
+            return null;
+        }
+        try {
+            return mBinder.getUsername();
         }
         catch (RemoteException e) {
             return null;
@@ -189,7 +308,7 @@ public class OneCloudData implements Parcelable {
             }
 
             @Override
-            public long skip(long byteCount) throws IOException {
+            public long skip(final long byteCount) throws IOException {
                 try {
                     return mBinder.iSkip(byteCount);
                 }
@@ -234,7 +353,7 @@ public class OneCloudData implements Parcelable {
             }
 
             @Override
-            public void write(byte[] buffer, int offset, int count) throws IOException {
+            public void write(final byte[] buffer, final int offset, final int count) throws IOException {
                 try {
                     mBinder.oWrite(buffer, offset, count);
                 }
@@ -244,7 +363,7 @@ public class OneCloudData implements Parcelable {
             }
 
             @Override
-            public void write(byte[] buffer) throws IOException {
+            public void write(final byte[] buffer) throws IOException {
                 try {
                     mBinder.oWriteAll(buffer);
                 }
@@ -254,7 +373,7 @@ public class OneCloudData implements Parcelable {
             }
 
             @Override
-            public void write(int oneByte) throws IOException {
+            public void write(final int oneByte) throws IOException {
                 try {
                     mBinder.oWriteOne(oneByte);
                 }
@@ -282,7 +401,7 @@ public class OneCloudData implements Parcelable {
         mBinder.uploadNewVersion(new FileUploadCallbacks.Stub() {
 
             @Override
-            public void onProgress(long bytesTransferred, long totalBytes) throws RemoteException {
+            public void onProgress(final long bytesTransferred, final long totalBytes) throws RemoteException {
                 if (listener != null) {
                     listener.onProgress(bytesTransferred, totalBytes);
                 }
@@ -322,7 +441,7 @@ public class OneCloudData implements Parcelable {
         mBinder.uploadNewVersionWithNewName(newFileName, new FileUploadCallbacks.Stub() {
 
             @Override
-            public void onProgress(long bytesTransferred, long totalBytes) throws RemoteException {
+            public void onProgress(final long bytesTransferred, final long totalBytes) throws RemoteException {
                 if (listener != null) {
                     listener.onProgress(bytesTransferred, totalBytes);
                 }
@@ -347,8 +466,8 @@ public class OneCloudData implements Parcelable {
     /**
      * Upload the contents of this OneCloudFile as a new file to Box.
      * 
-     * @param newFileName
-     *            The new file name that the file will take on in Box.
+     * @param suggestedFileName
+     *            The file name that will be suggested to the user for the new file.
      * @param listener
      *            An upload listener which you can use to monitor the upload progress. This can be null if you do not need to monitor the upload.
      * @throws RemoteException
@@ -361,7 +480,7 @@ public class OneCloudData implements Parcelable {
         mBinder.uploadNewFile(suggestedFileName, new FileUploadCallbacks.Stub() {
 
             @Override
-            public void onProgress(long bytesTransferred, long totalBytes) throws RemoteException {
+            public void onProgress(final long bytesTransferred, final long totalBytes) throws RemoteException {
                 if (listener != null) {
                     listener.onProgress(bytesTransferred, totalBytes);
                 }
@@ -387,7 +506,7 @@ public class OneCloudData implements Parcelable {
      * A listener through which you can monitor file uploads.
      * 
      */
-    public static interface UploadListener {
+    public interface UploadListener {
 
         /**
          * Called during file upload. For example you could use this to draw a progress bar.
@@ -414,6 +533,7 @@ public class OneCloudData implements Parcelable {
      * Laucnh the Box app.
      * 
      * @throws RemoteException
+     *             Thrown if the connection to Box is no longer active.
      */
     public void launch() throws RemoteException {
         if (!isBinderValid()) {
@@ -428,9 +548,10 @@ public class OneCloudData implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
+    public void writeToParcel(final Parcel dest, final int flags) {
         dest.writeStrongBinder(mBinder.asBinder());
         dest.writeByte((byte) (mHandshaken ? 1 : 0));
+        dest.writeInt(mBoxAppVersionCode);
     }
 
     /**
@@ -439,9 +560,10 @@ public class OneCloudData implements Parcelable {
      * @param in
      *            Parcel.
      */
-    private void readFromParcel(Parcel in) {
+    private void readFromParcel(final Parcel in) {
         mBinder = OneCloudInterface.Stub.asInterface(in.readStrongBinder());
         mHandshaken = in.readByte() == 1;
+        mBoxAppVersionCode = in.readInt();
     }
 
     /**
@@ -450,12 +572,12 @@ public class OneCloudData implements Parcelable {
     public static final Parcelable.Creator<OneCloudData> CREATOR = new Parcelable.Creator<OneCloudData>() {
 
         @Override
-        public OneCloudData createFromParcel(Parcel in) {
+        public OneCloudData createFromParcel(final Parcel in) {
             return new OneCloudData(in);
         }
 
         @Override
-        public OneCloudData[] newArray(int size) {
+        public OneCloudData[] newArray(final int size) {
             return new OneCloudData[size];
         }
     };
@@ -467,6 +589,14 @@ public class OneCloudData implements Parcelable {
      *            Context.
      */
     public void sendHandshake(final Context context) {
+        try {
+            mBoxAppVersionCode = context.getPackageManager().getPackageInfo(BoxOneCloudReceiver.BOX_PACKAGE_NAME, 0).versionCode;
+        }
+        catch (NameNotFoundException e1) {
+            // e1.printStackTrace();
+            return;
+        }
+
         HandshakeCallback handshake = new HandshakeCallback.Stub() {
 
             @Override
@@ -486,11 +616,191 @@ public class OneCloudData implements Parcelable {
     }
 
     /**
+     * Notify Box that the underlying data for this OneCloud transaction has changed. You normally do not need to call this except for scenarios where you have
+     * modified the data through your own Box platform calls with your own API key.
+     * 
+     * @throws RemoteException
+     *             Thrown if the connection to Box is no longer active.
+     */
+    public void notifyDataChanged() throws RemoteException {
+        if (!isBinderValid()) {
+            return;
+        }
+        mBinder.notifyDataChanged();
+    }
+
+    /**
+     * Create a new OneCloudData object that will allow you to create a new file in the same directory on Box. This method should not be called on the UI thread
+     * since it may take a few seconds to complete. This method requires the Box app to be at version 1.9.0 or greater.
+     * 
+     * @param context
+     *            App context.
+     * @return Sibling OneCloudData object, or null if there was an error.
+     * @throws NoSuchMethodException
+     *             Thrown if the Box app installed does not yet support this method (you should fail gracefully and/or ask the user to upgrade their Box app).
+     */
+    public OneCloudData createNewSibling(final Context context) throws NoSuchMethodException {
+        try {
+            int boxAppVersionCode = context.getPackageManager().getPackageInfo(BoxOneCloudReceiver.BOX_PACKAGE_NAME, 0).versionCode;
+            if (boxAppVersionCode < 19000) {
+                throw new NoSuchMethodException("Requires Box app version 1.9.0 or later.");
+            }
+        }
+        catch (NameNotFoundException e1) {
+            // e.printStackTrace();
+            return null;
+        }
+
+        Intent intent = new Intent(BoxOneCloudReceiver.ACTION_BOX_CREATE_SIBLING_ONE_CLOUD_DATA);
+        intent.setComponent(new ComponentName(BoxOneCloudReceiver.BOX_PACKAGE_NAME, BoxOneCloudReceiver.BOX_RECEIVER_CLASS_NAME));
+        intent.putExtra(BoxOneCloudReceiver.EXTRA_ONE_CLOUD_TOKEN, getToken());
+
+        // Used to wait for the Box app to send us back the OneCloudData object.
+        final CustomCountDownLatch countDownLatch = new CustomCountDownLatch(1);
+
+        // Send a handshake along with the broadcast.
+        OneCloudHandshakeInterface.Stub handshake = new OneCloudHandshakeInterface.Stub() {
+
+            @Override
+            public void sendHandshake(final HandshakeCallback handshakeCallback) throws RemoteException {
+                String[] packages = context.getPackageManager().getPackagesForUid(Binder.getCallingUid());
+                if (packages.length == 1 && packages[0].equals(BoxOneCloudReceiver.BOX_PACKAGE_NAME)) {
+                    handshakeCallback.onShake();
+                }
+            }
+
+            @Override
+            public void sendOneCloudData(final OneCloudInterface oneCloudInterface) throws RemoteException {
+                OneCloudData ocd = new OneCloudData(oneCloudInterface);
+                ocd.sendHandshake(context);
+                countDownLatch.attachOneCloudData(ocd);
+                countDownLatch.countDown();
+            }
+        };
+        intent
+            .putExtra(BoxOneCloudReceiver.EXTRA_ONE_CLOUD_HANDSHAKE, new OneCloudHandshake(OneCloudHandshakeInterface.Stub.asInterface(handshake.asBinder())));
+        context.sendBroadcast(intent);
+
+        try {
+            countDownLatch.await(3, TimeUnit.SECONDS);
+            return countDownLatch.getOneCloudData();
+        }
+        catch (InterruptedException e) {
+            // e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * CountDownLatch that allows for OneCloudData objects to be attached to it. Useful when waiting for binder callbacks to send us data.
+     * 
+     */
+    private static class CustomCountDownLatch extends CountDownLatch {
+
+        /** OneCloudData object. */
+        private OneCloudData mOcd;
+
+        /**
+         * Default constructor.
+         * 
+         * @param count
+         *            Latch count.
+         */
+        public CustomCountDownLatch(int count) {
+            super(count);
+        }
+
+        /**
+         * Attach a OneCloudData object.
+         * 
+         * @param ocd
+         *            OneCloudData object.
+         */
+        public void attachOneCloudData(OneCloudData ocd) {
+            mOcd = ocd;
+        }
+
+        /**
+         * Get an attached OneCloudData object.
+         * 
+         * @return OneCloudData object.
+         */
+        public OneCloudData getOneCloudData() {
+            return mOcd;
+        }
+    }
+
+    /**
      * Check whether the binder interface back to Box is valid.
      * 
      * @return True if valid, false otherwise.
      */
     private boolean isBinderValid() {
         return mHandshaken && mBinder != null && mBinder.asBinder().isBinderAlive();
+    }
+
+    /**
+     * Restore a OneCloudData object through a token. In general you should not need this since OneCloudData is Parcelable and can be persisted through methods
+     * such as Activity.onSavedInstanceState. Use this only if you must persist OneCloud transactions through scenarios where mechanisms such as
+     * Activity.onSavedInstanceState do not suffice. This method should not be called on the UI thread since it may take a few seconds to complete. This method
+     * requires the Box app to be at version 1.9.0 or greater.
+     * 
+     * @param context
+     *            Context.
+     * @param token
+     *            OneCloud token. This is not arbitrary. You must have obtained this by getting the token of a OneCloudData object you had in the past.
+     * @return OneCloudData object or null of one could not be retrieved.
+     * @throws NoSuchMethodException
+     *             Thrown if the Box app installed does not yet support this method (you should fail gracefully and/or ask the user to upgrade their Box app).
+     */
+    public static OneCloudData restoreFromToken(final Context context, final long token) throws NoSuchMethodException {
+        try {
+            int boxAppVersionCode = context.getPackageManager().getPackageInfo(BoxOneCloudReceiver.BOX_PACKAGE_NAME, 0).versionCode;
+            if (boxAppVersionCode < 19000) {
+                throw new NoSuchMethodException("Requires Box app version 1.9.0 or later.");
+            }
+        }
+        catch (NameNotFoundException e1) {
+            // e.printStackTrace();
+            return null;
+        }
+
+        Intent intent = new Intent(BoxOneCloudReceiver.ACTION_BOX_RESTORE_ONE_CLOUD_DATA);
+        intent.setComponent(new ComponentName(BoxOneCloudReceiver.BOX_PACKAGE_NAME, BoxOneCloudReceiver.BOX_RECEIVER_CLASS_NAME));
+        intent.putExtra(BoxOneCloudReceiver.EXTRA_ONE_CLOUD_TOKEN, token);
+
+        // Used to wait for the Box app to send us back the OneCloudData object.
+        final CustomCountDownLatch countDownLatch = new CustomCountDownLatch(1);
+
+        // Send a handshake along with the broadcast.
+        OneCloudHandshakeInterface.Stub handshake = new OneCloudHandshakeInterface.Stub() {
+
+            @Override
+            public void sendHandshake(final HandshakeCallback handshakeCallback) throws RemoteException {
+                String[] packages = context.getPackageManager().getPackagesForUid(Binder.getCallingUid());
+                if (packages.length == 1 && packages[0].equals(BoxOneCloudReceiver.BOX_PACKAGE_NAME)) {
+                    handshakeCallback.onShake();
+                }
+            }
+
+            @Override
+            public void sendOneCloudData(final OneCloudInterface oneCloudInterface) throws RemoteException {
+                OneCloudData ocd = new OneCloudData(oneCloudInterface);
+                ocd.sendHandshake(context);
+                countDownLatch.attachOneCloudData(ocd);
+                countDownLatch.countDown();
+            }
+        };
+        intent
+            .putExtra(BoxOneCloudReceiver.EXTRA_ONE_CLOUD_HANDSHAKE, new OneCloudHandshake(OneCloudHandshakeInterface.Stub.asInterface(handshake.asBinder())));
+        context.sendBroadcast(intent);
+        try {
+            countDownLatch.await(3, TimeUnit.SECONDS);
+            return countDownLatch.getOneCloudData();
+        }
+        catch (InterruptedException e) {
+            // e.printStackTrace();
+        }
+        return null;
     }
 }
