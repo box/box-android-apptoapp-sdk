@@ -193,6 +193,9 @@ public class BoxFileDownload {
             else if (str.equals(FileDownloadListener.STATUS_DOWNLOAD_RESTRICTED)) {
                 handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_RESTRICTED);
             }
+            else if (mBytesTransferred < 0){
+                handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_FAIL);
+            }
             else {
                 // No error detected.
                 for (int i = 0; i < destinationOutputStreams.length; i++) {
