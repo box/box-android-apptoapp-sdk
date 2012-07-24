@@ -18,6 +18,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -160,6 +161,7 @@ public class BoxFileDownload {
         httpGet.setHeader("Connection", "close");
         httpGet.setHeader("Accept-Language", BoxConfig.getInstance().getAcceptLanguage());
         HttpResponse httpResponse = httpclient.execute(httpGet);
+        
         int responseCode = httpResponse.getStatusLine().getStatusCode();
 
         if (BoxConfig.getInstance().getHttpLoggingEnabled()) {
@@ -237,8 +239,12 @@ public class BoxFileDownload {
         else {
             handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_FAIL);
         }
-
+        httpResponse.getEntity().consumeContent();
+        if (httpclient != null && httpclient.getConnectionManager() != null){
+            httpclient.getConnectionManager().closeIdleConnections(500, TimeUnit.MILLISECONDS);                
+        }        
         is.close();
+
 
         return handler;
     }

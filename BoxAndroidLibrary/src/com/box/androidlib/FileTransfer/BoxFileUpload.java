@@ -22,6 +22,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.nio.charset.Charset;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -204,6 +205,11 @@ public class BoxFileUpload {
             }
             else {
                 throw e;
+            }
+        }
+        finally {
+            if (httpClient != null && httpClient.getConnectionManager() != null){
+                httpClient.getConnectionManager().closeIdleConnections(500, TimeUnit.MILLISECONDS);                
             }
         }
         if (BoxConfig.getInstance().getHttpLoggingEnabled()) {
