@@ -796,7 +796,7 @@ public class BoxSynchronous {
             }
         }
         else {
-            builder.appendQueryParameter("emails", "");
+            builder.appendQueryParameter("emails[]", "");
         }
         saxRequest(parser, builder.build());
         return parser;
