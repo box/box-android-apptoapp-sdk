@@ -161,7 +161,7 @@ public class BoxFileDownload {
         httpGet.setHeader("Connection", "close");
         httpGet.setHeader("Accept-Language", BoxConfig.getInstance().getAcceptLanguage());
         HttpResponse httpResponse = httpclient.execute(httpGet);
-        
+
         int responseCode = httpResponse.getStatusLine().getStatusCode();
 
         if (BoxConfig.getInstance().getHttpLoggingEnabled()) {
@@ -186,8 +186,10 @@ public class BoxFileDownload {
             // Grab the first 100 bytes and check for an error string.
             // Not a good way for the server to respond with errors but that's the way it is for now.
             final byte[] errorCheckBuffer = new byte[FILE_ERROR_SIZE];
-            mBytesTransferred = 0;
-            mBytesTransferred += is.read(errorCheckBuffer);
+            // Three cases here: error, no error && file size == 0, no error && file size > 0.
+            // The first case will be handled by parsing the error check buffer. The second case will result in mBytesTransferred == 0,
+            // no real bytes will be transferred but we still treat as success case. The third case is normal success case.
+            mBytesTransferred = Math.max(0, is.read(errorCheckBuffer));
             final String str = new String(errorCheckBuffer).trim();
             if (str.equals(FileDownloadListener.STATUS_DOWNLOAD_WRONG_AUTH_TOKEN)) {
                 handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_WRONG_AUTH_TOKEN);
@@ -195,31 +197,31 @@ public class BoxFileDownload {
             else if (str.equals(FileDownloadListener.STATUS_DOWNLOAD_RESTRICTED)) {
                 handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_RESTRICTED);
             }
-            else if (mBytesTransferred < 0){
-                handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_FAIL);
-            }
+            // No error detected
             else {
-                // No error detected.
-                for (int i = 0; i < destinationOutputStreams.length; i++) {
-                    destinationOutputStreams[i].write(errorCheckBuffer, 0, (int) mBytesTransferred); // Make sure we don't lose that first 100 bytes.
-                }
-
-                // Read the rest of the stream and write to the destination OutputStream.
-                final byte[] buffer = new byte[DOWNLOAD_BUFFER_SIZE];
-                int bufferLength = 0;
-                long lastOnProgressPost = 0;
-                while (!Thread.currentThread().isInterrupted() && (bufferLength = is.read(buffer)) > 0) {
+                // Copy the file to destination if > 0 bytes of file transferred.
+                if (mBytesTransferred > 0) {
                     for (int i = 0; i < destinationOutputStreams.length; i++) {
-                        destinationOutputStreams[i].write(buffer, 0, bufferLength);
+                        destinationOutputStreams[i].write(errorCheckBuffer, 0, (int) mBytesTransferred); // Make sure we don't lose that first 100 bytes.
                     }
-                    mBytesTransferred += bufferLength;
-                    long currTime = SystemClock.uptimeMillis();
-                    if (mListener != null && mHandler != null && currTime - lastOnProgressPost > ON_PROGRESS_UPDATE_THRESHOLD) {
-                        lastOnProgressPost = currTime;
-                        mHandler.post(mOnProgressRunnable);
+
+                    // Read the rest of the stream and write to the destination OutputStream.
+                    final byte[] buffer = new byte[DOWNLOAD_BUFFER_SIZE];
+                    int bufferLength = 0;
+                    long lastOnProgressPost = 0;
+                    while (!Thread.currentThread().isInterrupted() && (bufferLength = is.read(buffer)) > 0) {
+                        for (int i = 0; i < destinationOutputStreams.length; i++) {
+                            destinationOutputStreams[i].write(buffer, 0, bufferLength);
+                        }
+                        mBytesTransferred += bufferLength;
+                        long currTime = SystemClock.uptimeMillis();
+                        if (mListener != null && mHandler != null && currTime - lastOnProgressPost > ON_PROGRESS_UPDATE_THRESHOLD) {
+                            lastOnProgressPost = currTime;
+                            mHandler.post(mOnProgressRunnable);
+                        }
                     }
+                    mHandler.post(mOnProgressRunnable);
                 }
-                mHandler.post(mOnProgressRunnable);
                 for (int i = 0; i < destinationOutputStreams.length; i++) {
                     destinationOutputStreams[i].close();
                 }
@@ -240,11 +242,10 @@ public class BoxFileDownload {
             handler.setStatus(FileDownloadListener.STATUS_DOWNLOAD_FAIL);
         }
         httpResponse.getEntity().consumeContent();
-        if (httpclient != null && httpclient.getConnectionManager() != null){
-            httpclient.getConnectionManager().closeIdleConnections(500, TimeUnit.MILLISECONDS);                
-        }        
+        if (httpclient != null && httpclient.getConnectionManager() != null) {
+            httpclient.getConnectionManager().closeIdleConnections(500, TimeUnit.MILLISECONDS);
+        }
         is.close();
-
 
         return handler;
     }
