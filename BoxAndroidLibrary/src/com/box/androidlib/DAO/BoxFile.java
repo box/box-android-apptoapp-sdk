@@ -536,5 +536,8 @@ public class BoxFile extends DAO {
         else if (key.equals("comment_count")) {
             setCommentCount(BoxUtils.parseInt(value));
         }
+        else if (key.equals("description")) {
+            setDescription(value);
+        }
     }
 }
