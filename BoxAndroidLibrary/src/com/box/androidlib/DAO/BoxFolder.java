@@ -735,5 +735,8 @@ public class BoxFolder extends DAO {
         else if (key.equals("folder_path_ids")) {
             setFolderPathIds(value);
         }
+        else if (key.equals("description")) {
+            setDescription(value);
+        }
     }
 }
