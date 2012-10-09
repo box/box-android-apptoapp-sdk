@@ -26,7 +26,22 @@ public interface RenameListener extends ResponseListener {
 
     /** A file of the same name already exists in the same folder. */
     String STATUS_E_FILENAME_IN_USE = "e_filename_in_use";
+    
+    /** The filename contains invalid characters. */
+    String STATUS_E_INVALID_FILENAME = "e_invalid_filename";
 
+    /** The object name exceeds the number of characters it can have for it’s given type (100 for folders, 255 for files). */
+    String STATUS_E_FILENAME_TOO_BIG = "e_filename_too_big";
+
+    /**  The target id either does not exist or is invalid. */
+    String STATUS_E_NO_TARGET = "e_no_target";
+
+    /** A new name was not provided. */
+    String STATUS_E_NO_NAME = "e_no_name";
+
+    /** The user does not have the necessary permissions to perform this action. */
+    String STATUS_E_NO_ACCESS = "e_no_access";
+    
     /**
      * For all other errors. Verify that your target is 'file' or 'folder', that
      * your target_id is a valid item id in the user's account, and that the new
