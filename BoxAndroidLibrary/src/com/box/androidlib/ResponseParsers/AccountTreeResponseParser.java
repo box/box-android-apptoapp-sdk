@@ -17,6 +17,7 @@ import org.xml.sax.SAXException;
 import com.box.androidlib.Box;
 import com.box.androidlib.DAO.BoxFile;
 import com.box.androidlib.DAO.BoxFolder;
+import com.box.androidlib.DAO.WebLink;
 import com.box.androidlib.Utils.BoxUtils;
 
 /**
@@ -38,7 +39,12 @@ public class AccountTreeResponseParser extends DefaultResponseParser {
      * The BoxFile currently being parsed.
      */
     private BoxFile mBoxFile = null;
-
+    /**
+     * The WebLink currently being parsed.
+     */
+    private WebLink mWebLink = null;
+    
+    
     /**
      * Enum definition to indicate whether we are currently parsing a file or folder element.
      */
@@ -46,7 +52,9 @@ public class AccountTreeResponseParser extends DefaultResponseParser {
         /** Indicates that we are processing a file. */
         FILE,
         /** Indicates that we are processing a folder. */
-        FOLDER
+        FOLDER,
+        /** Indicates that we are processing a weblink. */
+        WEBLINK
     };
 
     /**
@@ -96,7 +104,22 @@ public class AccountTreeResponseParser extends DefaultResponseParser {
                 else if (mFileOrFolder == FileOrFolder.FOLDER) {
                     mCurrFolder.getTagIds().add(BoxUtils.parseLong(attributes.getValue("id")));
                 }
+                else if (mFileOrFolder == FileOrFolder.WEBLINK) {
+                    mWebLink.getTagIds().add(BoxUtils.parseLong(attributes.getValue("id")));
+                }
             }
+            else if (localName.equals("web_link")) {                
+                mFileOrFolder = FileOrFolder.WEBLINK;
+                mWebLink = new WebLink();
+                for (int i = 0; i < attributes.getLength(); i++) {
+                    mWebLink.parseAttribute(attributes.getLocalName(i), attributes.getValue(i));
+                }
+                mCurrFolder.addChildWebLink(mWebLink);
+                mWebLink.setFolder(mCurrFolder);
+                mWebLink.setFolderId(mCurrFolder.getId());
+
+            }
+
         }
         catch (IllegalAccessException e) {
             e.printStackTrace();

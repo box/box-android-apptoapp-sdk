@@ -132,6 +132,10 @@ public class BoxFolder extends DAO {
      * List of tag ids in the folder.
      */
     protected ArrayList<Long> mTagIds = new ArrayList<Long>();
+    /**
+     * List of web links in the folder.
+     */
+    protected ArrayList<WebLink> mWebLinksInFolder = new ArrayList<WebLink>();
 
     // Setters
 
@@ -598,6 +602,15 @@ public class BoxFolder extends DAO {
     }
 
     /**
+     * Get list of web links in the folder.
+     * 
+     * @return list of files in folder
+     */
+    public List<? extends WebLink> getWebLinksInFolder() {
+        return mWebLinksInFolder;
+    }
+
+    /**
      * Add a child file to this folder. Response parsers always use this method to add child files to the folder rather than directly adding to the list through
      * getFilesInFolder().add(). So if you want to override how the list of child files are populated, you can override this method in your own custom BoxFolder
      * class.
@@ -607,6 +620,33 @@ public class BoxFolder extends DAO {
      */
     public void addChildFile(final BoxFile boxFile) {
         mFilesInFolder.add(boxFile);
+    }
+
+    /**
+     * Add a child web link to this folder. Response parsers always use this method to add child files to the folder rather than directly adding to the list
+     * through getFilesInFolder().add(). So if you want to override how the list of child files are populated, you can override this method in your own custom
+     * BoxFolder class.
+     * 
+     * @param webLink
+     *            The web link to add as a child of this folder.
+     */
+    public void addChildWebLink(final WebLink webLink) {
+        mWebLinksInFolder.add(webLink);
+    }
+
+    /**
+     * 
+     * @param webLinkId
+     *            the web link id to be removed from the folder if a link with such an id exists.
+     */
+    public void removeChildWebLink(final long webLinkId) {
+        for (int i = 0; i < mWebLinksInFolder.size(); i++) {
+            if (mWebLinksInFolder.get(i).getId() == webLinkId) {
+                mWebLinksInFolder.remove(i);
+                return;
+            }
+        }
+
     }
 
     /**

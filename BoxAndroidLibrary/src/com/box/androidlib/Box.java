@@ -97,6 +97,10 @@ public class Box {
      */
     public static final String TYPE_FOLDER = "folder";
     /**
+     * Used in a variety of API methods to indicate that the type of object being acted on is a folder.
+     */
+    public static final String TYPE_WEB_LINK = "web_link";
+    /**
      * Used in API methods such as addComment.
      */
     public static final String TYPE_COMMENT = "comment";
