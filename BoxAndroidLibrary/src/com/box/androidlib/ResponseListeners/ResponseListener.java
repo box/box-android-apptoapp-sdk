@@ -24,6 +24,13 @@ public interface ResponseListener {
     String STATUS_APPLICATION_RESTRICTED = "application_restricted";
     /** User is not logged in. Auth token is not valid. */
     String STATUS_NOT_LOGGED_IN = "not_logged_in";
+
+    /** Operation was not successful for since url invalid. */
+    String STATUS_INVALID_URL = "InvalidURL";
+
+    /** Operation was not successful since application has been disabled. */
+    String STATUS_APPLICATION_DISABLED = "application_disabled";
+
     /**
      * Request was not completed because server is temporarily busy/unavailable. If you receive this, you should probably show the user a message saying that
      * the service is temporarily unavailable but that they should try the request again later.

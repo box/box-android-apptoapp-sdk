@@ -32,6 +32,12 @@ public interface RegisterNewUserListener extends ResponseListener {
     /** E-mail already registered. */
     String STATUS_EMAIL_ALREADY_REGISTERED = "email_already_registered";
     
+    /** Operation was not successful beacuase enterprise roll in required for this account. */
+    String STATUS_E_REGISTER_ENTERPRISE_ROLL_IN_REQUIRED = "e_register_enterprise_roll_in_required";
+        
+    /** Operation was not successful since email confirmation is needed. */
+    String STATUS_EMAIL_CONFIRMATION_NEEDED = "e_email_confirmation_needed";
+    
     /** Operation was not successful for some other reason. */
     String STATUS_E_REGISTER = "e_register";
     
