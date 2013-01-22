@@ -1,7 +1,6 @@
 package com.box.androidlib.ResponseParsers;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -15,7 +14,7 @@ import com.box.androidlib.DAO.Collaboration;
 public class CollaborationsResponseParser extends DefaultResponseParser {
 
     /** List of collaborations to return. */
-    private final List<Collaboration> mCollaborations = new ArrayList<Collaboration>();
+    private final ArrayList<Collaboration> mCollaborations = new ArrayList<Collaboration>();
 
     /** The current Collaboration item being parsed. */
     private Collaboration collaboration;
@@ -45,7 +44,7 @@ public class CollaborationsResponseParser extends DefaultResponseParser {
      * 
      * @return List of collaborations.
      */
-    public List<Collaboration> getCollaborations() {
+    public ArrayList<Collaboration> getCollaborations() {
         return mCollaborations;
     }
 }

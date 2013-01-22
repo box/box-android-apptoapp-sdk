@@ -52,6 +52,7 @@ import com.box.androidlib.ResponseParsers.CommentsResponseParser;
 import com.box.androidlib.ResponseParsers.DefaultResponseParser;
 import com.box.androidlib.ResponseParsers.FileResponseParser;
 import com.box.androidlib.ResponseParsers.FolderResponseParser;
+import com.box.androidlib.ResponseParsers.ItemRolesParser;
 import com.box.androidlib.ResponseParsers.PublicShareResponseParser;
 import com.box.androidlib.ResponseParsers.SearchResponseParser;
 import com.box.androidlib.ResponseParsers.TagsResponseParser;
@@ -483,13 +484,13 @@ public class BoxSynchronous {
      *            {@link com.box.androidlib.Box#SEARCH_PARAM_SHOW_PATH}
      * @return the response parser used to capture the data of interest from the response. See the doc for the specific parser type returned to see what data is
      *         now available. All parsers implement getStatus() at a minimum.
-     * @param subfolder_ids
-     *            Array of subfolder_ids to restrict the scope of the search to.
+     * @param subfolderIds
+     *            Array of subfolder ids to restrict the scope of the search to.
      * @throws IOException
      *             Can be thrown if there is no connection, or if some other connection problem exists.
      */
     public final SearchResponseParser search(final String authToken, final String query, final String sort, final int page, final int perPage,
-        final String direction, final String[] params, final long[] subfolder_ids) throws IOException {
+        final String direction, final String[] params, final long[] subfolderIds) throws IOException {
         final SearchResponseParser parser = new SearchResponseParser();
         final Uri.Builder builder = BoxUriBuilder.getBuilder(mApiKey, authToken, "search").appendQueryParameter("query", query)
             .appendQueryParameter("sort", sort).appendQueryParameter("page", String.valueOf(page)).appendQueryParameter("per_page", String.valueOf(perPage))
@@ -499,9 +500,9 @@ public class BoxSynchronous {
                 builder.appendQueryParameter("params[" + i + "]", params[i]);
             }
         }
-        if (subfolder_ids != null) {
-            for (int i = 0; i < subfolder_ids.length; i++) {
-                builder.appendQueryParameter("subfolder_ids[]", Long.toString(subfolder_ids[i]));
+        if (subfolderIds != null) {
+            for (int i = 0; i < subfolderIds.length; i++) {
+                builder.appendQueryParameter("subfolder_ids[]", Long.toString(subfolderIds[i]));
             }
         }
         saxRequest(parser, builder.build());
@@ -918,6 +919,28 @@ public class BoxSynchronous {
         }
         saxRequest(parser, builder.build());
         return parser.getStatus();
+    }
+
+    /**
+     * Get the possible roles that can be given to a collaborator when an item is collaborated.
+     * 
+     * @param authToken
+     *            The auth token retrieved through {@link BoxSynchronous#getAuthToken(String)}
+     * @param type
+     *            The type of item to be shared. Set to {@link com.box.androidlib.Box#TYPE_FILE} or {@link com.box.androidlib.Box#TYPE_FOLDER}
+     * @param targetId
+     *            The file_id or folder_id of the item
+     * @return the response parser used to capture the data of interest from the response. See the doc for the specific parser type returned to see what data is
+     *         now available. All parsers implement getStatus() at a minimum.
+     * @throws IOException
+     *             Can be thrown if there is no connection, or if some other connection problem exists.
+     */
+    public ItemRolesParser getItemRolesForItem(final String authToken, final String type, final long targetId) throws IOException {
+        final Uri.Builder builder = BoxUriBuilder.getBuilder(mApiKey, authToken, "get_item_roles_for_item").appendQueryParameter("target", type)
+            .appendQueryParameter("target_id", String.valueOf(targetId));
+        final ItemRolesParser parser = new ItemRolesParser();
+        saxRequest(parser, builder.build());
+        return parser;
     }
 
     /**
