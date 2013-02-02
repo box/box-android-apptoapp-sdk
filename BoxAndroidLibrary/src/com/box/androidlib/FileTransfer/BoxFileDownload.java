@@ -18,6 +18,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.http.Header;
@@ -25,6 +26,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpProtocolParams;
 
 import android.net.Uri;
@@ -139,6 +141,13 @@ public class BoxFileDownload {
         builder.appendPath(String.valueOf(fileId));
         if (versionId != null) {
             builder.appendPath(String.valueOf(versionId));
+        }
+
+        List<BasicNameValuePair> customQueryParams = BoxConfig.getInstance().getCustomQueryParameters();
+        if (customQueryParams != null && customQueryParams.size() > 0) {
+            for (BasicNameValuePair param : customQueryParams) {
+                builder.appendQueryParameter(param.getName(), param.getValue());
+            }
         }
 
         // We normally prefer to use HttpUrlConnection, however that appears to fail for certain types of files. For downloads, it appears DefaultHttpClient

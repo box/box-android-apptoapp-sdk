@@ -33,6 +33,7 @@ import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.http.message.BasicNameValuePair;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -1194,15 +1195,25 @@ public class BoxSynchronous {
      *             Can be thrown if there is no connection, or if some other connection problem exists.
      */
     protected static void saxRequest(final DefaultResponseParser parser, final Uri uri) throws IOException {
+        Uri theUri = uri;
+        List<BasicNameValuePair> customQueryParams = BoxConfig.getInstance().getCustomQueryParameters();
+        if (customQueryParams != null && customQueryParams.size() > 0) {
+            Uri.Builder builder = theUri.buildUpon();
+            for (BasicNameValuePair param : customQueryParams) {
+                builder.appendQueryParameter(param.getName(), param.getValue());
+            }
+            theUri = builder.build();
+        }
+
         try {
             final XMLReader xmlReader = SAXParserFactory.newInstance().newSAXParser().getXMLReader();
             xmlReader.setContentHandler(parser);
-            HttpURLConnection conn = (HttpURLConnection) (new URL(uri.toString())).openConnection();
+            HttpURLConnection conn = (HttpURLConnection) (new URL(theUri.toString())).openConnection();
             conn.setRequestProperty("User-Agent", BoxConfig.getInstance().getUserAgent());
             conn.setRequestProperty("Accept-Language", BoxConfig.getInstance().getAcceptLanguage());
             conn.setConnectTimeout(BoxConfig.getInstance().getConnectionTimeOut());
             if (BoxConfig.getInstance().getHttpLoggingEnabled()) {
-                DevUtils.logcat("URL: " + uri.toString());
+                DevUtils.logcat("URL: " + theUri.toString());
                 Iterator<String> keys = conn.getRequestProperties().keySet().iterator();
                 while (keys.hasNext()) {
                     String key = keys.next();

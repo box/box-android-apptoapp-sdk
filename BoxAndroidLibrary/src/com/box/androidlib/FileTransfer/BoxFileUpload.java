@@ -22,6 +22,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -35,6 +36,7 @@ import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 import org.w3c.dom.Document;
@@ -148,6 +150,14 @@ public class BoxFileUpload {
         else if (action.equals(Box.UPLOAD_ACTION_NEW_COPY)) {
             builder.appendQueryParameter("new_file_name", filename);
         }
+
+        List<BasicNameValuePair> customQueryParams = BoxConfig.getInstance().getCustomQueryParameters();
+        if (customQueryParams != null && customQueryParams.size() > 0) {
+            for (BasicNameValuePair param : customQueryParams) {
+                builder.appendQueryParameter(param.getName(), param.getValue());
+            }
+        }
+
         if (BoxConfig.getInstance().getHttpLoggingEnabled()) {
             DevUtils.logcat("Uploading : " + filename + "  Action= " + action + " DestinionID + " + destinationId);
             DevUtils.logcat("Upload URL : " + builder.build().toString());
@@ -208,8 +218,8 @@ public class BoxFileUpload {
             }
         }
         finally {
-            if (httpClient != null && httpClient.getConnectionManager() != null){
-                httpClient.getConnectionManager().closeIdleConnections(500, TimeUnit.MILLISECONDS);                
+            if (httpClient != null && httpClient.getConnectionManager() != null) {
+                httpClient.getConnectionManager().closeIdleConnections(500, TimeUnit.MILLISECONDS);
             }
         }
         if (BoxConfig.getInstance().getHttpLoggingEnabled()) {
