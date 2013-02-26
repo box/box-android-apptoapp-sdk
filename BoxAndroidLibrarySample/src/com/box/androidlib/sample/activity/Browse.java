@@ -122,61 +122,62 @@ public class Browse extends ListActivity {
      */
     private void refresh() {
         final Box box = Box.getInstance(Constants.API_KEY);
-        box.getAccountTree(authToken, folderId, new String[] {Box.PARAM_ONELEVEL}, new GetAccountTreeListener() {
+        box.getAccountTree(authToken, folderId, new String[] {Box.PARAM_ONELEVEL, Box.PARAM_SHOW_PATH_IDS, Box.PARAM_SHOW_PATH_NAMES},
+            new GetAccountTreeListener() {
 
-            @Override
-            public void onComplete(BoxFolder boxFolder, String status) {
-                if (!status.equals(GetAccountTreeListener.STATUS_LISTING_OK)) {
-                    Toast.makeText(getApplicationContext(), "There was an error.", Toast.LENGTH_SHORT).show();
-                    finish();
-                    return;
+                @Override
+                public void onComplete(BoxFolder boxFolder, String status) {
+                    if (!status.equals(GetAccountTreeListener.STATUS_LISTING_OK)) {
+                        Toast.makeText(getApplicationContext(), "There was an error.", Toast.LENGTH_SHORT).show();
+                        finish();
+                        return;
+                    }
+
+                    /**
+                     * Box.getAccountTree() was successful. boxFolder contains a list of subfolders and files. Shove those into an array so that our list
+                     * adapter displays them.
+                     */
+
+                    items = new TreeListItem[boxFolder.getFoldersInFolder().size() + boxFolder.getFilesInFolder().size()];
+
+                    int i = 0;
+
+                    Iterator<? extends BoxFolder> foldersIterator = boxFolder.getFoldersInFolder().iterator();
+                    while (foldersIterator.hasNext()) {
+                        BoxFolder subfolder = foldersIterator.next();
+                        TreeListItem item = new TreeListItem();
+                        item.id = subfolder.getId();
+                        item.name = subfolder.getFolderName();
+                        item.type = TreeListItem.TYPE_FOLDER;
+                        item.folder = subfolder;
+                        item.updated = subfolder.getUpdated();
+                        items[i] = item;
+                        i++;
+                    }
+
+                    Iterator<? extends BoxFile> filesIterator = boxFolder.getFilesInFolder().iterator();
+                    while (filesIterator.hasNext()) {
+                        BoxFile boxFile = filesIterator.next();
+                        TreeListItem item = new TreeListItem();
+                        item.id = boxFile.getId();
+                        item.name = boxFile.getFileName();
+                        item.type = TreeListItem.TYPE_FILE;
+                        item.file = boxFile;
+                        item.updated = boxFile.getUpdated();
+                        items[i] = item;
+                        i++;
+                    }
+
+                    adapter.notifyDataSetChanged();
+                    ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
+                    progressBar.setVisibility(View.GONE);
                 }
 
-                /**
-                 * Box.getAccountTree() was successful. boxFolder contains a list of subfolders and files. Shove those into an array so that our list adapter
-                 * displays them.
-                 */
-
-                items = new TreeListItem[boxFolder.getFoldersInFolder().size() + boxFolder.getFilesInFolder().size()];
-
-                int i = 0;
-
-                Iterator<? extends BoxFolder> foldersIterator = boxFolder.getFoldersInFolder().iterator();
-                while (foldersIterator.hasNext()) {
-                    BoxFolder subfolder = foldersIterator.next();
-                    TreeListItem item = new TreeListItem();
-                    item.id = subfolder.getId();
-                    item.name = subfolder.getFolderName();
-                    item.type = TreeListItem.TYPE_FOLDER;
-                    item.folder = subfolder;
-                    item.updated = subfolder.getUpdated();
-                    items[i] = item;
-                    i++;
+                @Override
+                public void onIOException(final IOException e) {
+                    Toast.makeText(getApplicationContext(), "Failed to get tree - " + e.getMessage(), Toast.LENGTH_LONG).show();
                 }
-
-                Iterator<? extends BoxFile> filesIterator = boxFolder.getFilesInFolder().iterator();
-                while (filesIterator.hasNext()) {
-                    BoxFile boxFile = filesIterator.next();
-                    TreeListItem item = new TreeListItem();
-                    item.id = boxFile.getId();
-                    item.name = boxFile.getFileName();
-                    item.type = TreeListItem.TYPE_FILE;
-                    item.file = boxFile;
-                    item.updated = boxFile.getUpdated();
-                    items[i] = item;
-                    i++;
-                }
-
-                adapter.notifyDataSetChanged();
-                ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
-                progressBar.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onIOException(final IOException e) {
-                Toast.makeText(getApplicationContext(), "Failed to get tree - " + e.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        });
+            });
     }
 
     @Override

@@ -105,6 +105,10 @@ public class BoxFolder extends DAO {
      */
     protected String mPath;
     /**
+     * Represents the path from the root directory to this folder.
+     */
+    protected String mFolderPath;
+    /**
      * A unique identifier of a publicly shared file. This can be used to generate shared page URLs.
      */
     protected String mPublicName;
@@ -287,6 +291,16 @@ public class BoxFolder extends DAO {
      */
     public void setPath(final String pathFromRoot) {
         mPath = pathFromRoot;
+    }
+
+    /**
+     * Set folder path from root.
+     * 
+     * @param pathFromRoot
+     *            path from root
+     */
+    public void setFolderPath(final String pathFromRoot) {
+        mFolderPath = pathFromRoot;
     }
 
     /**
@@ -512,12 +526,21 @@ public class BoxFolder extends DAO {
     }
 
     /**
-     * Get the path from the root to the folder.
+     * Get the path from the root to the folder. In general this method is not useful and returns nothing. Only when using the search api is this populated.
      * 
      * @return path from root
      */
     public String getPath() {
         return mPath;
+    }
+
+    /**
+     * Get the path from the root to the folder.
+     * 
+     * @return path from root
+     */
+    public String getFolderPath() {
+        return mFolderPath;
     }
 
     /**
@@ -584,7 +607,8 @@ public class BoxFolder extends DAO {
     }
 
     /**
-     * Get the folder path ids. NOTE: This currently doesn't return anything.
+     * Get the folder path ids. This will only return values if this BoxFolder was constructed through a getAccountTree() call, and Box.PARAM_SHOW_PATH_IDS is
+     * set.
      * 
      * @return The folder path ids. (e.g. /54325/643563/425)
      */
@@ -774,6 +798,9 @@ public class BoxFolder extends DAO {
         }
         else if (key.equals("folder_path_ids")) {
             setFolderPathIds(value);
+        }
+        else if (key.equals("folder_path")) {
+            setFolderPath(value);
         }
         else if (key.equals("description")) {
             setDescription(value);

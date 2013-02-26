@@ -132,6 +132,14 @@ public class Box {
      */
     public static final String PARAM_COMMENT_COUNT = "comment_count";
     /**
+     * Parameter that can be used in getAccountTree to request that path ids should be returned.
+     */
+    public static final String PARAM_SHOW_PATH_IDS = "show_path_ids";
+    /**
+     * Parameter that can be used in getAccountTree to request that path names should be returned.
+     */
+    public static final String PARAM_SHOW_PATH_NAMES = "show_path_names";
+    /**
      * Used in search to set the sort criteria of results to be by relevance.
      */
     public static final String SORT_RELEVANCE = "relevance";
