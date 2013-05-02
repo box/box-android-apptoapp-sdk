@@ -210,4 +210,19 @@ public class BoxAuthentication extends Activity {
         setResult(AUTH_RESULT_SUCCESS, intent);
         finish();
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // Obviate Dalvik VM crash.
+        if (mLoginWebView != null) {
+            mLoginWebView.removeAllViews();
+            mLoginWebView.stopLoading();
+            mLoginWebView.setWebChromeClient(null);
+            mLoginWebView.setWebViewClient(null);
+            mLoginWebView.destroy();
+            mLoginWebView = null;
+        }
+    }
 }
