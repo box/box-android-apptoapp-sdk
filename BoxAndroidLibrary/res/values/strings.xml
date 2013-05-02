@@ -17,4 +17,7 @@
    ******************************************************************************/
 -->
 <resources>
+
+    <string name="com_box_androidlib_activities_loading">Loading&#8230;</string>
+
 </resources>

@@ -14,6 +14,8 @@ package com.box.androidlib.activities;
 import java.io.IOException;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
@@ -72,6 +74,10 @@ public class BoxAuthentication extends Activity {
      * Delay in milliseconds between each getAuthToken retry.
      */
     private static final int GET_AUTH_TOKEN_INTERVAL = 500;
+    /**
+     * ID of ProgressDialog
+     */
+    public static final int DIALOG_LOADING = 0;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -99,13 +105,16 @@ public class BoxAuthentication extends Activity {
                 else {
                     onGetTicketFail();
                 }
+                removeDialog(DIALOG_LOADING);
             }
 
             @Override
             public void onIOException(final IOException e) {
                 onGetTicketFail();
+                removeDialog(DIALOG_LOADING);
             }
         });
+        showDialog(DIALOG_LOADING);
     }
 
     /**
@@ -224,5 +233,16 @@ public class BoxAuthentication extends Activity {
             mLoginWebView.destroy();
             mLoginWebView = null;
         }
+    }
+
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        if (id == DIALOG_LOADING) {
+            ProgressDialog dlg = new ProgressDialog(this);
+            dlg.setCancelable(false);
+            dlg.setMessage(getString(R.string.com_box_androidlib_activities_loading));
+            return dlg;
+        }
+        return super.onCreateDialog(id);
     }
 }
