@@ -18,12 +18,15 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ProgressBar;
 
 import com.box.androidlib.Box;
 import com.box.androidlib.R;
@@ -127,13 +130,21 @@ public class BoxAuthentication extends Activity {
         // Load the login webpage. Note how the ticket must be appended to the
         // login url.
         String loginUrl = BoxConstants.LOGIN_URL + ticket;
+        final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
         mLoginWebView = (WebView) findViewById(R.id.loginWebView);
         mLoginWebView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
         mLoginWebView.getSettings().setJavaScriptEnabled(true);
         mLoginWebView.setWebViewClient(new WebViewClient() {
+            
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+                progressBar.setVisibility(View.VISIBLE);
+            }
 
             @Override
             public void onPageFinished(final WebView view, final String url) {
+                progressBar.setVisibility(View.GONE);
                 // Listen for page loads and execute Box.getAuthToken() after
                 // each one to see if the user has successfully logged in.
                 getAuthToken(ticket, 0);
@@ -151,6 +162,13 @@ public class BoxAuthentication extends Activity {
                     }
                 }
                 return false;
+            }
+        });
+        mLoginWebView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onProgressChanged(WebView view, int newProgress) {
+                super.onProgressChanged(view, newProgress);
+                progressBar.setProgress(newProgress);
             }
         });
         mLoginWebView.loadUrl(loginUrl);
