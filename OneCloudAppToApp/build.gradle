@@ -1,0 +1,27 @@
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath 'com.android.tools.build:gradle:0.4'
+	}
+}
+
+apply plugin: 'android-library'
+
+android {
+	sourceSets {
+		main {
+			manifest.srcFile 'AndroidManifest.xml'
+			java.srcDirs = ['src']
+			resources.srcDirs = ['src']
+			res.srcDirs = ['res']
+			aidl.srcDirs = ['src']
+		}
+	}
+	buildToolsVersion "17.0"
+	compileSdkVersion 17
+}
+
+group = 'com.box.onecloud.android'
+version = '1.0'
