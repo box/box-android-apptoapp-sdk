@@ -8,6 +8,66 @@ buildscript {
 }
 
 apply plugin: 'android-library'
+apply plugin: 'maven'
+
+group = 'com.box.android'
+archivesBaseName = 'onecloud';
+version = '1.0.0'
+
+repositories {
+	mavenCentral()
+	maven { url releaseRepo }
+	maven { url snapshotRepo }
+}
+
+configurations {
+	archives {
+		extendsFrom configurations.default
+	}
+}
+
+uploadArchives {
+	configuration = configurations.archives
+	repositories.mavenDeployer {
+		repository(url: releaseRepo) {
+			authentication(userName: username,
+				password: password)
+		}
+		snapshotRepository(url: snapshotRepo) {
+			authentication(userName: username,
+				password: password)
+		}
+
+		pom.project {
+			name 'Android OneCloud'
+			packaging 'aar'
+			description 'Android OneCloud library'
+			url 'https://github.com/box/box-android-sdk'
+
+			scm {
+				url 'scm:git@github.com:box/box-android-sdk.git'
+				connection 'scm:git@github.com:box/box-android-sdk.git'
+				developerConnection 'scm:git@github.com:box/box-android-sdk.git'
+			}
+
+			licenses {
+				license {
+					name 'The Apache Software License, Version 2.0'
+					url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+					distribution 'repo'
+				}
+			}
+
+			developers {
+				developer {
+					id 'gcurtis'
+					name 'Greg Curtis'
+					email 'gcurtis@box.com'
+				}
+			}
+		}
+	}
+}
 
 android {
 	sourceSets {
@@ -19,9 +79,6 @@ android {
 			aidl.srcDirs = ['src']
 		}
 	}
-	buildToolsVersion "17.0"
-	compileSdkVersion 17
+	buildToolsVersion "18.0.1"
+	compileSdkVersion 18
 }
-
-group = 'com.box.onecloud.android'
-version = '1.0'
