@@ -164,11 +164,11 @@ public class BoxFileUpload {
         }
         // Set up post body
         final HttpPost post = new HttpPost(builder.build().toString());
-        final MultipartEntityWithProgressListener reqEntity = new MultipartEntityWithProgressListener(HttpMultipartMode.BROWSER_COMPATIBLE, null,
-            Charset.forName(HTTP.UTF_8));
+        final MultipartEntity reqEntity;
 
         if (mListener != null && mHandler != null) {
-            reqEntity.setProgressListener(new MultipartEntityWithProgressListener.ProgressListener() {
+            reqEntity = new MultipartEntityWithProgressListener(HttpMultipartMode.BROWSER_COMPATIBLE, null, Charset.forName(HTTP.UTF_8));
+            ((MultipartEntityWithProgressListener)reqEntity).setProgressListener(new MultipartEntityWithProgressListener.ProgressListener() {
 
                 @Override
                 public void onTransferred(final long bytesTransferredCumulative) {
@@ -181,6 +181,8 @@ public class BoxFileUpload {
                     });
                 }
             });
+        } else {
+            reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE, null, Charset.forName(HTTP.UTF_8));
         }
 
         reqEntity.addPart("file_name", new InputStreamBody(sourceInputStream, filename) {

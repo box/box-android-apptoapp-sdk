@@ -229,7 +229,9 @@ public class BoxFileDownload {
                             mHandler.post(mOnProgressRunnable);
                         }
                     }
-                    mHandler.post(mOnProgressRunnable);
+                    if (mListener != null && mHandler != null) {
+                        mHandler.post(mOnProgressRunnable);
+                    }
                 }
                 for (int i = 0; i < destinationOutputStreams.length; i++) {
                     destinationOutputStreams[i].close();
