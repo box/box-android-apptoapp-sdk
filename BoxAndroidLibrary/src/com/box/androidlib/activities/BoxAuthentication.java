@@ -14,14 +14,19 @@ package com.box.androidlib.activities;
 import java.io.IOException;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ProgressBar;
 
 import com.box.androidlib.Box;
 import com.box.androidlib.R;
@@ -72,6 +77,10 @@ public class BoxAuthentication extends Activity {
      * Delay in milliseconds between each getAuthToken retry.
      */
     private static final int GET_AUTH_TOKEN_INTERVAL = 500;
+    /**
+     * ID of ProgressDialog
+     */
+    public static final int DIALOG_LOADING = 0;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -99,13 +108,16 @@ public class BoxAuthentication extends Activity {
                 else {
                     onGetTicketFail();
                 }
+                removeDialog(DIALOG_LOADING);
             }
 
             @Override
             public void onIOException(final IOException e) {
                 onGetTicketFail();
+                removeDialog(DIALOG_LOADING);
             }
         });
+        showDialog(DIALOG_LOADING);
     }
 
     /**
@@ -118,13 +130,21 @@ public class BoxAuthentication extends Activity {
         // Load the login webpage. Note how the ticket must be appended to the
         // login url.
         String loginUrl = BoxConstants.LOGIN_URL + ticket;
+        final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
         mLoginWebView = (WebView) findViewById(R.id.loginWebView);
         mLoginWebView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
         mLoginWebView.getSettings().setJavaScriptEnabled(true);
         mLoginWebView.setWebViewClient(new WebViewClient() {
+            
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+                progressBar.setVisibility(View.VISIBLE);
+            }
 
             @Override
             public void onPageFinished(final WebView view, final String url) {
+                progressBar.setVisibility(View.GONE);
                 // Listen for page loads and execute Box.getAuthToken() after
                 // each one to see if the user has successfully logged in.
                 getAuthToken(ticket, 0);
@@ -142,6 +162,13 @@ public class BoxAuthentication extends Activity {
                     }
                 }
                 return false;
+            }
+        });
+        mLoginWebView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onProgressChanged(WebView view, int newProgress) {
+                super.onProgressChanged(view, newProgress);
+                progressBar.setProgress(newProgress);
             }
         });
         mLoginWebView.loadUrl(loginUrl);
@@ -209,5 +236,31 @@ public class BoxAuthentication extends Activity {
         intent.putExtra("AUTH_TOKEN", authToken);
         setResult(AUTH_RESULT_SUCCESS, intent);
         finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // Obviate Dalvik VM crash.
+        if (mLoginWebView != null) {
+            mLoginWebView.removeAllViews();
+            mLoginWebView.stopLoading();
+            mLoginWebView.setWebChromeClient(null);
+            mLoginWebView.setWebViewClient(null);
+            mLoginWebView.destroy();
+            mLoginWebView = null;
+        }
+    }
+
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        if (id == DIALOG_LOADING) {
+            ProgressDialog dlg = new ProgressDialog(this);
+            dlg.setCancelable(false);
+            dlg.setMessage(getString(R.string.com_box_androidlib_activities_loading));
+            return dlg;
+        }
+        return super.onCreateDialog(id);
     }
 }

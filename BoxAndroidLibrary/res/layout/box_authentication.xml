@@ -14,14 +14,23 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and 
 limitations under the License.
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
+
 	<WebView
 	    android:id="@+id/loginWebView"
 	    android:layout_width="fill_parent" 
 	    android:layout_height="fill_parent" 
 	    />
-</LinearLayout>
+	
+	<ProgressBar
+        android:id="@+id/progressBar"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="6dip"
+        android:visibility="gone"
+        />
+
+</FrameLayout>
